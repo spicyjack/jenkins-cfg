@@ -7,8 +7,7 @@
 # Download a file if it doesn't exist on the local filesystem
 
 ### FUNCTIONS ###
-function check_exit_status()
-{
+check_exit_status () {
     EXIT_STATUS=$1
     DESC=$2
     OUTPUT=$3
@@ -25,7 +24,7 @@ function check_exit_status()
             echo $OUTPUT
        fi
     fi
-} # function check_exit_status
+} # check_exit_status
 
 ### MAIN SCRIPT ###
 # what's my name?

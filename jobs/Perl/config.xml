@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Perl for x86_64 systems</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SOURCE_DIR</name>
+          <description>Path to source code directory</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BUILD_PERL_VERSION</name>
+          <description>The version of Perl to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.16.2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PERL_TARBALL</name>
+          <description>Name of the Perl source tarball file</description>
+          <defaultValue>perl-${BUILD_PERL_VERSION}.tar.gz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD
+if [ ! -e $SOURCE_DIR/$PERL_TARBALL ]; then
+  if [ ! -d $SOURCE_DIR ]; then
+    mkdir $SOURCE_DIR
+  fi
+  # download the perl tarball, save the logs from wget
+  wget -O $SOURCE_DIR/$PERL_TARBALL \
+    -o $WORKSPACE/wget.log \
+    http://www.cpan.org/src/5.0/$PERL_TARBALL
+else
+  echo &quot;Perl already exists in ${SOURCE_DIR}&quot;
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE
+
+# always unpack fresh source
+if [ -d perl-${BUILD_PERL_VERSION} ]; then
+  rm -rf perl-${BUILD_PERL_VERSION}
+fi
+
+tar -zxvf $SOURCE_DIR/$PERL_TARBALL
+
+cd perl-${BUILD_PERL_VERSION}
+
+# now run Configure
+echo &quot;Current directory is: $(pwd)&quot;
+# -de = use defaults, go on without questions
+# there&apos;s a test in Configure for which file descriptor is connected
+# to Configure, the wrong file descriptor exits Configure
+sh Configure -de \
+  -Dprefix=&quot;${WORKSPACE}/perl-${BUILD_PERL_VERSION}-bin&quot; \
+  -Dusethreads -Duserelocatableinc</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## BUILD AND TEST
+cd perl-${BUILD_PERL_VERSION}
+time make
+time make test
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## ARCHIVE AND DELETE BUILD DIR
+# -J == xz compression
+tar -cJvf $WORKSPACE/perl-${BUILD_PERL_VERSION}.artifact.tar.xz \
+  $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin
+# remove the old install directory
+rm -rf $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.chucknorris.CordellWalkerRecorder plugin="chucknorris@0.4">
+      <factGenerator/>
+    </hudson.plugins.chucknorris.CordellWalkerRecorder>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>perl-${BUILD_PERL_VERSION}.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>

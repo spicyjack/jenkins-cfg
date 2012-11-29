@@ -36,7 +36,7 @@ QUIET=0
 
 ### SCRIPT SETUP ###
 # BSD's getopt is simpler than the GNU getopt; we need to detect it
-OSDETECT=$(/usr/bin/uname -s)
+OSDETECT=$(/usr/bin/env uname -s)
 if [ $OSDETECT == "Darwin" ]; then
     # this is the BSD part
     TEMP=$(/usr/bin/getopt f:hl:o:qu: $* 2>/dev/null)

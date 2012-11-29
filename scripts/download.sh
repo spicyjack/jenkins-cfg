@@ -37,10 +37,10 @@ QUIET=0
 ### SCRIPT SETUP ###
 # BSD's getopt is simpler than the GNU getopt; we need to detect it
 OSDETECT=$(/usr/bin/env uname -s)
-if [ $OSDETECT == "Darwin" ]; then
+if [ $OSDETECT = "Darwin" ]; then
     # this is the BSD part
     TEMP=$(/usr/bin/getopt f:hl:o:qu: $* 2>/dev/null)
-elif [ $OSDETECT == "Linux" ]; then
+elif [ $OSDETECT = "Linux" ]; then
     # and this is the GNU part
     TEMP=$(/usr/bin/getopt -o f:hl:o:qu: \
         --long file:,help,log:,outdir:,quiet,url: \
@@ -59,7 +59,7 @@ if [ $# -eq 0 ] ; then
     exit 1
 fi
 
-function show_help () {
+show_help () {
 cat <<-EOF
 
     ${SCRIPTNAME} [options]

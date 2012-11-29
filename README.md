@@ -8,3 +8,7 @@ Directory layout:
   - download.sh - Downloads files using wget; creates destination directory if
     it doesn't exist, and optionally logs wget output so it's available, but
     not logged as part of the Jenkins logs
+
+### Todo ###
+- Document how to restore the config.xml file on top of a fresh Jenkins
+  install

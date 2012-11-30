@@ -39,11 +39,11 @@ QUIET=0
 OSDETECT=$(/usr/bin/env uname -s)
 if [ $OSDETECT = "Darwin" ]; then
     # this is the BSD part
-    TEMP=$(/usr/bin/getopt f:hl:o:qu: $* 2>/dev/null)
+    TEMP=$(/usr/bin/getopt hqd: $* 2>/dev/null)
 elif [ $OSDETECT = "Linux" ]; then
     # and this is the GNU part
-    TEMP=$(/usr/bin/getopt -o f:hl:o:qu: \
-        --long file:,help,log:,outdir:,quiet,url: \
+    TEMP=$(/usr/bin/getopt -o hqd: \
+        --long help,quiet,deps:,dependencies: \
         -n "${SCRIPTNAME}" -- "$@")
 else
     echo "Error: Unknown OS Type.  I don't know how to call"

@@ -2,6 +2,12 @@
 <project>
   <actions/>
   <description>Perl for x86_64 systems</description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
@@ -13,7 +19,7 @@
           <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>BUILD_PERL_VERSION</name>
+          <name>PERL_VERSION</name>
           <description>The version of Perl to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -24,7 +30,7 @@
         <hudson.model.StringParameterDefinition>
           <name>PERL_TARBALL</name>
           <description>Name of the Perl source tarball file</description>
-          <defaultValue>perl-${BUILD_PERL_VERSION}.tar.gz</defaultValue>
+          <defaultValue>perl-${PERL_VERSION}.tar.gz</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -38,18 +44,16 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
+      <command>## UPDATE JENKINS-CFG
+cd $HOME/src/jenkins-cfg.git
+git pull</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
       <command>## DOWNLOAD
-if [ ! -e $SOURCE_DIR/$PERL_TARBALL ]; then
-  if [ ! -d $SOURCE_DIR ]; then
-    mkdir $SOURCE_DIR
-  fi
-  # download the perl tarball, save the logs from wget
-  wget -O $SOURCE_DIR/$PERL_TARBALL \
-    -o $WORKSPACE/wget.log \
-    http://www.cpan.org/src/5.0/$PERL_TARBALL
-else
-  echo &quot;Perl already exists in ${SOURCE_DIR}&quot;
-fi</command>
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $PERL_TARBALL \
+  --url http://www.cpan.org/src/5.0 \
+  --log $WORKSPACE/wget.log \
+  --outdir $HOME/$SOURCE_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## UNPACK AND CONFIGURE
@@ -82,16 +86,17 @@ time make install</command>
     <hudson.tasks.Shell>
       <command>## ARCHIVE AND DELETE BUILD DIR
 # -J == xz compression
-tar -cJvf $WORKSPACE/perl-${BUILD_PERL_VERSION}.artifact.tar.xz \
-  $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin
+
+# we need to tar from inside the -bin directory to remove leading paths
+cd $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin
+
+tar -cJvf $WORKSPACE/perl-${BUILD_PERL_VERSION}.artifact.tar.xz .
+
 # remove the old install directory
 rm -rf $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.chucknorris.CordellWalkerRecorder plugin="chucknorris@0.4">
-      <factGenerator/>
-    </hudson.plugins.chucknorris.CordellWalkerRecorder>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>perl-${BUILD_PERL_VERSION}.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>

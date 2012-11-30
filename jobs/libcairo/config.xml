@@ -2,6 +2,12 @@
 <project>
   <actions/>
   <description>Build GTK Cairo library, including dependencies</description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
@@ -13,7 +19,7 @@
           <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>BUILD_LIBCAIRO_VERSION</name>
+          <name>LIBCAIRO_VERSION</name>
           <description>Version of libcairo to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -24,7 +30,26 @@
         <hudson.model.StringParameterDefinition>
           <name>LIBCAIRO_TARBALL</name>
           <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>cairo-${BUILD_LIBCAIRO_VERSION}.tar.xz</defaultValue>
+          <defaultValue>cairo-${LIBCAIRO_VERSION}.tar.xz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>_LIBPIXMAN_VERSION</name>
+          <description>Version of libpixman to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0.28.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LIBPIXMAN_TARBALL</name>
+          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
+          <defaultValue>pixman-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>FOO_BAR</name>
+          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
+          <defaultValue>foo-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -38,57 +63,109 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD
-if [ ! -e $SOURCE_DIR/$LIBCAIRO_TARBALL ]; then
-  if [ ! -d $SOURCE_DIR ]; then
-    mkdir $SOURCE_DIR
-  fi
-  # download the perl tarball, save the logs from wget
-  wget -O $SOURCE_DIR/$LIBCAIRO_TARBALL \
-    -o $WORKSPACE/wget.log \
-    http://www.cairographics.org/releases/${LIBCAIRO_TARBALL}
-else
-  echo &quot;${JOB_NAME} already exists in ${SOURCE_DIR}&quot;
-fi</command>
+      <command>## UPDATE JENKINS-CFG
+cd $HOME/src/jenkins-cfg.git
+git pull
+
+echo &quot;libpixman version is ${_LIBPIXMAN_VERSION}&quot;
+echo &quot;libpixman tarball is ${LIBPIXMAN_TARBALL}&quot;
+echo &quot;foobar is ${FOO_BAR}&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE
+      <command>## PACKAGE DEPENDENCY CHECK
+
+# libpixman
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;
+
+# libcairo
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD LIBPIXMAN
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
+  --url http://www.cairographics.org/releases \
+  --log $WORKSPACE/wget.libpixman.log \
+  --outdir $SOURCE_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE LIBPIXMAN
 
 # always unpack fresh source
-if [ -d cairo-${BUILD_LIBCAIRO_VERSION} ]; then
-  rm -rf cairo-${BUILD_LIBCAIRO_VERSION}
+if [ -d pixman-${LIBPIXMAN_VERSION} ]; then
+  rm -rf pixman-${LIBPIXMAN_VERSION}
 fi
 
-# -J == xz compression
-tar -Jxvf $SOURCE_DIR/$LIBCAIRO_TARBALL
+tar -zxvf $SOURCE_DIR/$LIBPIXMAN_TARBALL
 
-cd cairo-${BUILD_LIBCAIRO_VERSION}
+cd pixman-${LIBPIXMAN_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
-./configure --prefix=../cairo-${BUILD_LIBCAIRO_VERSION}-bin \
-  --enable-xlib --enable-drm --enable-png </command>
+./configure --prefix=${WORKSPACE}/pixman-${LIPIXMAN_VERSION}-bin</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD AND TEST
-cd cairo-${BUILD_LIBCAIRO_VERSION}
+      <command>## BUILD AND TEST LIBPIXMAN
+cd cairo-${LIBPIXMAN_VERSION}
 time make
 time make test
 time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## ARCHIVE AND DELETE BUILD DIR
+      <command>## DOWNLOAD LIBCAIRO
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBCAIRO_TARBALL \
+  --url http://www.cairographics.org/releases \
+  --log $WORKSPACE/wget.libcairo.log \
+  --outdir $SOURCE_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE LIBCAIRO
+
+# always unpack fresh source
+if [ -d cairo-${LIBCAIRO_VERSION} ]; then
+  rm -rf cairo-${LIBCAIRO_VERSION}
+fi
+
 # -J == xz compression
-tar -cJvf $WORKSPACE/libcairo-${BUILD_LIBCAIRO_VERSION}.artifact.tar.xz \
-  $WORKSPACE/cairo-${BUILD_LIBCAIRO_VERSION}-bin
-# remove the old install directory
-rm -rf $WORKSPACE/cairo-${BUILD_LIBCAIRO_VERSION}-bin</command>
+tar -Jxvf $SOURCE_DIR/$LIBCAIRO_TARBALL
+
+cd cairo-${LIBCAIRO_VERSION}
+
+# now run Configure
+echo &quot;Current directory is: $(pwd)&quot;
+./configure --prefix=${WORKSPACE}/cairo-${LIBCAIRO_VERSION}-bin \
+  --enable-xlib --enable-png </command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## BUILD AND TEST LIBCAIRO
+cd cairo-${LIBCAIRO_VERSION}
+time make
+time make test
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## ARCHIVE BINARY BUILDS
+# -J == xz compression
+
+# pixman
+cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+tar -cJvf $WORKSPACE/libpixman-${LIBPIXMAN_VERSION}.artifact.tar.xz .
+
+# cairo
+cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
+tar -cJvf $WORKSPACE/libcairo-${LIBCAIRO_VERSION}.artifact.tar.xz .
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DELETE BUILD DIRS
+
+# pixman
+rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+
+# cairo
+rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
-    <hudson.plugins.chucknorris.CordellWalkerRecorder plugin="chucknorris@0.4">
-      <factGenerator/>
-    </hudson.plugins.chucknorris.CordellWalkerRecorder>
     <hudson.tasks.ArtifactArchiver>
       <artifacts></artifacts>
       <latestOnly>false</latestOnly>

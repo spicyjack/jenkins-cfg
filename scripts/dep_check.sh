@@ -24,4 +24,7 @@ do
   fi
 done
 
+if [ $EXIT_STATUS -ne 0 ]; then
+    echo "ERROR: Missing required dependencies"
+fi
 exit $EXIT_STATUS

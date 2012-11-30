@@ -44,7 +44,7 @@ elif [ $OSDETECT = "Linux" ]; then
     # and this is the GNU part
     TEMP=$(/usr/bin/getopt -o f:hl:o:qu: \
         --long file:,help,log:,outdir:,quiet,url: \
-        -n '${SCRIPTNAME}' -- "$@")
+        -n "${SCRIPTNAME}" -- "$@")
 else
     echo "Error: Unknown OS Type.  I don't know how to call"
     echo "'getopts' correctly for this operating system.  Exiting..."

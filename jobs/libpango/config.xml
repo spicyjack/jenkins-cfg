@@ -1,0 +1,174 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build GTK Cairo library, including dependencies</description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>SOURCE_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>_LIBPANGO_VERSION</name>
+          <description>Version of libpango to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.32.3</string>
+              <string>1.32.2</string>
+              <string>1.32.1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LIBPANGO_TARBALL</name>
+          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
+          <defaultValue>pango-${_LIBPANGO_VERSION}.tar.xz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>_LIBPIXMAN_VERSION</name>
+          <description>Version of libpixman to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0.28.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LIBPIXMAN_TARBALL</name>
+          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
+          <defaultValue>pixman-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>## UPDATE JENKINS-CFG
+cd $HOME/src/jenkins-cfg.git
+git pull</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DELETE OUTPUT DIRS
+
+# both
+rm -rf $WORKSPACE/output
+
+# pixman
+#rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+
+# cairo
+#rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## PACKAGE DEPENDENCY CHECK
+
+# libpixman
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;
+
+# libcairo
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD LIBPIXMAN
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
+#  --url http://www.cairographics.org/releases \
+#  --log $WORKSPACE/wget.libpixman.log \
+#  --outdir $SOURCE_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE LIBPIXMAN
+
+# always unpack fresh source
+#if [ -d pixman-${_LIBPIXMAN_VERSION} ]; then
+#  rm -rf pixman-${_LIBPIXMAN_VERSION}
+#fi
+
+#tar -zxvf $SOURCE_DIR/$LIBPIXMAN_TARBALL
+
+#cd pixman-${_LIBPIXMAN_VERSION}
+
+# now run Configure
+#echo &quot;Current directory is: $(pwd)&quot;
+#./configure --prefix=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin
+#./configure --prefix=${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## BUILD AND TEST LIBPIXMAN
+#cd pixman-${_LIBPIXMAN_VERSION}
+#time make
+#time make test
+#time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD LIBPANGO
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPANGO_TARBALL \
+  --url http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/ \
+  --log $WORKSPACE/wget.libpango.log \
+  --outdir $SOURCE_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE LIBPANGO
+
+# always unpack fresh source
+if [ -d pango-${_LIBPANGO_VERSION} ]; then
+  rm -rf pango-${_LIBPANGO_VERSION}
+fi
+
+# -J == xz compression
+tar -Jxvf $SOURCE_DIR/$LIBPANGO_TARBALL
+
+cd pango-${_LIBPANGO_VERSION}
+
+# now run Configure
+#PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
+./configure --prefix=${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## BUILD AND TEST LIBPANGO
+cd pango-${_LIBPANGO_VERSION}
+time make
+time make test
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## ARCHIVE BINARY BUILDS
+# -J == xz compression
+
+# pixman
+#cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+#tar -cJvf $WORKSPACE/libpixman-${_LIBPIXMAN_VERSION}.artifact.tar.xz .
+
+# cairo
+#cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
+#tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
+
+cd $WORKSPACE/output
+tar -cJvf $WORKSPACE/libpango-${_LIBPANGO_VERSION}.artifact.tar.xz .
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>libpango-${_LIBPANGO_VERSION}.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>

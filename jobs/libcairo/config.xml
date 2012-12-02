@@ -23,6 +23,8 @@
           <description>Version of libcairo to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>1.12.2</string>
+              <string>1.12.4</string>
               <string>1.12.8</string>
             </a>
           </choices>
@@ -63,6 +65,18 @@ cd $HOME/src/jenkins-cfg.git
 git pull</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
+      <command>## DELETE OUTPUT DIRS
+
+# both
+rm -rf $WORKSPACE/output
+
+# pixman
+#rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+
+# cairo
+#rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
       <command>## PACKAGE DEPENDENCY CHECK
 
 # libpixman
@@ -92,7 +106,8 @@ cd pixman-${_LIBPIXMAN_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
-./configure --prefix=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin</command>
+#./configure --prefix=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin
+./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## BUILD AND TEST LIBPIXMAN
@@ -123,15 +138,17 @@ cd cairo-${_LIBCAIRO_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
-PKG_CONFIG_PATH=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin/lib/pkgconfig \
-  ./configure --prefix=${WORKSPACE}/cairo-${_LIBCAIRO_VERSION}-bin \
+#  ./configure --prefix=${WORKSPACE}/cairo-${_LIBCAIRO_VERSION}-bin \
+#PKG_CONFIG_PATH=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin/lib/pkgconfig \
+PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
+  ./configure --prefix=${WORKSPACE}/output \
   --enable-xlib --enable-png</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## BUILD AND TEST LIBCAIRO
 cd cairo-${_LIBCAIRO_VERSION}
 time make
-time make test
+time make test TARGETS=xlib,xlib-render-0_0
 time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -139,27 +156,20 @@ time make install</command>
 # -J == xz compression
 
 # pixman
-cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-tar -cJvf $WORKSPACE/libpixman-${_LIBPIXMAN_VERSION}.artifact.tar.xz .
+#cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
+#tar -cJvf $WORKSPACE/libpixman-${_LIBPIXMAN_VERSION}.artifact.tar.xz .
 
 # cairo
-cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
+#cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
+#tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
+cd $WORKSPACE/output
 tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
 </command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## DELETE BUILD DIRS
-
-# pixman
-rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-
-# cairo
-rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts></artifacts>
+      <artifacts>libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

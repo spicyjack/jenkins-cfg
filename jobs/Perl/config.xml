@@ -19,7 +19,7 @@
           <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>PERL_VERSION</name>
+          <name>_PERL_VERSION</name>
           <description>The version of Perl to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -30,7 +30,7 @@
         <hudson.model.StringParameterDefinition>
           <name>PERL_TARBALL</name>
           <description>Name of the Perl source tarball file</description>
-          <defaultValue>perl-${PERL_VERSION}.tar.gz</defaultValue>
+          <defaultValue>perl-${_PERL_VERSION}.tar.gz</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -59,13 +59,13 @@ git pull</command>
       <command>## UNPACK AND CONFIGURE
 
 # always unpack fresh source
-if [ -d perl-${BUILD_PERL_VERSION} ]; then
-  rm -rf perl-${BUILD_PERL_VERSION}
+if [ -d perl-${_PERL_VERSION} ]; then
+  rm -rf perl-${_PERL_VERSION}
 fi
 
 tar -zxvf $SOURCE_DIR/$PERL_TARBALL
 
-cd perl-${BUILD_PERL_VERSION}
+cd perl-${_PERL_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
@@ -73,12 +73,12 @@ echo &quot;Current directory is: $(pwd)&quot;
 # there&apos;s a test in Configure for which file descriptor is connected
 # to Configure, the wrong file descriptor exits Configure
 sh Configure -de \
-  -Dprefix=&quot;${WORKSPACE}/perl-${BUILD_PERL_VERSION}-bin&quot; \
+  -Dprefix=&quot;${WORKSPACE}/perl-${_PERL_VERSION}-bin&quot; \
   -Dusethreads -Duserelocatableinc</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## BUILD AND TEST
-cd perl-${BUILD_PERL_VERSION}
+cd perl-${_PERL_VERSION}
 time make
 time make test
 time make install</command>
@@ -88,17 +88,17 @@ time make install</command>
 # -J == xz compression
 
 # we need to tar from inside the -bin directory to remove leading paths
-cd $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin
+cd $WORKSPACE/perl-${_PERL_VERSION}-bin
 
-tar -cJvf $WORKSPACE/perl-${BUILD_PERL_VERSION}.artifact.tar.xz .
+tar -cJvf $WORKSPACE/perl-${_PERL_VERSION}.artifact.tar.xz .
 
 # remove the old install directory
-rm -rf $WORKSPACE/perl-${BUILD_PERL_VERSION}-bin</command>
+rm -rf $WORKSPACE/perl-${_PERL_VERSION}-bin</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>perl-${BUILD_PERL_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>perl-${_PERL_VERSION}.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

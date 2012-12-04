@@ -35,18 +35,20 @@
           <defaultValue>glib-${_LIBGLIB_VERSION}.tar.xz</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBPIXMAN_VERSION</name>
+          <name>_LIBFFI_VERSION</name>
           <description>Version of libpixman to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.28.0</string>
+              <string>3.0.11</string>
+              <string>3.0.10</string>
+              <string>3.0.9</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>LIBPIXMAN_TARBALL</name>
+          <name>LIBFFI_TARBALL</name>
           <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>pixman-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
+          <defaultValue>libffi-${_LIBFFI_VERSION}.tar.gz</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -68,52 +70,45 @@ git pull</command>
       <command>## DELETE OUTPUT DIRS
 
 # both
-rm -rf $WORKSPACE/output
-
-# pixman
-#rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-
-# cairo
-#rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
+rm -rf $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## PACKAGE DEPENDENCY CHECK
 
-# libpixman
+# libffi
 #/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;
 
 # libglib
 #/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD LIBPIXMAN
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
-#  --url http://www.cairographics.org/releases \
-#  --log $WORKSPACE/wget.libpixman.log \
-#  --outdir $SOURCE_DIR</command>
+      <command>## DOWNLOAD LIBFFI
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBFFI_TARBALL \
+  --url ftp://sourceware.org/pub/libffi \
+  --log $WORKSPACE/wget.libffi.log \
+  --outdir $SOURCE_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## UNPACK AND CONFIGURE LIBPIXMAN
 
 # always unpack fresh source
-if [ -d pixman-${_LIBPIXMAN_VERSION} ]; then
-  rm -rf pixman-${_LIBPIXMAN_VERSION}
+if [ -d libffi-${_LIBFFI_VERSION} ]; then
+  rm -rf libffi-${_LIBFFI_VERSION}
 fi
 
-#tar -zxvf $SOURCE_DIR/$LIBPIXMAN_TARBALL
+tar -zxvf $SOURCE_DIR/$LIBFFI_TARBALL
 
-#cd pixman-${_LIBPIXMAN_VERSION}
+cd libffi-${_LIBFFI_VERSION}
 
 # now run Configure
-#./configure --prefix=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin
-#./configure --prefix=${WORKSPACE}/output</command>
+./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD AND TEST LIBPIXMAN
-#cd pixman-${_LIBPIXMAN_VERSION}
-#time make
-#time make test
-#time make install</command>
+      <command>## BUILD LIBFFI
+cd libffi-${_LIBFFI_VERSION}
+time make
+# no test suite
+time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## DOWNLOAD LIBGLIB
@@ -137,12 +132,12 @@ cd glib-${_LIBGLIB_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
-#PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
-./configure --prefix=${WORKSPACE}/output</command>
+PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
+  ./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## BUILD AND TEST LIBGLIB
-cd cairo-${_LIBGLIB_VERSION}
+cd glib-${_LIBGLIB_VERSION}
 time make
 time make test
 time make install</command>
@@ -151,14 +146,6 @@ time make install</command>
       <command>## ARCHIVE BINARY BUILDS
 # -J == xz compression
 
-# pixman
-#cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-#tar -cJvf $WORKSPACE/libpixman-${_LIBPIXMAN_VERSION}.artifact.tar.xz .
-
-# glib
-#cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
-#tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
-
 cd $WORKSPACE/output
 tar -cJvf $WORKSPACE/libglib-${_LIBGLIB_VERSION}.artifact.tar.xz .
 </command>
@@ -166,7 +153,7 @@ tar -cJvf $WORKSPACE/libglib-${_LIBGLIB_VERSION}.artifact.tar.xz .
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>libglib-${_LIBGLIB_VERSION}.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

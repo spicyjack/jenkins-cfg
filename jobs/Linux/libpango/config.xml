@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build GTK Cairo library, including dependencies</description>
+  <description>Build GTK Pango library, including dependencies</description>
   <logRotator>
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -35,18 +35,19 @@
           <defaultValue>pango-${_LIBPANGO_VERSION}.tar.xz</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBPIXMAN_VERSION</name>
-          <description>Version of libpixman to build</description>
+          <name>_FONTCONFIG_VERSION</name>
+          <description>Version of fontconfig to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.28.0</string>
+              <string>2.10.2</string>
+              <string>2.10.1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>LIBPIXMAN_TARBALL</name>
+          <name>FONTCONFIG_TARBALL</name>
           <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>pixman-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
+          <defaultValue>fontconfig-${_FONTCONFIG_VERSION}.tar.bz2</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -69,12 +70,15 @@ git pull</command>
 
 # both
 rm -rf $WORKSPACE/output
-
-# pixman
-#rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-
-# cairo
-#rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
+rm -rf $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD AND UNPACK ARTIFACTS
+CAIRO_ARTIFACT_URL=&quot;http://localhost:8080/jenkins/job/libcairo/lastSuccessfulBuild/artifact&quot;
+wget -O $WORKSPACE/libcairo.artifact.tar.xz $CAIRO_ARTIFACT_URL/libcairo.artifact.tar.xz
+mkdir -p $WORKSPACE/artifacts
+cd $WORKSPACE/artifacts
+tar -Jxvf $WORKSPACE/libcairo.artifact.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## PACKAGE DEPENDENCY CHECK
@@ -86,35 +90,33 @@ rm -rf $WORKSPACE/output
 #/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD LIBPIXMAN
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
-#  --url http://www.cairographics.org/releases \
-#  --log $WORKSPACE/wget.libpixman.log \
-#  --outdir $SOURCE_DIR</command>
+      <command>## DOWNLOAD FONTCONFIG
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $FONTCONFIG_TARBALL \
+  --url http://www.freedesktop.org/software/fontconfig/release \
+  --log $WORKSPACE/wget.fontconfig.log \
+  --outdir $SOURCE_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE LIBPIXMAN
+      <command>## UNPACK AND CONFIGURE FONTCONFIG
 
 # always unpack fresh source
-#if [ -d pixman-${_LIBPIXMAN_VERSION} ]; then
-#  rm -rf pixman-${_LIBPIXMAN_VERSION}
-#fi
+if [ -d fontconfig-${_FONTCONFIG_VERSION} ]; then
+  rm -rf fontconfig-${_FONTCONFIG_VERSION}
+fi
 
-#tar -zxvf $SOURCE_DIR/$LIBPIXMAN_TARBALL
+tar -jxvf $SOURCE_DIR/$FONTCONFIG_TARBALL
 
-#cd pixman-${_LIBPIXMAN_VERSION}
+cd fontconfig-${_FONTCONFIG_VERSION}
 
 # now run Configure
-#echo &quot;Current directory is: $(pwd)&quot;
-#./configure --prefix=${WORKSPACE}/pixman-${_LIBPIXMAN_VERSION}-bin
-#./configure --prefix=${WORKSPACE}/output</command>
+./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD AND TEST LIBPIXMAN
-#cd pixman-${_LIBPIXMAN_VERSION}
-#time make
-#time make test
-#time make install</command>
+      <command>## BUILD AND TEST FONTCONFIG
+cd fontconfig-${_FONTCONFIG_VERSION}
+time make
+time make test
+time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## DOWNLOAD LIBPANGO
@@ -137,7 +139,7 @@ tar -Jxvf $SOURCE_DIR/$LIBPANGO_TARBALL
 cd pango-${_LIBPANGO_VERSION}
 
 # now run Configure
-#PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 ./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -151,22 +153,16 @@ time make install</command>
       <command>## ARCHIVE BINARY BUILDS
 # -J == xz compression
 
-# pixman
-#cd $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-#tar -cJvf $WORKSPACE/libpixman-${_LIBPIXMAN_VERSION}.artifact.tar.xz .
-
-# cairo
-#cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
-#tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
-
+ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
 cd $WORKSPACE/output
-tar -cJvf $WORKSPACE/libpango-${_LIBPANGO_VERSION}.artifact.tar.xz .
-</command>
+touch libpango-${_LIBPANGO_VERSION}.${ARTIFACT_TIMESTAMP}
+touch fontconfig-${_FONTCONFIG_VERSION}.${ARTIFACT_TIMESTAMP}
+tar -cJvf $WORKSPACE/libpango.artifact.tar.xz .</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libpango-${_LIBPANGO_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>libpango.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

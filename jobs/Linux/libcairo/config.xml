@@ -162,14 +162,19 @@ time make install</command>
 # cairo
 #cd $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin
 #tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
+
+ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
+
+# create the artifact file and flag file
 cd $WORKSPACE/output
-tar -cJvf $WORKSPACE/libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz .
-</command>
+touch libcairo-${_LIBCAIRO_VERSION}.${ARTIFACT_TIMESTAMP}
+# DON&apos;T USE $PWD HERE, it captures the entire path, which is not what you want
+tar -cJvf $WORKSPACE/libcairo.artifact.tar.xz .</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libcairo-${_LIBCAIRO_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>libcairo.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

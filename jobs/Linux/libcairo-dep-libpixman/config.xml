@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build libpixman for libcairo</description>
+  <logRotator>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>LIBPIXMAN_VERSION</name>
+          <description>Version of libpixman to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0.28.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>LIBPIXMAN_TARBALL</name>
+          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
+          <defaultValue>pixman-${LIBPIXMAN_VERSION}.tar.gz</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>SOURCE_DIR</name>
+          <description>Name of the directory containing source code, and where the building of source code takes place</description>
+          <defaultValue>pixman-${LIBPIXMAN_VERSION}</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>## CHECK BUILD VARIABLES
+if [ ! -d $TARBALL_DIR ]; then
+  echo &quot;TARBALL_DIR does not exist&quot;
+  echo ${TARBALL_DIR}
+  exit 1
+fi
+if [ &quot;x${LIBPIXMAN_VERSION}&quot; = &quot;x&quot; ]; then
+  echo &quot;LIBPIXMAN_VERSION not set&quot;
+  exit 1
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UPDATE JENKINS-CFG
+cd $HOME/src/jenkins-cfg.git
+git pull</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DELETE OUTPUT DIRS
+rm -rf $WORKSPACE/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## DOWNLOAD LIBPIXMAN
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
+  --url http://www.cairographics.org/releases \
+  --log $WORKSPACE/wget.libpixman.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE LIBPIXMAN
+
+# always unpack fresh source
+if [ -d $SOURCE_DIR ]; then
+  rm -rf $SOURCE_DIR
+fi
+
+tar -zxvf $TARBALL_DIR/$LIBPIXMAN_TARBALL
+
+cd $SOURCE_DIR
+
+# now run Configure
+echo &quot;SOURCE_DIR is: ${SOURCE_DIR}&quot;
+echo &quot;Current dir is: $(pwd)&quot;
+./configure --prefix=${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## BUILD AND TEST LIBPIXMAN
+cd pixman-${LIBPIXMAN_VERSION}
+time make
+time make test
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## ARCHIVE BINARY BUILDS
+
+# YYYY.JJJ-HH:MM
+ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
+
+# create the archive from within the output directory,
+# otherwise, you will capture the entire path, which is not what you want
+cd $WORKSPACE/output
+
+# create a &quot;receipt&quot; file, that shows version and build date
+touch libpixman-${_LIBPIXMAN_VERSION}.${ARTIFACT_TIMESTAMP}
+
+# -J == xz compression
+tar -cJvf $WORKSPACE/libpixman.artifact.tar.xz .</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>libpixman.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>

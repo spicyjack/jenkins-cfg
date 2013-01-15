@@ -28,11 +28,6 @@
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>LIBPIXMAN_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>pixman-${LIBPIXMAN_VERSION}.tar.gz</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.StringParameterDefinition>
           <name>SOURCE_DIR</name>
           <description>Name of the directory containing source code, and where the building of source code takes place</description>
           <defaultValue>pixman-${LIBPIXMAN_VERSION}</defaultValue>
@@ -49,18 +44,6 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>## CHECK BUILD VARIABLES
-if [ ! -d $TARBALL_DIR ]; then
-  echo &quot;TARBALL_DIR does not exist&quot;
-  echo ${TARBALL_DIR}
-  exit 1
-fi
-if [ &quot;x${LIBPIXMAN_VERSION}&quot; = &quot;x&quot; ]; then
-  echo &quot;LIBPIXMAN_VERSION not set&quot;
-  exit 1
-fi</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>## UPDATE JENKINS-CFG
 cd $HOME/src/jenkins-cfg.git
 git pull</command>
@@ -71,7 +54,8 @@ rm -rf $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## DOWNLOAD LIBPIXMAN
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPIXMAN_TARBALL \
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh \
+  --file pixman-${LIBPIXMAN_VERSION}.tar.gz \
   --url http://www.cairographics.org/releases \
   --log $WORKSPACE/wget.libpixman.log \
   --outdir $TARBALL_DIR</command>
@@ -84,7 +68,7 @@ if [ -d $SOURCE_DIR ]; then
   rm -rf $SOURCE_DIR
 fi
 
-tar -zxvf $TARBALL_DIR/$LIBPIXMAN_TARBALL
+tar -zxvf $TARBALL_DIR/pixman-${LIBPIXMAN_VERSION}.tar.gz
 
 cd $SOURCE_DIR
 
@@ -111,7 +95,7 @@ ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
 cd $WORKSPACE/output
 
 # create a &quot;receipt&quot; file, that shows version and build date
-touch libpixman-${_LIBPIXMAN_VERSION}.${ARTIFACT_TIMESTAMP}
+touch libpixman-${LIBPIXMAN_VERSION}.${ARTIFACT_TIMESTAMP}
 
 # -J == xz compression
 tar -cJvf $WORKSPACE/libpixman.artifact.tar.xz .</command>
@@ -123,5 +107,9 @@ tar -cJvf $WORKSPACE/libpixman.artifact.tar.xz .</command>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
 </project>

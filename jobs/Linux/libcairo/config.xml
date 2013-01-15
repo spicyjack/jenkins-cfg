@@ -34,20 +34,6 @@
           <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
           <defaultValue>cairo-${_LIBCAIRO_VERSION}.tar.xz</defaultValue>
         </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBPIXMAN_VERSION</name>
-          <description>Version of libpixman to build</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>0.28.0</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>LIBPIXMAN_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>pixman-${_LIBPIXMAN_VERSION}.tar.gz</defaultValue>
-        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
   </properties>
@@ -67,14 +53,8 @@ git pull</command>
     <hudson.tasks.Shell>
       <command>## DELETE OUTPUT DIRS
 
-# both
 rm -rf $WORKSPACE/output
-
-# pixman
-#rm -rf $WORKSPACE/pixman-${LIBPIXMAN_VERSION}-bin
-
-# cairo
-#rm -rf $WORKSPACE/cairo-${LIBCAIRO_VERSION}-bin</command>
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## PACKAGE DEPENDENCY CHECK

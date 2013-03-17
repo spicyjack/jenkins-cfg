@@ -1,30 +1,19 @@
 #!/bin/sh
 # other possible choices here are /bin/bash or maybe /bin/ksh
 
-# Copyright (c)2012 by Brian Manning.
+# Check for package dependencies needed by a library prior to compiling that
+# library
+
+# Copyright (c)2012-2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
 #
-# Download a file if it doesn't exist on the local filesystem
+# Impotant URLs:
+# Clone:    https://github.com/spicyjack/jenkins-cfg.git
+# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
 ### FUNCTIONS ###
-check_exit_status () {
-    EXIT_STATUS=$1
-    DESC=$2
-    OUTPUT=$3
-    SCRIPT_EXIT=$EXIT_STATUS
-
-    if [ $QUIET -ne 1 ]; then
-        # check for errors from the script
-        if [ $EXIT_STATUS -ne 0 ] ; then
-            echo "${SCRIPTNAME}: ${DESC}"
-            echo "${SCRIPTNAME}: error exit status: ${EXIT_STATUS}"
-        fi
-        if [ "x$OUTPUT" != "x" ]; then
-            echo "${SCRIPTNAME}: ${DESC} output:"
-            echo $OUTPUT
-       fi
-    fi
-} # check_exit_status
+# now located in common_jenkins_functions.sh
+. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
 
 ### MAIN SCRIPT ###
 # what's my name?
@@ -91,7 +80,7 @@ while true ; do
             QUIET=1
             shift;;
         -d|--deps|--dependencies) # dependencies to check for
-            DEPENDENCIES=$2;
+            DEPENDENCIES="$2";
             shift 2;;
         --) shift;
             break;;

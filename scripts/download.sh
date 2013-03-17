@@ -1,30 +1,18 @@
 #!/bin/sh
 # other possible choices here are /bin/bash or maybe /bin/ksh
 
-# Copyright (c)2012 by Brian Manning.
-# License terms are listed at the bottom of this file
-#
 # Download a file if it doesn't exist on the local filesystem
 
-### FUNCTIONS ###
-check_exit_status () {
-    EXIT_STATUS=$1
-    DESC=$2
-    OUTPUT=$3
-    SCRIPT_EXIT=$EXIT_STATUS
+# Copyright (c)2012-2013 by Brian Manning (brian at xaoc dot org)
+# License terms are listed at the bottom of this file
+#
+# Impotant URLs:
+# Clone:    https://github.com/spicyjack/jenkins-cfg.git
+# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
-    if [ $QUIET -ne 1 ]; then
-        # check for errors from the script
-        if [ $EXIT_STATUS -ne 0 ] ; then
-            echo "${SCRIPTNAME}: ${DESC}"
-            echo "${SCRIPTNAME}: error exit status: ${EXIT_STATUS}"
-        fi
-        if [ "x$OUTPUT" != "x" ]; then
-            echo "${SCRIPTNAME}: ${DESC} output:"
-            echo $OUTPUT
-       fi
-    fi
-} # check_exit_status
+### FUNCTIONS ###
+# now located in common_jenkins_functions.sh
+. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
 
 ### MAIN SCRIPT ###
 # what's my name?
@@ -143,12 +131,6 @@ if [ ! -e $OUTDIR/$TARBALL ]; then
 else
     echo "-> File already exists: ${OUTDIR}/${TARBALL}"
 fi
-
-# exit cleanly if we reach here
-#if [ $QUIET -ne 1 ]; then
-#    echo "Hit <ENTER> to exit"
-#    read ANSWER
-#fi
 
 exit ${SCRIPT_EXIT}
 

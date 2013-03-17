@@ -22,23 +22,10 @@ SCRIPTNAME=$(basename $0)
 # verbose script output by default
 QUIET=0
 
-### SCRIPT SETUP ###
-# BSD's getopt is simpler than the GNU getopt; we need to detect it
-OSDETECT=$(/usr/bin/env uname -s)
-if [ $OSDETECT = "Darwin" ]; then
-    # this is the BSD part
-    TEMP=$(/usr/bin/getopt hqp: $* 2>/dev/null)
-elif [ $OSDETECT = "Linux" ]; then
-    # and this is the GNU part
-    TEMP=$(/usr/bin/getopt -o hpp: \
-        --long help,quiet,path: \
-        -n "${SCRIPTNAME}" -- "$@")
-else
-    echo "Error: Unknown OS Type.  I don't know how to call"
-    echo "'getopts' correctly for this operating system.  Exiting..."
-    exit 1
-fi
+# default exit status
+EXIT_STATUS=0
 
+### SCRIPT SETUP ###
 # this script requires options; if no options were passed to it, exit with an
 # error
 if [ $# -eq 0 ] ; then
@@ -46,6 +33,11 @@ if [ $# -eq 0 ] ; then
     echo "Run '${SCRIPTNAME} --help' to see script options" >&2
     exit 1
 fi
+
+GETOPT_SHORT="hqp:"
+GETOPT_LONG="help,quiet,path:"
+# sets GETOPT_TEMP
+run_getopt "$GETOPT_SHORT" "$GETOPT_LONG"
 
 show_help () {
 cat <<-EOF
@@ -55,17 +47,16 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -d|--deps       Quoted space separated list of dependencies
-    NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
+    -p|--path       Path to the 'jenkins-cfg.git' directory
 
     Example usage:
-    ${SCRIPTNAME} --deps "pkg1 pkg2 pkg3 pkg4"
+    ${SCRIPTNAME} --path /path/to/jenkins-cfg.git
 EOF
 }
 
 # Note the quotes around `$TEMP': they are essential!
 # read in the $TEMP variable
-eval set -- "$TEMP"
+eval set -- "$GETOPT_TEMP"
 
 # read in command line options and set appropriate environment variables
 # if you change the below switches to something else, make sure you change the
@@ -78,8 +69,8 @@ while true ; do
         -q|--quiet)    # don't output anything (unless there's an error)
             QUIET=1
             shift;;
-        -d|--deps|--dependencies) # dependencies to check for
-            DEPENDENCIES="$2";
+        -p|--path) # dependencies to check for
+            JENKINS_CFG_PATH="$2";
             shift 2;;
         --) shift;
             break;;
@@ -91,26 +82,23 @@ while true ; do
     esac
 done
 
-if [ "x$DEPENDENCIES" = "x" ]; then
-    echo "ERROR: Please pass a list dependencies to check for with --deps"
+if [ "x$JENKINS_CFG_PATH" = "x" ]; then
+    echo "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
+    exit 1
+fi
+
+if [ ! -d "$JENKINS_CFG_PATH" ]; then
+    echo "ERROR: jenkins-cfg.git path ${JENKINS_CFG_PATH} does not exist"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 if [ $QUIET -ne 1 ]; then
-    echo "-> Checking dependencies..."
-    echo "-> Dependency list: ${DEPENDENCIES}"
+    echo "-> Updating jenkins-cfg.git..."
+    echo "-> Path: ${JENKINS_CFG_PATH}"
 fi
 
-# check to see if prerequisites are installed
-SYSTEM_TYPE=""
-if [ -e /opt/local/etc/macports/macports.conf ]; then
-  SYSTEM_TYPE="MacPorts"
-elif [ -e /etc/debian_version ]; then
-  SYSTEM_TYPE="Debian"
-fi
 
-EXIT_STATUS=0
 
 for DEP in $DEPENDENCIES;
 do
@@ -142,7 +130,8 @@ exit $EXIT_STATUS
 #
 #   You should have received a copy of the GNU General Public License
 #   along with this program;  if not, write to the Free Software
-#   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA.
+#   Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 
 # vi: set filetype=sh shiftwidth=4 tabstop=4
 # end of line

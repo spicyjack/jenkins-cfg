@@ -1,3 +1,8 @@
+# vim-ish things
+*.swp
+# Mac-ish things
+.DS_Store
+# perl-ish things
 blib/
 .build/
 _build/

@@ -81,6 +81,12 @@ check_env_variable () {
     fi
 }
 
+show_script_header () {
+    RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
+    echo "=-=-= ${SCRIPTNAME} =-=-="
+    echo "-> Run date: ${RUN_DATE}"
+}
+
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; version 2 dated June, 1991.

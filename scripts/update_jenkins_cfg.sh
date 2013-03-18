@@ -10,10 +10,6 @@
 # Clone:    https://github.com/spicyjack/jenkins-cfg.git
 # Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
-### FUNCTIONS ###
-# now located in common_jenkins_functions.sh
-. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
-
 ### MAIN SCRIPT ###
 # what's my name?
 SCRIPTNAME=$(basename $0)
@@ -28,16 +24,24 @@ EXIT_STATUS=0
 ### SCRIPT SETUP ###
 # this script requires options; if no options were passed to it, exit with an
 # error
-if [ $# -eq 0 ] ; then
-    echo "ERROR: this script has required options that are missing" >&2
-    echo "Run '${SCRIPTNAME} --help' to see script options" >&2
-    exit 1
-fi
+#if [ $# -eq 0 ] ; then
+#    echo "ERROR: this script has required options that are missing" >&2
+#    echo "Run '${SCRIPTNAME} --help' to see script options" >&2
+#    exit 1
+#fi
+
+# source jenkins functions
+. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
+
+#check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
+check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqp:"
 GETOPT_LONG="help,quiet,path:"
 # sets GETOPT_TEMP
-run_getopt "$GETOPT_SHORT" "$GETOPT_LONG"
+# pass in $@ unquoted so it expands, and "$@" will be used by run_getopt() to
+# then re-parse the script arguments
+run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
 cat <<-EOF
@@ -48,6 +52,7 @@ cat <<-EOF
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
     -p|--path       Path to the 'jenkins-cfg.git' directory
+    -f|--force      Force an update of jenkins-cfg, ignore stampfile
 
     Example usage:
     ${SCRIPTNAME} --path /path/to/jenkins-cfg.git
@@ -59,8 +64,6 @@ EOF
 eval set -- "$GETOPT_TEMP"
 
 # read in command line options and set appropriate environment variables
-# if you change the below switches to something else, make sure you change the
-# getopts call(s) above
 while true ; do
     case "$1" in
         -h|--help) # show the script options
@@ -82,6 +85,7 @@ while true ; do
     esac
 done
 
+echo "JENKINS_CFG_PATH is $JENKINS_CFG_PATH"
 if [ "x$JENKINS_CFG_PATH" = "x" ]; then
     echo "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
     exit 1
@@ -98,23 +102,8 @@ if [ $QUIET -ne 1 ]; then
     echo "-> Path: ${JENKINS_CFG_PATH}"
 fi
 
-
-
-for DEP in $DEPENDENCIES;
-do
-  if [ $SYSTEM_TYPE = "Debian" ]; then
-    PKG_CHECK=$(dpkg-query --show "$DEP" 2>&1)
-    if [ $? -eq 1 ]; then
-      EXIT_STATUS=1
-      echo "- Not installed: $DEP"
-    else
-      echo "- Installed: $PKG_CHECK"
-    fi
-  fi
-done
-
 if [ $EXIT_STATUS -ne 0 ]; then
-    echo "ERROR: Missing required dependencies"
+    echo "ERROR: jenkins-cfg.git repo was not updated"
 fi
 
 exit $EXIT_STATUS

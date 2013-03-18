@@ -1,5 +1,4 @@
 #!/bin/bash
-# other possible choices here are /bin/bash or maybe /bin/ksh
 
 # Library of shell functions used with Jenkins job steps
 
@@ -10,7 +9,6 @@
 # Clone:    https://github.com/spicyjack/jenkins-cfg.git
 # Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
-### FUNCTIONS ###
 check_exit_status () {
     EXIT_STATUS="$1"
     DESC="$2"
@@ -31,8 +29,12 @@ check_exit_status () {
 } # check_exit_status
 
 run_getopt() {
+    # use 'shift' to remove the first two arguments, prior to running getopt
+    # with the value of "$@"
     local GETOPT_SHORT="$1"
-    local GETOPT_LONG="$2"
+    shift
+    local GETOPT_LONG="$1"
+    shift
 
     # these two paths cover a majority of my test machines
     for GETOPT_CHECK in "/opt/local/bin/getopt" "/usr/bin/getopt";
@@ -49,8 +51,9 @@ run_getopt() {
         exit 1
     fi
 
+    OS_NAME=$(/usr/bin/env uname -s)
     # Use short options if we're using Darwin's getopt
-    if [ $OSDETECT = "Darwin" -a $GETOPT_BIN != "/opt/local/bin/getopt" ]; then
+    if [ $OS_NAME = "Darwin" -a $GETOPT_BIN != "/opt/local/bin/getopt" ]; then
         GETOPT_TEMP=$(${GETOPT_BIN} ${GETOPT_SHORT} $*)
     else
     # Use short and long options with GNU's getopt
@@ -59,10 +62,21 @@ run_getopt() {
             -n "${SCRIPTNAME}" -- "$@")
     fi
 
+    echo "functions: GETOPT_TEMP is ${GETOPT_TEMP}"
     # if getopts exited with an error code, then exit the script
     #if [ $? -ne 0 -o $# -eq 0 ] ; then
     if [ $? != 0 ] ; then
         echo "Run '${SCRIPTNAME} --help' to see script options"
+        exit 1
+    fi
+}
+
+check_env_variable () {
+    local ENV_VAR="$1"
+    local ENV_VAR_NAME="$2"
+
+    if [ -z $ENV_VAR ]; then
+        echo "ERROR: environment variable ${ENV_VAR_NAME} unset"
         exit 1
     fi
 }

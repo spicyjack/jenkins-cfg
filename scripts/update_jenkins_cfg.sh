@@ -22,14 +22,6 @@ QUIET=0
 EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
-# this script requires options; if no options were passed to it, exit with an
-# error
-#if [ $# -eq 0 ] ; then
-#    echo "ERROR: this script has required options that are missing" >&2
-#    echo "Run '${SCRIPTNAME} --help' to see script options" >&2
-#    exit 1
-#fi
-
 # source jenkins functions
 . ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
 
@@ -85,7 +77,6 @@ while true ; do
     esac
 done
 
-echo "JENKINS_CFG_PATH is $JENKINS_CFG_PATH"
 if [ "x$JENKINS_CFG_PATH" = "x" ]; then
     echo "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
     exit 1
@@ -97,6 +88,7 @@ if [ ! -d "$JENKINS_CFG_PATH" ]; then
 fi
 
 ### SCRIPT MAIN LOOP ###
+show_script_header
 if [ $QUIET -ne 1 ]; then
     echo "-> Updating jenkins-cfg.git..."
     echo "-> Path: ${JENKINS_CFG_PATH}"

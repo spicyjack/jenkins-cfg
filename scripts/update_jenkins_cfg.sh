@@ -96,6 +96,12 @@ if [ $QUIET -ne 1 ]; then
     git pull
     EXIT_STATUS=$?
     cd $START_DIR
+else
+    START_DIR=$PWD
+    cd $JENKINS_CFG_PATH
+    OUTPUT=$(git pull 2>&1)
+    EXIT_STATUS=$?
+    cd $START_DIR
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then

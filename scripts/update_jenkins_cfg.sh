@@ -26,13 +26,13 @@ EXIT_STATUS=0
 . ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
-check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
+#check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqp:"
 GETOPT_LONG="help,quiet,path:"
 # sets GETOPT_TEMP
-# pass in $@ unquoted so it expands, and "$@" will be used by run_getopt() to
-# then re-parse the script arguments
+# pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
+# when it goes to re-parse script arguments
 run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
@@ -91,10 +91,15 @@ fi
 show_script_header
 if [ $QUIET -ne 1 ]; then
     echo "-> Updating jenkins-cfg.git..."
-    echo "-> Path: ${JENKINS_CFG_PATH}"
+    echo "-> Running 'git pull' in path: ${JENKINS_CFG_PATH}"
+    START_DIR=$PWD
+    cd $JENKINS_CFG_PATH
+    git pull
+    EXIT_STATUS=$?
+    cd $START_DIR
 fi
 
-if [ $EXIT_STATUS -ne 0 ]; then
+if [ $EXIT_STATUS -gt 0 ]; then
     echo "ERROR: jenkins-cfg.git repo was not updated"
 fi
 

@@ -81,9 +81,11 @@ check_env_variable () {
 }
 
 show_script_header () {
-    RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
-    echo "=-=-= ${SCRIPTNAME} =-=-="
-    echo "-> Run date: ${RUN_DATE}"
+    if [ $QUIET -ne 1 ]; then
+        RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
+        echo "=-=-= ${SCRIPTNAME} =-=-="
+        echo "-> Run date: ${RUN_DATE}"
+    fi
 }
 
 #   This program is free software; you can redistribute it and/or modify

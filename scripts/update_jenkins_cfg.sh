@@ -1,5 +1,4 @@
 #!/bin/sh
-# other possible choices here are /bin/bash or maybe /bin/ksh
 
 # Update the jenkins-cfg.git repo as needed
 

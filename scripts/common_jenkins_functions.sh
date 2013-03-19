@@ -62,7 +62,6 @@ run_getopt() {
             -n "${SCRIPTNAME}" -- "$@")
     fi
 
-    echo "functions: GETOPT_TEMP is ${GETOPT_TEMP}"
     # if getopts exited with an error code, then exit the script
     #if [ $? -ne 0 -o $# -eq 0 ] ; then
     if [ $? != 0 ] ; then

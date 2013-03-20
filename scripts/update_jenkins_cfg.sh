@@ -69,43 +69,38 @@ while true ; do
         --) shift;
             break;;
         *) # we shouldn't get here; die gracefully
-            echo "ERROR: unknown option '$1'" >&2
-            echo "ERROR: use --help to see all script options" >&2
+            warn "ERROR: unknown option '$1'"
+            warn "ERROR: use --help to see all script options"
             exit 1
             ;;
     esac
 done
 
 if [ "x$JENKINS_CFG_PATH" = "x" ]; then
-    echo "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
+    warn "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
     exit 1
 fi
 
 if [ ! -d "$JENKINS_CFG_PATH" ]; then
-    echo "ERROR: jenkins-cfg.git path ${JENKINS_CFG_PATH} does not exist"
+    warn "ERROR: jenkins-cfg.git path ${JENKINS_CFG_PATH} does not exist"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
 if [ $QUIET -ne 1 ]; then
-    echo "-> Updating jenkins-cfg.git..."
-    echo "-> Running 'git pull' in path: ${JENKINS_CFG_PATH}"
-    START_DIR=$PWD
-    cd $JENKINS_CFG_PATH
-    git pull
-    EXIT_STATUS=$?
-    cd $START_DIR
-else
+    info "Updating jenkins-cfg.git..."
+    info "Running 'git pull' in path: ${JENKINS_CFG_PATH}"
     START_DIR=$PWD
     cd $JENKINS_CFG_PATH
     OUTPUT=$(git pull 2>&1)
+    say "git: ${OUTPUT}"
     EXIT_STATUS=$?
     cd $START_DIR
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    echo "ERROR: jenkins-cfg.git repo was not updated"
+    warn "ERROR: jenkins-cfg.git repo was not updated"
 fi
 
 exit $EXIT_STATUS

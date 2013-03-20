@@ -9,6 +9,42 @@
 # Clone:    https://github.com/spicyjack/jenkins-cfg.git
 # Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
+## FUNC: say
+## ARG: the MESSAGE to be written on STDOUT
+## ENV: QUIET, the quietness level of the script
+## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
+function say {
+    local MESSAGE="$1"
+    if [ $QUIET -ne 1 ]; then
+        echo "$MESSAGE"
+    fi
+}
+
+## FUNC: info
+## ARG: the MESSAGE to be written on STDOUT, with an arrow '->'
+## ENV: QUIET, the quietness level of the script
+## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
+function info {
+    local MESSAGE="$1"
+    if [ $QUIET -ne 1 ]; then
+        echo "-> $MESSAGE"
+    fi
+}
+
+## FUNC: warn
+## ARG: the message to be written to STDERR
+## DESC: Write MESSAGE to STDERR
+function warn {
+    local MESSAGE="$1"
+    echo $MESSAGE >&2
+}
+
+## FUNC: check_exit_status
+## ARG:  EXIT_STATUS - Returned exit status code of that function
+## ARG:  STATUS_MSG - Status message, usually the command that was run
+## RET:  Returns the value of EXIT_STATUS
+## DESC: Verifies the function exited with an exit status code (0), and
+## DESC: exits the script if any other status code is found.
 check_exit_status () {
     EXIT_STATUS="$1"
     DESC="$2"
@@ -17,8 +53,8 @@ check_exit_status () {
     if [ $QUIET -ne 1 ]; then
         # check for errors from the script
         if [ $EXIT_STATUS -ne 0 ] ; then
-            echo "${SCRIPTNAME}: ${DESC}"
-            echo "${SCRIPTNAME}: error exit status: ${EXIT_STATUS}"
+            warn "${SCRIPTNAME}: ${DESC}"
+            warn "${SCRIPTNAME}: error exit status: ${EXIT_STATUS}"
         fi
         if [ "x$OUTPUT" != "x" ]; then
             echo "${SCRIPTNAME}: ${DESC} output:"
@@ -47,7 +83,7 @@ run_getopt() {
 
     # did we find an actual binary out of the list above?
     if [ -z "${GETOPT_BIN}" ]; then
-        echo "ERROR: getopt binary not found; exiting...."
+        warn "ERROR: getopt binary not found; exiting...."
         exit 1
     fi
 
@@ -65,7 +101,7 @@ run_getopt() {
     # if getopts exited with an error code, then exit the script
     #if [ $? -ne 0 -o $# -eq 0 ] ; then
     if [ $? != 0 ] ; then
-        echo "Run '${SCRIPTNAME} --help' to see script options"
+        warn "Run '${SCRIPTNAME} --help' to see script options"
         exit 1
     fi
 }
@@ -75,7 +111,7 @@ check_env_variable () {
     local ENV_VAR_NAME="$2"
 
     if [ -z $ENV_VAR ]; then
-        echo "ERROR: environment variable ${ENV_VAR_NAME} unset"
+        warn "ERROR: environment variable ${ENV_VAR_NAME} unset"
         exit 1
     fi
 }
@@ -83,8 +119,8 @@ check_env_variable () {
 show_script_header () {
     if [ $QUIET -ne 1 ]; then
         RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
-        echo "=-=-= ${SCRIPTNAME} =-=-="
-        echo "-> Run date: ${RUN_DATE}"
+        say "=-=-= ${SCRIPTNAME} =-=-="
+        info "Run date: ${RUN_DATE}"
     fi
 }
 

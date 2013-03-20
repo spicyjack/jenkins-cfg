@@ -78,27 +78,36 @@ eval set -- "$TEMP"
 # getopts call(s) above
 while true ; do
     case "$1" in
-        -h|--help) # show the script options
+        # show the script options
+        -h|--help)
             show_help
             exit 0;;
-        -q|--quiet)    # don't output anything (unless there's an error)
+        # don't output anything (unless there's an error)
+        -q|--quiet)
             QUIET=1
             shift;;
-        -f|--file) # tarball file that needs to be downloaded
+        # tarball file that needs to be downloaded
+        -f|--file)
             TARBALL=$2;
             shift 2;;
-        -o|--outdir) # output directory
+        # output directory
+        -o|--outdir)
             OUTDIR=$2;
             shift 2;;
-        -l|--log) # output directory
+        # output to log?
+        -l|--log)
             LOGFILE=$2;
             shift 2;;
-        -u|--url) # Base URL that contains $FILE
+        # Base URL that contains $FILE
+        -u|--url)
             BASE_URL=$2;
             shift 2;;
-        --) shift;
+        # separator between options and arguments
+        --)
+            shift;
             break;;
-        *) # we shouldn't get here; die gracefully
+        # we shouldn't get here; die gracefully
+        *)
             echo "ERROR: unknown option '$1'" >&2
             echo "ERROR: use --help to see all script options" >&2
             exit 1

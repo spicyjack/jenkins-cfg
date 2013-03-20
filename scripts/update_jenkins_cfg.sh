@@ -57,18 +57,24 @@ eval set -- "$GETOPT_TEMP"
 # read in command line options and set appropriate environment variables
 while true ; do
     case "$1" in
-        -h|--help) # show the script options
+        # show the script options
+        -h|--help)
             show_help
             exit 0;;
-        -q|--quiet)    # don't output anything (unless there's an error)
+        # don't output anything (unless there's an error)
+        -q|--quiet)
             QUIET=1
             shift;;
-        -p|--path) # dependencies to check for
+        # dependencies to check for
+        -p|--path)
             JENKINS_CFG_PATH="$2";
             shift 2;;
-        --) shift;
+        # separator between options and arguments
+        --)
+            shift;
             break;;
-        *) # we shouldn't get here; die gracefully
+        # we shouldn't get here; die gracefully
+        *)
             warn "ERROR: unknown option '$1'"
             warn "ERROR: use --help to see all script options"
             exit 1

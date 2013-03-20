@@ -73,18 +73,24 @@ eval set -- "$TEMP"
 # getopts call(s) above
 while true ; do
     case "$1" in
-        -h|--help) # show the script options
+        # show the script options
+        -h|--help)
             show_help
             exit 0;;
-        -q|--quiet)    # don't output anything (unless there's an error)
+        # don't output anything (unless there's an error)
+        -q|--quiet)
             QUIET=1
             shift;;
-        -d|--deps|--dependencies) # dependencies to check for
+        # dependencies to check for
+        -d|--deps|--dependencies)
             DEPENDENCIES="$2";
             shift 2;;
-        --) shift;
+        # separator between options and arguments
+        --)
+            shift;
             break;;
-        *) # we shouldn't get here; die gracefully
+        # we shouldn't get here; die gracefully
+        *)
             echo "ERROR: unknown option '$1'" >&2
             echo "ERROR: use --help to see all script options" >&2
             exit 1

@@ -74,37 +74,37 @@ while true ; do
             break;;
         # we shouldn't get here; die gracefully
         *)
-            echo "ERROR: unknown option '$1'" >&2
-            echo "ERROR: use --help to see all script options" >&2
+            warn "ERROR: unknown option '$1'"
+            warn "ERROR: use --help to see all script options"
             exit 1
             ;;
     esac
 done
 
 if [ "x$DELETE_DIR" = "x" ]; then
-    echo "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
+    warn "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
     exit 1
 fi
 
 if [ ! -d "$DELETE_DIR" ]; then
-    echo "ERROR: jenkins-cfg.git path ${DELETE_DIR} does not exist"
+    warn "ERROR: jenkins-cfg.git path ${DELETE_DIR} does not exist"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-if [ $QUIET -ne 1 ]; then
-    if [ -d ${DELETE_DIR} ]; then
-        echo "-> Running 'rm -rf' on ${DELETE_DIR}"
-        rm -rf $DELETE_DIR
-        EXIT_STATUS=$?
-    else
-        echo "WARNING: ${DELETE_DIR} does not exist"
-    fi
+if [ -d ${DELETE_DIR} ]; then
+    info "Running 'rm -rf' on ${DELETE_DIR}"
+    RM_OUTPUT=$(rm -rf $DELETE_DIR 2>&1)
+    EXIT_STATUS=$?
+    check_exit_status $EXIT_STATUS "rm -rf" $RM_OUTPUT
+else
+    warn "WARNING: ${DELETE_DIR} does not exist"
+    EXIT_STATUS=1
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    echo "ERROR: Something happened while deleting ${DELETE_DIR}"
+    warn "ERROR: Something happened while deleting ${DELETE_DIR}"
 fi
 
 exit $EXIT_STATUS

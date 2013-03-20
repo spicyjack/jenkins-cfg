@@ -35,16 +35,16 @@ elif [ $OSDETECT = "Linux" ]; then
         --long help,quiet,deps:,dependencies: \
         -n "${SCRIPTNAME}" -- "$@")
 else
-    echo "Error: Unknown OS Type.  I don't know how to call"
-    echo "'getopts' correctly for this operating system.  Exiting..."
+    warn "Error: Unknown OS Type.  I don't know how to call"
+    warn "'getopts' correctly for this operating system.  Exiting..."
     exit 1
 fi
 
 # this script requires options; if no options were passed to it, exit with an
 # error
 if [ $# -eq 0 ] ; then
-    echo "ERROR: this script has required options that are missing" >&2
-    echo "Run '${SCRIPTNAME} --help' to see script options" >&2
+    warn "ERROR: this script has required options that are missing" >&2
+    warn "Run '${SCRIPTNAME} --help' to see script options" >&2
     exit 1
 fi
 
@@ -91,22 +91,22 @@ while true ; do
             break;;
         # we shouldn't get here; die gracefully
         *)
-            echo "ERROR: unknown option '$1'" >&2
-            echo "ERROR: use --help to see all script options" >&2
+            warn "ERROR: unknown option '$1'"
+            warn "ERROR: use --help to see all script options"
             exit 1
             ;;
     esac
 done
 
 if [ "x$DEPENDENCIES" = "x" ]; then
-    echo "ERROR: Please pass a list dependencies to check for with --deps"
+    warn "ERROR: Please pass a list dependencies to check for with --deps"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 if [ $QUIET -ne 1 ]; then
-    echo "-> Checking dependencies..."
-    echo "-> Dependency list: ${DEPENDENCIES}"
+    info "Checking dependencies..."
+    info "Dependency list: ${DEPENDENCIES}"
 fi
 
 # check to see if prerequisites are installed
@@ -125,15 +125,15 @@ do
     PKG_CHECK=$(dpkg-query --show "$DEP" 2>&1)
     if [ $? -eq 1 ]; then
       EXIT_STATUS=1
-      echo "- Not installed: $DEP"
+      say "- Not installed: $DEP"
     else
-      echo "- Installed: $PKG_CHECK"
+      say "- Installed: $PKG_CHECK"
     fi
   fi
 done
 
 if [ $EXIT_STATUS -ne 0 ]; then
-    echo "ERROR: Missing required dependencies"
+    warn "ERROR: Missing required dependencies"
 fi
 
 exit $EXIT_STATUS

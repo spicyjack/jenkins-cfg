@@ -40,15 +40,15 @@ cat <<-EOF
     ${SCRIPTNAME} [options]
 
     SCRIPT OPTIONS
-    -h|--help       Displays this help message
-    -q|--quiet      No script output (unless an error occurs)
-    -p|--prefix     Prefix to install path; usually \$WORKSPACE/output
-    -s|--sourcedir  Source directory (unpacked tarball directory)
-    -t|--tarball    Filename of tarball to download and/or unpack
+    -h|--help           Displays this help message
+    -q|--quiet          No script output (unless an error occurs)
+    -p|--prefix         Prefix to install path; usually \$WORKSPACE/output
+    -c|--config-args    Arguments to pass to './configure'
+    -t|--tarball        Filename of tarball to download and/or unpack
 
     Example usage:
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \
-        --sourcedir=\$SOURCE_DIR \
+        --config-args="--arg1=foo --arg2=bar" \
         --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz
 
 EOF
@@ -71,9 +71,13 @@ while true ; do
         -p|--prefix|--path) 
             PREFIX_PATH="$2";
             shift 2;;
-        # source directory
-        -s|--sourcedir|--dir)
-            SOURCE_DIR="$2";
+        # configure args y
+        -c|--config-args|--config|--configargs)
+            CONFIG_ARGS="$2";
+            shift 2;;
+        # tarball to unpack
+        -t|--tarball)
+            TARBALL="$2";
             shift 2;;
         --) shift;
             break;;
@@ -86,28 +90,47 @@ while true ; do
 done
 
 if [ "x$PREFIX_PATH" = "x" ]; then
-    warn "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
+    warn "ERROR: Please pass a path to the build output directory (--prefix)"
     exit 1
 fi
 
-if [ ! -d "$PREFIX_PATH" ]; then
-    warn "ERROR: jenkins-cfg.git path ${PREFIX_PATH} does not exist"
+#if [ "x$SOURCE_DIR" = "x" ]; then
+#    warn "ERROR: Please pass a path to the unpacked source dir. (--source)"
+#    exit 1
+#fi
+
+if [ "x$TARBALL" = "x" ]; then
+    warn "ERROR: Please pass the filename of the tarball file (--tarball)"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Updating jenkins-cfg.git..."
-info "Running 'git pull' in path: ${PREFIX_PATH}"
+info "Unpacking and configuring $TARBALL"
+#LIB_NAME=$(echo $TARBALL | sed 's/\(.*\)-[0-9].*/\1/')
+# what kind of tarball is it?
+if [ $(echo $TARBALL | grep -c 'gz$') -gt 0 ]; then
+    UNARCHIVE_CMD="tar -zxvf"
+    SOURCE_DIR=$(echo $TARBALL | sed 's/\.gz$//')
+fi
+
+# remove the existing source directory
+if [ -d $SOURCE_DIR ]; then
+    rm -rf $SOURCE_DIR
+fi
+
+# unarchive the tarball
+$UNARCHIVE_CMD $TARBALL
+
+# then run configure
 START_DIR=$PWD
-cd $PREFIX_PATH
-OUTPUT=$(git pull 2>&1)
-say "git: ${OUTPUT}"
+cd $SOURCE_DIR
+OUTPUT=$(./configure --prefix=${PREFIX} ${CONFIG_ARGS} 2>&1)
 EXIT_STATUS=$?
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: jenkins-cfg.git repo was not updated"
+    warn "ERROR: configure --prefix ${PREFIX} ${CONFIG_ARGS} exited w/error"
 fi
 
 exit $EXIT_STATUS

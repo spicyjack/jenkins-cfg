@@ -47,9 +47,9 @@ cat <<-EOF
     -t|--tarball        Filename of tarball to download and/or unpack
 
     Example usage:
-    ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \
-        --config-args="--arg1=foo --arg2=bar" \
-        --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz
+    ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
+    --config-args="--arg1=foo --arg2=bar" \\
+    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
 
 EOF
 }
@@ -111,7 +111,13 @@ info "Unpacking and configuring $TARBALL"
 # what kind of tarball is it?
 if [ $(echo $TARBALL | grep -c 'gz$') -gt 0 ]; then
     UNARCHIVE_CMD="tar -zxvf"
-    SOURCE_DIR=$(echo $TARBALL | sed 's/\.gz$//')
+    SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.tar\.gz$//')
+elif [ $(echo $TARBALL | grep -c 'xz$') -gt 0 ]; then
+    UNARCHIVE_CMD="tar -Jxvf"
+    SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.tar\.xz$//')
+elif [ $(echo $TARBALL | grep -c 'bz2$') -gt 0 ]; then
+    UNARCHIVE_CMD="tar -jxvf"
+    SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.tar\.bz2$//')
 fi
 
 # remove the existing source directory
@@ -120,17 +126,21 @@ if [ -d $SOURCE_DIR ]; then
 fi
 
 # unarchive the tarball
-$UNARCHIVE_CMD $TARBALL
+info "Unpack command: ${UNARCHIVE_CMD} ${TARBALL}"
+# 'eval' the unarchive command so tildes expand themselves and whatnot
+eval $UNARCHIVE_CMD $TARBALL
 
 # then run configure
 START_DIR=$PWD
 cd $SOURCE_DIR
-OUTPUT=$(./configure --prefix=${PREFIX} ${CONFIG_ARGS} 2>&1)
+info "Running: ./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS}"
+./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS} 2>&1
 EXIT_STATUS=$?
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: configure --prefix ${PREFIX} ${CONFIG_ARGS} exited w/error"
+    warn "ERROR: command 'configure --prefix ${PREFIX_PATH} ${CONFIG_ARGS}'"
+    warn "ERROR: exited with an error"
 fi
 
 exit $EXIT_STATUS

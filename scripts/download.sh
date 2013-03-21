@@ -23,29 +23,13 @@ SCRIPTNAME=$(basename $0)
 QUIET=0
 
 ### SCRIPT SETUP ###
-# BSD's getopt is simpler than the GNU getopt; we need to detect it
-OSDETECT=$(/usr/bin/env uname -s)
-if [ $OSDETECT = "Darwin" ]; then
-    # this is the BSD part
-    TEMP=$(/usr/bin/getopt f:hl:o:qu: $* 2>/dev/null)
-elif [ $OSDETECT = "Linux" ]; then
-    # and this is the GNU part
-    TEMP=$(/usr/bin/getopt -o f:hl:o:qu: \
-        --long file:,help,log:,outdir:,quiet,url: \
-        -n '${SCRIPTNAME}' -- "$@")
-else
-    echo "Error: Unknown OS Type.  I don't know how to call"
-    echo "'getopts' correctly for this operating system.  Exiting..."
-    exit 1
-fi
-
-# this script requires options; if no options were passed to it, exit with an
-# error
-if [ $# -eq 0 ] ; then
-    echo "ERROR: this script has required options that are missing" >&2
-    echo "Run '${SCRIPTNAME} --help' to see script options" >&2
-    exit 1
-fi
+GETOPT_SHORT="f:hl:o:qu:"
+GETOPT_LONG="file:,help,log:,outdir:,quiet,url:"
+# sets GETOPT_TEMP
+# # pass in $@ unquoted so it expands, and run_getopt() will then quote it
+# "$@"
+# # when it goes to re-parse script arguments
+run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
 cat <<-EOF
@@ -69,9 +53,9 @@ cat <<-EOF
 EOF
 }
 
-# Note the quotes around `$TEMP': they are essential!
-# read in the $TEMP variable
-eval set -- "$TEMP"
+# Note the quotes around `$GETOPT_TEMP': they are essential!
+# read in the $GETOPT_TEMP variable
+eval set -- "$GETOPT_TEMP"
 
 # read in command line options and set appropriate environment variables
 # if you change the below switches to something else, make sure you change the
@@ -108,8 +92,8 @@ while true ; do
             break;;
         # we shouldn't get here; die gracefully
         *)
-            echo "ERROR: unknown option '$1'" >&2
-            echo "ERROR: use --help to see all script options" >&2
+            warn "ERROR: unknown option '$1'"
+            warn "ERROR: use --help to see all script options"
             exit 1
             ;;
     esac
@@ -117,8 +101,8 @@ done
 
 ### SCRIPT MAIN LOOP ###
 if [ $QUIET -ne 1 ]; then
-    echo "-> Downloading file ${BASE_URL}/${TARBALL}"
-    echo "-> to directory ${OUTDIR}"
+    info "Downloading file ${BASE_URL}/${TARBALL}"
+    info "to directory ${OUTDIR}"
 fi
 
 # check to see if OUTDIR exists; if not create it
@@ -136,9 +120,9 @@ if [ ! -e $OUTDIR/$TARBALL ]; then
     eval OUTPUT=$(wget $WGET_OPTS -O $OUTDIR/$TARBALL \
         $BASE_URL/$TARBALL 2>/dev/null)
     check_exit_status $? "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
-    echo "-> Download complete!"
+    info "Download complete!"
 else
-    echo "-> File already exists: ${OUTDIR}/${TARBALL}"
+    info "File already exists: ${OUTDIR}/${TARBALL}"
 fi
 
 exit ${SCRIPT_EXIT}

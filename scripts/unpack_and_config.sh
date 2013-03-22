@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Update the jenkins-cfg.git repo as needed
+# Unpack a source tarball and run ./configure on it
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file

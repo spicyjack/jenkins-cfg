@@ -9,7 +9,7 @@
 # Clone:    https://github.com/spicyjack/jenkins-cfg.git
 # Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
-## FUNC: say
+## FUNC: say()
 ## ARG: the MESSAGE to be written on STDOUT
 ## ENV: QUIET, the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
@@ -20,7 +20,7 @@ function say {
     fi
 }
 
-## FUNC: info
+## FUNC: info()
 ## ARG: the MESSAGE to be written on STDOUT, with an arrow '->'
 ## ENV: QUIET, the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
@@ -31,7 +31,7 @@ function info {
     fi
 }
 
-## FUNC: warn
+## FUNC: warn()
 ## ARG: the message to be written to STDERR
 ## DESC: Write MESSAGE to STDERR
 function warn {
@@ -39,7 +39,7 @@ function warn {
     echo $MESSAGE >&2
 }
 
-## FUNC: check_exit_status
+## FUNC: check_exit_status()
 ## ARG:  EXIT_STATUS - Returned exit status code of that function
 ## ARG:  STATUS_MSG - Status message, usually the command that was run
 ## RET:  Returns the value of EXIT_STATUS
@@ -64,6 +64,13 @@ check_exit_status () {
     return $EXIT_STATUS
 } # check_exit_status
 
+## FUNC: run_getopt status()
+## ARG:  GETOPT_SHORT - 'short' values to be used with 'getopt'
+## ARG:  GETOPT_LONG - 'long' values to be used with 'getopt'
+## ARG:  $@ - The rest of the command-line arguments
+## SETS: Sets $GETOPT_TEMP, a formatted list of command line options
+## DESC: Sets up command line arguments for processing in the main script;
+## DESC: Detects which OS and what versions of 'getopt' are available
 run_getopt() {
     # use 'shift' to remove the first two arguments, prior to running getopt
     # with the value of "$@"
@@ -88,11 +95,11 @@ run_getopt() {
     fi
 
     OS_NAME=$(/usr/bin/env uname -s)
-    # Use short options if we're using Darwin's getopt
     if [ $OS_NAME = "Darwin" -a $GETOPT_BIN != "/opt/local/bin/getopt" ]; then
+        # Use short options if we're using Darwin's getopt
         GETOPT_TEMP=$(${GETOPT_BIN} ${GETOPT_SHORT} $*)
     else
-    # Use short and long options with GNU's getopt
+        # Use short and long options with GNU's getopt
         GETOPT_TEMP=$(${GETOPT_BIN} -o ${GETOPT_SHORT} \
             --long ${GETOPT_LONG} \
             -n "${SCRIPTNAME}" -- "$@")

@@ -103,22 +103,38 @@ fi
 ### SCRIPT MAIN LOOP ###
 show_script_header
 if [ $RUN_MAKE_TEST -eq 0 ]; then
-    info "Running 'make; make install' in path: ${SOURCE_PATH}"
-    MAKE_CMD="${TIME} make; ${TIME} make install"
+    info "Running 'time make; time make install'"
+    info "in path: ${SOURCE_PATH}"
+    MAKE_CMDS="make install"
 else
-    info "Running 'make; make install' in path: ${SOURCE_PATH}"
-    MAKE_CMD="${TIME} make; ${TIME} make install"
+    info "Running 'time make; time make test; time make install'"
+    info "in path: ${SOURCE_PATH}"
+    MAKE_CMDS="make test install"
 fi
-    
+
 START_DIR=$PWD
 cd $SOURCE_PATH
-OUTPUT=$(git pull 2>&1)
-say "git: ${OUTPUT}"
-EXIT_STATUS=$?
+for MAKE_CMD in $MAKE_CMDS;
+do
+    if [ $MAKE_CMD = "make" ]; then
+        $TIME make
+        EXIT_STATUS=check_exit_status $? "make" " "
+    elif [ $MAKE_CMD = "test" ]; then
+        $TIME make test
+        EXIT_STATUS=check_exit_status $? "make test" " "
+    elif [ $MAKE_CMD = "install" ]; then
+        $TIME make install
+        EXIT_STATUS=check_exit_status $? "make install" " "
+    else
+        warn "ERROR: Unknown make command: ${MAKE_CMD}"
+        exit 1
+    fi
+    #MAKE_CMD="${TIME} make; ${TIME} make test; ${TIME} make install"
+done
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: jenkins-cfg.git repo was not updated"
+    warn "ERROR: software build using 'make' failed"
 fi
 
 exit $EXIT_STATUS

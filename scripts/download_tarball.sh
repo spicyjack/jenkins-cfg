@@ -1,5 +1,4 @@
 #!/bin/sh
-# other possible choices here are /bin/bash or maybe /bin/ksh
 
 # Download a file if it doesn't exist on the local filesystem
 

@@ -1,5 +1,4 @@
 #!/bin/sh
-# other possible choices here are /bin/bash or maybe /bin/ksh
 
 # Check for package dependencies needed by a library prior to compiling that
 # library

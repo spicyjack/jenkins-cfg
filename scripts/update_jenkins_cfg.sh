@@ -94,16 +94,14 @@ fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-if [ $QUIET -ne 1 ]; then
-    info "Updating jenkins-cfg.git..."
-    info "Running 'git pull' in path: ${JENKINS_CFG_PATH}"
-    START_DIR=$PWD
-    cd $JENKINS_CFG_PATH
-    OUTPUT=$(git pull 2>&1)
-    say "git: ${OUTPUT}"
-    EXIT_STATUS=$?
-    cd $START_DIR
-fi
+info "Updating jenkins-cfg.git..."
+info "Running 'git pull' in path: ${JENKINS_CFG_PATH}"
+START_DIR=$PWD
+cd $JENKINS_CFG_PATH
+OUTPUT=$(git pull 2>&1)
+say "git: ${OUTPUT}"
+EXIT_STATUS=$?
+cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
     warn "ERROR: jenkins-cfg.git repo was not updated"

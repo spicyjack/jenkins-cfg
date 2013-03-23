@@ -131,6 +131,16 @@ show_script_header () {
     fi
 }
 
+## FUNC: generate_artifact_timestamp()
+## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
+## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
+## DESC: output directory, so when the artifact is used at a later point in
+## DESC: time, you can tell when it was built, and with what version of the
+## DESC: source code it was built
+function generate_artifact_timestamp {
+    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
+}
+
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; version 2 dated June, 1991.

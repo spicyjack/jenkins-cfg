@@ -10,8 +10,8 @@
 # Issues:   https://github.com/spicyjack/jenkins-cfg/issues
 
 ## FUNC: say()
-## ARG: the MESSAGE to be written on STDOUT
-## ENV: QUIET, the quietness level of the script
+## ARG:  MESSAGE to be written on STDOUT
+## ENV:  QUIET - the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
 function say {
     local MESSAGE="$1"
@@ -21,8 +21,8 @@ function say {
 }
 
 ## FUNC: info()
-## ARG: the MESSAGE to be written on STDOUT, with an arrow '->'
-## ENV: QUIET, the quietness level of the script
+## ARG:  MESSAGE to be written on STDOUT, with an arrow '->'
+## ENV:  QUIET - the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
 function info {
     local MESSAGE="$1"
@@ -32,8 +32,8 @@ function info {
 }
 
 ## FUNC: warn()
-## ARG: the message to be written to STDERR
-## DESC: Write MESSAGE to STDERR
+## ARG:  MESSAGE - the message to be written to STDERR
+## DESC: Always writes MESSAGE to STDERR (ignores $QUIET)
 function warn {
     local MESSAGE="$1"
     echo $MESSAGE >&2
@@ -113,9 +113,13 @@ run_getopt() {
     fi
 }
 
+## FUNC: check_env_variable()
+## ARG:  ENV_VAR_NAME, display name of the environment variable
+## ARG:  ENV_VAR, the environment variable to check
+## DESC: Checks to see if a variable isset in the environment
 check_env_variable () {
-    local ENV_VAR="$1"
-    local ENV_VAR_NAME="$2"
+    local ENV_VAR_NAME="$1"
+    local ENV_VAR="$2"
 
     if [ -z $ENV_VAR ]; then
         warn "ERROR: environment variable ${ENV_VAR_NAME} unset"
@@ -123,6 +127,9 @@ check_env_variable () {
     fi
 }
 
+## FUNC: show_script_header()
+## ENV:  QUIET - the quietness level of the script
+## DESC: Prints out a nicely formatted script header, if $QUIET is not set
 show_script_header () {
     if [ $QUIET -ne 1 ]; then
         RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")

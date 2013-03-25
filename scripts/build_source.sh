@@ -30,8 +30,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqs:"
-GETOPT_LONG="help,quiet,source:"
+GETOPT_SHORT="hqs:t"
+GETOPT_LONG="help,quiet,source:,test"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -83,8 +83,7 @@ while true ; do
             break;;
         # we shouldn't get here; die gracefully
         *)
-            warn "ERROR: unknown option '$1'"
-            warn "ERROR: use --help to see all script options"
+            warn "ERROR: no handler for '$1'"
             exit 1
             ;;
     esac

@@ -30,8 +30,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqs:t"
-GETOPT_LONG="help,quiet,source:,test"
+GETOPT_SHORT="hp:qt"
+GETOPT_LONG="help,path:,quiet,test"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -45,7 +45,7 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -s|--source     Path to the unpacked source code directory
+    -p|--path       Path to the unpacked source code directory
     -t|--test       Run 'make test' after running 'make'; 
                     not all source code supports running 'make test'
 

@@ -119,9 +119,11 @@ elif [ $(echo $TARBALL | grep -c 'bz2$') -gt 0 ]; then
     UNARCHIVE_CMD="tar -jxvf"
     SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.tar\.bz2$//')
 fi
+info "SOURCE_DIR is ${SOURCE_DIR}"
 
 # remove the existing source directory
 if [ -d $SOURCE_DIR ]; then
+    info "Found existing SOURCE_DIR: ${SOURCE_DIR}; deleting..."
     rm -rf $SOURCE_DIR
 fi
 

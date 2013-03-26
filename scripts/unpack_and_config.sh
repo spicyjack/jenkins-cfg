@@ -54,8 +54,8 @@ cat <<-EOF
 EOF
 }
 
-# Note the quotes around `$TEMP': they are essential!
-# read in the $TEMP variable
+# Note the quotes around `$GETOPT_TEMP': they are essential!
+# read in the $GETOPT_TEMP variable
 eval set -- "$GETOPT_TEMP"
 
 # read in command line options and set appropriate environment variables

@@ -135,13 +135,15 @@ eval $UNARCHIVE_CMD $TARBALL
 # then run configure
 START_DIR=$PWD
 cd $SOURCE_DIR
-info "Running: ./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS}"
-./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS} 2>&1
+CONFIGURE_CMD="./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS} 2>&1"
+info "Running: ${CONFIGURE_CMD}"
+eval $CONFIGURE_CMD
+check_exit_status "$CONFIGURE_CMD" " "
 EXIT_STATUS=$?
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: command 'configure --prefix ${PREFIX_PATH} ${CONFIG_ARGS}'"
+    warn "ERROR: command '${CONFIGURE_CMD}'"
     warn "ERROR: exited with an error"
 fi
 

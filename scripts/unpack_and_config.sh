@@ -138,7 +138,7 @@ info "Changing into ${SOURCE_DIR}"
 cd $SOURCE_DIR
 CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
 info "Running: ${CONFIGURE_CMD}"
-$CONFIGURE_CMD 2>&1
+eval $CONFIGURE_CMD 2>&1
 check_exit_status "$CONFIGURE_CMD" " "
 EXIT_STATUS=$?
 info "Changing back to start directory ${START_DIR}"

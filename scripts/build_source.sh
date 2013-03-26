@@ -117,13 +117,19 @@ for MAKE_CMD in $MAKE_CMDS;
 do
     if [ $MAKE_CMD = "make" ]; then
         $TIME make
-        EXIT_STATUS=check_exit_status $? "make" " "
+        check_exit_status $? "make" " "
+        # sets $?
+        EXIT_STATUS=$?
     elif [ $MAKE_CMD = "test" ]; then
         $TIME make test
-        EXIT_STATUS=check_exit_status $? "make test" " "
+        check_exit_status $? "make test" " "
+        # sets $?
+        EXIT_STATUS=$?
     elif [ $MAKE_CMD = "install" ]; then
         $TIME make install
-        EXIT_STATUS=check_exit_status $? "make install" " "
+        check_exit_status $? "make install" " "
+        # sets $?
+        EXIT_STATUS=$?
     else
         warn "ERROR: Unknown make command: ${MAKE_CMD}"
         exit 1

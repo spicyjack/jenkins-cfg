@@ -109,7 +109,7 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     # create a stampfile
     touch ${OUTPUT_DIR}/${SOURCE_NAME}-${SOURCE_VERSION}.${ARTIFACT_TIMESTAMP}
     # create the build artifact
-    TAR_CMD="tar -Jxvf ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz ."
+    TAR_CMD="tar -Jcvf ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz ."
     eval $TAR_CMD
     check_exit_status $? "$TAR_CMD" " "
     EXIT_STATUS=$?

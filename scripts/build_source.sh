@@ -116,16 +116,19 @@ cd $SOURCE_PATH
 for MAKE_CMD in $MAKE_CMDS;
 do
     if [ $MAKE_CMD = "make" ]; then
+        info "Running 'make' command"
         $TIME make
         check_exit_status $? "make" " "
         # sets $?
         EXIT_STATUS=$?
     elif [ $MAKE_CMD = "test" ]; then
+        info "Running 'make test' command"
         $TIME make test
         check_exit_status $? "make test" " "
         # sets $?
         EXIT_STATUS=$?
     elif [ $MAKE_CMD = "install" ]; then
+        info "Running 'make install' command"
         $TIME make install
         check_exit_status $? "make install" " "
         # sets $?

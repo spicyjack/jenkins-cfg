@@ -111,7 +111,8 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     # create the build artifact
     TAR_CMD="tar -Jxvf ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz ."
     eval $TAR_CMD
-    EXIT_STATUS=check_exit_status $? "$TAR_CMD" " "
+    check_exit_status $? "$TAR_CMD" " "
+    EXIT_STATUS=$?
     cd $START_DIR
 else
     warn "ERROR: source build directory ${OUTPUT_DIR}/output missing!"

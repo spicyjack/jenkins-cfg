@@ -23,29 +23,14 @@ SCRIPTNAME=$(basename $0)
 QUIET=0
 
 ### SCRIPT SETUP ###
-# BSD's getopt is simpler than the GNU getopt; we need to detect it
-OSDETECT=$(/usr/bin/env uname -s)
-if [ $OSDETECT = "Darwin" ]; then
-    # this is the BSD part
-    TEMP=$(/usr/bin/getopt hqd: $* 2>/dev/null)
-elif [ $OSDETECT = "Linux" ]; then
-    # and this is the GNU part
-    TEMP=$(/usr/bin/getopt -o hqd: \
-        --long help,quiet,deps:,dependencies: \
-        -n "${SCRIPTNAME}" -- "$@")
-else
-    warn "Error: Unknown OS Type.  I don't know how to call"
-    warn "'getopts' correctly for this operating system.  Exiting..."
-    exit 1
-fi
+GETOPT_SHORT="hqd:"
+GETOPT_LONG="help,quiet,deps:,dependencies:"
 
-# this script requires options; if no options were passed to it, exit with an
-# error
-if [ $# -eq 0 ] ; then
-    warn "ERROR: this script has required options that are missing" >&2
-    warn "Run '${SCRIPTNAME} --help' to see script options" >&2
-    exit 1
-fi
+# sets GETOPT_TEMP
+# pass in $@ unquoted so it expands, and run_getopt() will then quote it
+# "$@"
+# when it goes to re-parse script arguments
+run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
 cat <<-EOF
@@ -120,15 +105,18 @@ EXIT_STATUS=0
 
 for DEP in $DEPENDENCIES;
 do
-  if [ $SYSTEM_TYPE = "Debian" ]; then
-    PKG_CHECK=$(dpkg-query --show "$DEP" 2>&1)
-    if [ $? -eq 1 ]; then
-      EXIT_STATUS=1
-      say "- Not installed: $DEP"
-    else
-      say "- Installed: $PKG_CHECK"
+    if [ $SYSTEM_TYPE = "Debian" ]; then
+        PKG_CHECK=$(dpkg-query --show "$DEP" 2>&1)
+        if [ $? -eq 1 ]; then
+            EXIT_STATUS=1
+            say "- Not installed: $DEP"
+        else
+            say "- Installed: $PKG_CHECK"
+        fi
+    elif [ $SYSTEM_TYPE "MacPorts" ]; then
+        warn "MacPorts support not implemented yet :("
+        exit 1
     fi
-  fi
 done
 
 if [ $EXIT_STATUS -ne 0 ]; then

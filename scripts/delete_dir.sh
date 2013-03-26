@@ -87,8 +87,8 @@ if [ "x$DELETE_DIR" = "x" ]; then
 fi
 
 if [ ! -d "$DELETE_DIR" ]; then
-    warn "ERROR: jenkins-cfg.git path ${DELETE_DIR} does not exist"
-    exit 1
+    info "Nothing to delete; ${DELETE_DIR} doesn't exist"
+    exit 0
 fi
 
 ### SCRIPT MAIN LOOP ###

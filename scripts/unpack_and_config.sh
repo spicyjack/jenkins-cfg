@@ -135,9 +135,9 @@ eval $UNARCHIVE_CMD $TARBALL
 # then run configure
 START_DIR=$PWD
 cd $SOURCE_DIR
-CONFIGURE_CMD="./configure --prefix="${PREFIX_PATH}" ${CONFIG_ARGS} 2>&1"
+CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
 info "Running: ${CONFIGURE_CMD}"
-eval $CONFIGURE_CMD
+$CONFIGURE_CMD 2>&1
 check_exit_status "$CONFIGURE_CMD" " "
 EXIT_STATUS=$?
 cd $START_DIR

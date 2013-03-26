@@ -107,7 +107,7 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
     # create a stampfile
-    touch ${OUTPUT_DIR}/${SOURCE_NAME}-${SOURCE_VERSION}.${ARTIFACT_TIMESTAMP}
+    touch ${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}
     # create the build artifact
     TAR_CMD="tar -Jcvf ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz ."
     eval $TAR_CMD

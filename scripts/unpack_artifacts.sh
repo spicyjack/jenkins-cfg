@@ -4,9 +4,6 @@
 # copy artifacts from one job to another, this script just unpacks the copied
 # artifacts to the $WORKSPACE/artifacts directory
 
-# FIXME read $# to get the number of parameters, then read from those
-# parameters instead of quoting the argument list
-
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
 #
@@ -84,13 +81,15 @@ done
 ### SCRIPT MAIN LOOP ###
 if [ $# -gt 0 ]; then
     show_script_header
-    info "Unpacking and configuring $# tarball(s)"
+    info "Unpacking and configuring $# tarball(s) in $WORKSPACE/artifacts"
     cd $WORKSPACE
     # remove the old artifacts directory
     if [ -d $WORKSPACE/artifacts ]; then
+        info "Deleting old artifacts directory..."
         rm -rf $WORKSPACE/artifacts
     fi
     # make a new directory
+    info "Creating new artifacts directory..."
     mkdir $WORKSPACE/artifacts
     cd $WORKSPACE/artifacts
 
@@ -100,6 +99,7 @@ if [ $# -gt 0 ]; then
     do
         ARTIFACT=$1
         if [ -r $WORKSPACE/$ARTIFACT ]; then
+            info "Unpacking artifact '$ARTIFACT'"
             tar -Jxvf ../$ARTIFACT
         else
             warn "Artifact $WORKSPACE/$ARTIFACT doesn't exist"

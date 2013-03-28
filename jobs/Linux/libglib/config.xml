@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build GTK Glib library, including dependencies</description>
-  <logRotator>
+  <description>glib library - http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/</description>
+  <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
@@ -14,12 +14,12 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>SOURCE_DIR</name>
-          <description>Directory for downloaded source</description>
-          <defaultValue>$HOME/source</defaultValue>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>glib</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBGLIB_VERSION</name>
+          <name>PKG_VERSION</name>
           <description>Version of libglib to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
@@ -30,25 +30,9 @@
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>LIBGLIB_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>glib-${_LIBGLIB_VERSION}.tar.xz</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBFFI_VERSION</name>
-          <description>Version of libpixman to build</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>3.0.11</string>
-              <string>3.0.10</string>
-              <string>3.0.9</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>LIBFFI_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>libffi-${_LIBFFI_VERSION}.tar.gz</defaultValue>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -62,99 +46,58 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>## UPDATE JENKINS-CFG
-cd $HOME/src/jenkins-cfg.git
-git pull</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DELETE OUTPUT DIRS
-
-# both
-rm -rf $WORKSPACE/output</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## PACKAGE DEPENDENCY CHECK
-
-# libffi
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;
-
-# libglib
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;python-gobject&quot;</command>
+      <command># I think python-gobject is needed to run the test suite
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+  --deps &quot;python-gobject&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD LIBFFI
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBFFI_TARBALL \
-  --url ftp://sourceware.org/pub/libffi \
-  --log $WORKSPACE/wget.libffi.log \
-  --outdir $SOURCE_DIR</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/2.34/ \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- libffi.artifact.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE LIBFFI
-
-# always unpack fresh source
-if [ -d libffi-${_LIBFFI_VERSION} ]; then
-  rm -rf libffi-${_LIBFFI_VERSION}
-fi
-
-tar -zxvf $SOURCE_DIR/$LIBFFI_TARBALL
-
-cd libffi-${_LIBFFI_VERSION}
-
-# now run Configure
-./configure --prefix=${WORKSPACE}/output</command>
+      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/glib-${PKG_VERSION}.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD LIBFFI
-cd libffi-${_LIBFFI_VERSION}
-time make
-# no test suite
-time make install</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## DOWNLOAD LIBGLIB
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBGLIB_TARBALL \
-  --url http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/ \
-  --log $WORKSPACE/wget.libglib.log \
-  --outdir $SOURCE_DIR</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE LIBGLIB
-
-# always unpack fresh source
-if [ -d glib-${_LIBGLIB_VERSION} ]; then
-  rm -rf cairo-${_LIBGLIB_VERSION}
-fi
-
-# -J == xz compression
-tar -Jxvf $SOURCE_DIR/$LIBGLIB_TARBALL
-
-cd glib-${_LIBGLIB_VERSION}
-
-# now run Configure
-echo &quot;Current directory is: $(pwd)&quot;
-PKG_CONFIG_PATH=${WORKSPACE}/output/lib/pkgconfig \
-  ./configure --prefix=${WORKSPACE}/output</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## BUILD AND TEST LIBGLIB
-cd glib-${_LIBGLIB_VERSION}
-time make
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION}
+#  --test
 # test suite wants pygobject 3.x, which is not available in squeeze :(
-#time make test
-time make install</command>
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## ARCHIVE BINARY BUILDS
-# -J == xz compression
-
-cd $WORKSPACE/output
-tar -cJvf $WORKSPACE/libglib-${_LIBGLIB_VERSION}.artifact.tar.xz .
-</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/archive_build.sh \
+  --name=lib${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libglib-${_LIBGLIB_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>libglib.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

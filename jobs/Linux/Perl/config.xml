@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Perl for x86_64 systems</description>
-  <logRotator>
+  <description>Perl for x86_64 systems - http://www.cpan.org/src/5.0</description>
+  <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
@@ -14,23 +14,25 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>SOURCE_DIR</name>
-          <description>Path to source code directory</description>
-          <defaultValue>$HOME/source</defaultValue>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>perl</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>_PERL_VERSION</name>
+          <name>PKG_VERSION</name>
           <description>The version of Perl to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>5.16.3</string>
               <string>5.16.2</string>
+              <string>5.17.10</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>PERL_TARBALL</name>
-          <description>Name of the Perl source tarball file</description>
-          <defaultValue>perl-${_PERL_VERSION}.tar.gz</defaultValue>
+          <name>TARBALL_DIR</name>
+          <description>Path to source code directory</description>
+          <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -44,28 +46,32 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>## UPDATE JENKINS-CFG
-cd $HOME/src/jenkins-cfg.git
-git pull</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $PERL_TARBALL \
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://www.cpan.org/src/5.0 \
-  --log $WORKSPACE/wget.log \
-  --outdir $HOME/$SOURCE_DIR</command>
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## UNPACK AND CONFIGURE
+echo &quot;-&gt; Unpacking and configuring Perl ${{PERL_VERSION}&quot;
 
 # always unpack fresh source
-if [ -d perl-${_PERL_VERSION} ]; then
-  rm -rf perl-${_PERL_VERSION}
+if [ -d ${PKG_NAME}-${PKG_VERSION} ]; then
+  rm -rf ${PKG_NAME}-${PKG_VERSION}
 fi
 
-tar -zxvf $SOURCE_DIR/$PERL_TARBALL
+tar -zxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz
 
-cd perl-${_PERL_VERSION}
+cd perl-${PERL_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;
@@ -73,32 +79,25 @@ echo &quot;Current directory is: $(pwd)&quot;
 # there&apos;s a test in Configure for which file descriptor is connected
 # to Configure, the wrong file descriptor exits Configure
 sh Configure -de \
-  -Dprefix=&quot;${WORKSPACE}/perl-${_PERL_VERSION}-bin&quot; \
-  -Dusethreads -Duserelocatableinc</command>
+  -Dprefix=&quot;${WORKSPACE}/output&quot; \
+  -Dusethreads \
+  -Duserelocatableinc</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD AND TEST
-cd perl-${_PERL_VERSION}
-time make
-time make test
-time make install</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION} \
+  --test</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## ARCHIVE AND DELETE BUILD DIR
-# -J == xz compression
-
-# we need to tar from inside the -bin directory to remove leading paths
-cd $WORKSPACE/perl-${_PERL_VERSION}-bin
-
-tar -cJvf $WORKSPACE/perl-${_PERL_VERSION}.artifact.tar.xz .
-
-# remove the old install directory
-rm -rf $WORKSPACE/perl-${_PERL_VERSION}-bin</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/archive_build.sh \
+  --name=${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>perl-${_PERL_VERSION}.artifact.tar.xz</artifacts>
+      <artifacts>perl.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

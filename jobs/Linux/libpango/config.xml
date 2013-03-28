@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build GTK Pango library, including dependencies</description>
-  <logRotator>
+  <description>Pango library - http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/</description>
+  <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
@@ -14,40 +14,25 @@
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
-          <name>SOURCE_DIR</name>
-          <description>Directory for downloaded source</description>
-          <defaultValue>$HOME/source</defaultValue>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>pango</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>_LIBPANGO_VERSION</name>
+          <name>PKG_VERSION</name>
           <description>Version of libpango to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.32.3</string>
-              <string>1.32.2</string>
-              <string>1.32.1</string>
+              <string>1.32.6</string>
+              <string>1.32.5</string>
+              <string>1.32.4</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.StringParameterDefinition>
-          <name>LIBPANGO_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>pango-${_LIBPANGO_VERSION}.tar.xz</defaultValue>
-        </hudson.model.StringParameterDefinition>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>_FONTCONFIG_VERSION</name>
-          <description>Version of fontconfig to build</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>2.10.2</string>
-              <string>2.10.1</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>FONTCONFIG_TARBALL</name>
-          <description>Full filename of the tarball file; used when downloading, and when checking to see if it&apos;s already been downloaded</description>
-          <defaultValue>fontconfig-${_FONTCONFIG_VERSION}.tar.bz2</defaultValue>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
@@ -61,103 +46,68 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>## UPDATE JENKINS-CFG
-cd $HOME/src/jenkins-cfg.git
-git pull</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DELETE OUTPUT DIRS
-
-# both
-rm -rf $WORKSPACE/output
-rm -rf $WORKSPACE/artifacts</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-fontconfig</project>
+      <filter>fontconfig.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-harfbuzz</project>
+      <filter>harfbuzz.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- fontconfig.artifact.tar.xz harfbuzz.artifact.tar.xz \
+    libglib.artifact.tar.xz libffi.artifact.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD AND UNPACK ARTIFACTS
-CAIRO_ARTIFACT_URL=&quot;http://localhost:8080/jenkins/job/libcairo/lastSuccessfulBuild/artifact&quot;
-wget -O $WORKSPACE/libcairo.artifact.tar.xz $CAIRO_ARTIFACT_URL/libcairo.artifact.tar.xz
-mkdir -p $WORKSPACE/artifacts
-cd $WORKSPACE/artifacts
-tar -Jxvf $WORKSPACE/libcairo.artifact.tar.xz</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/1.32/ \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## PACKAGE DEPENDENCY CHECK
-
-# libpixman
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;
-
-# libcairo
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh --deps &quot;libx11-dev&quot;</command>
+      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## DOWNLOAD FONTCONFIG
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $FONTCONFIG_TARBALL \
-  --url http://www.freedesktop.org/software/fontconfig/release \
-  --log $WORKSPACE/wget.fontconfig.log \
-  --outdir $SOURCE_DIR</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION} \
+  --test</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE FONTCONFIG
-
-# always unpack fresh source
-if [ -d fontconfig-${_FONTCONFIG_VERSION} ]; then
-  rm -rf fontconfig-${_FONTCONFIG_VERSION}
-fi
-
-tar -jxvf $SOURCE_DIR/$FONTCONFIG_TARBALL
-
-cd fontconfig-${_FONTCONFIG_VERSION}
-
-# now run Configure
-./configure --prefix=${WORKSPACE}/output</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## BUILD AND TEST FONTCONFIG
-cd fontconfig-${_FONTCONFIG_VERSION}
-time make
-time make test
-time make install</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## DOWNLOAD LIBPANGO
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/download.sh --file $LIBPANGO_TARBALL \
-  --url http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/ \
-  --log $WORKSPACE/wget.libpango.log \
-  --outdir $SOURCE_DIR</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE LIBPANGO
-
-# always unpack fresh source
-if [ -d pango-${_LIBPANGO_VERSION} ]; then
-  rm -rf pango-${_LIBPANGO_VERSION}
-fi
-
-# -J == xz compression
-tar -Jxvf $SOURCE_DIR/$LIBPANGO_TARBALL
-
-cd pango-${_LIBPANGO_VERSION}
-
-# now run Configure
-PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-./configure --prefix=${WORKSPACE}/output</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## BUILD AND TEST LIBPANGO
-cd pango-${_LIBPANGO_VERSION}
-time make
-time make test
-time make install</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>## ARCHIVE BINARY BUILDS
-# -J == xz compression
-
-ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
-cd $WORKSPACE/output
-touch libpango-${_LIBPANGO_VERSION}.${ARTIFACT_TIMESTAMP}
-touch fontconfig-${_FONTCONFIG_VERSION}.${ARTIFACT_TIMESTAMP}
-tar -cJvf $WORKSPACE/libpango.artifact.tar.xz .</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/archive_build.sh \
+  --name=lib${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

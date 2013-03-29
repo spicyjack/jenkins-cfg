@@ -89,7 +89,7 @@
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/archive_build.sh \
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/create_build_artifacts.sh \
   --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

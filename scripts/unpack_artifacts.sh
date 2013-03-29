@@ -95,7 +95,7 @@ if [ $# -gt 0 ]; then
 
     # loop across the list of artifacts passed in on the command line
     # Jenkins puts them into the $WORKSPACE by default
-    while [ $# -gt 0 ]; 
+    while [ $# -gt 0 ];
     do
         ARTIFACT=$1
         if [ -r $WORKSPACE/$ARTIFACT ]; then
@@ -105,11 +105,32 @@ if [ $# -gt 0 ]; then
             warn "Artifact $WORKSPACE/$ARTIFACT doesn't exist"
             EXIT_STATUS=1
         fi
+        # pop the file off of the arg stack
         shift
     done
-fi
 
-exit 0
+    # do some file munging
+    find $WORKSPACE/artifacts -type f \
+        -regex '.*\.pc$' -o -regex '.*\.la$' -print0 \
+        | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
+    do
+        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
+        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
+            info "Munging libtool file: ${SHORT_MUNGE_FILE}"
+            sed "s!libdir=':MUNGE_ME:'!${WORKSPACE}/artifacts/lib!" \
+                "${MUNGE_FILE}"
+            # FIXME check_exit_status here
+        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
+            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
+            sed -i "s!prefix=:MUNGE_ME:!${WORKSPACE}/artifacts!" \
+                "${MUNGE_FILE}"
+            # FIXME check_exit_status here
+        else
+            warn "No handler for munging ${SHORT_MUNGE_FILE}"
+            EXIT_STATUS=1
+        fi
+    done
+fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
     warn "ERROR: Unpacking artifacts resulted in an error"

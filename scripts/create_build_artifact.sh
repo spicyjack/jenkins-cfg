@@ -20,6 +20,9 @@ QUIET=0
 # default exit status
 EXIT_STATUS=0
 
+# mangle metafiles? 0=yes, 1=no
+NO_MANGLE_METAFILES=0
+
 ### SCRIPT SETUP ###
 # source jenkins functions
 . ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
@@ -27,8 +30,9 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqn:s:o:"
-GETOPT_LONG="help,quiet,name:,source-version:,version:,output:,output-dir:"
+GETOPT_SHORT="hqmn:s:o:"
+GETOPT_LONG="help,quiet,no-mangle,name:"
+GETOPT_LONG="${GETOPT_LONG},source-version:,version:,output:,output-dir:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -42,6 +46,7 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
+    -m|--no-mangle      Don't mangle pkgconfig/libtool files in output dir
     -n|--name           Name of the artifact tarball to create
     -s|--source-version Version of the source code that was compiled
     -o|--output         Write tarball to this directory (usually \$WORKSPACE)
@@ -60,18 +65,24 @@ eval set -- "$GETOPT_TEMP"
 # read in command line options and set appropriate environment variables
 while true ; do
     case "$1" in
-        -h|--help) # show the script options
+        # show the script options
+        -h|--help)
             show_help
             exit 0;;
-        -q|--quiet)    # don't output anything (unless there's an error)
+        # don't output anything (unless there's an error)
+        -q|--quiet)
             QUIET=1
             shift;;
-        # source package name
-        -n|--name) 
+        # don't mangle files in $WORKSPACE/output prior to creating artifact
+        -m|--no-mangle|--mangle)
+            NO_MANGLE_METAFILES=1
+            shift;;
+        # source package nam
+        -n|--name)
             SOURCE_NAME="$2";
             shift 2;;
         # source package version
-        -s|--source-version|--version) 
+        -s|--source-version|--version)
             SOURCE_VERSION="$2";
             shift 2;;
         # configure args y
@@ -106,6 +117,22 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     info "Creating artifact file ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz"
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
+    # mangle libtool/pkgconfig files
+    find $PWD -type f -regex '.*\.pc$' -o -regex '.*\.la$' -print0 \
+        | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
+    do
+        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}!!")
+        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
+            info "Munging libtool file: ${SHORT_MUNGE_FILE}"
+            sed "s!libdir='.*'!libdir=':MUNGE_ME:'!" "${MUNGE_FILE}"
+        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
+            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
+            sed -i "s!prefix=.*!prefix=:MUNGE_ME:!" "${MUNGE_FILE}"
+        else
+            warn "No handler for munging ${SHORT_MUNGE_FILE}"
+            exit 1
+        fi
+    done
     # create a stampfile
     STAMP_FILE="${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}.stamp"
     info "Creating stamp file '${STAMP_FILE}'"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Create artifacts of a source code build
+# Create artifact of a source code build
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file

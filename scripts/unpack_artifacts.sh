@@ -117,7 +117,7 @@ if [ $# -gt 0 ]; then
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
-            sed "s!libdir=':MUNGE_ME:'!${WORKSPACE}/artifacts/lib!" \
+            sed -i "s!libdir=':MUNGE_ME:'!${WORKSPACE}/artifacts/lib!" \
                 "${MUNGE_FILE}"
             # FIXME check_exit_status here
         elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then

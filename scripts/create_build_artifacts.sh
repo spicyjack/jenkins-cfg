@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Archive the output of a source code build
+# Create artifacts of a source code build
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
@@ -42,7 +42,7 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
-    -n|--name           Name of the archive tarball to create
+    -n|--name           Name of the artifact tarball to create
     -s|--source-version Version of the source code that was compiled
     -o|--output         Write tarball to this directory (usually \$WORKSPACE)
 
@@ -103,7 +103,7 @@ show_script_header
 # sets ARTIFACT_TIMESTAMP
 generate_artifact_timestamp
 if [ -d "${OUTPUT_DIR}/output" ]; then
-    info "Creating archive file ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz"
+    info "Creating artifact file ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz"
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
     # create a stampfile
@@ -122,7 +122,7 @@ else
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: archive creation command exited with an error!"
+    warn "ERROR: artifact creation command exited with an error!"
 fi
 
 exit $EXIT_STATUS

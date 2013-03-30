@@ -124,10 +124,10 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
-            sed -i "s!libdir='.*'!libdir=':MUNGE_ME:'!" "${MUNGE_FILE}"
+            sed -i "s!^libdir='.*'!libdir=':MUNGE_ME:'!" "${MUNGE_FILE}"
         elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
             info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
-            sed -i "s!prefix=.*!prefix=:MUNGE_ME:!" "${MUNGE_FILE}"
+            sed -i "s!^prefix=.*!prefix=:MUNGE_ME:!" "${MUNGE_FILE}"
         else
             warn "No handler for munging ${SHORT_MUNGE_FILE}"
             exit 1

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Unpack artifacts from previous build(s); note, Jenkins needs to be told to
 # copy artifacts from one job to another, this script just unpacks the copied
@@ -29,8 +29,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqa:"
-GETOPT_LONG="help,quiet,artifact:"
+GETOPT_SHORT="hq"
+GETOPT_LONG="help,quiet"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -44,8 +44,6 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
-    -a|--artifact       Filename of an artifact file; 
-                        Place quotes around multiple filenames
 
     Example usage:
     ${SCRIPTNAME} -- foo.artifact.tar.gz bar.artifact.tar.gz
@@ -112,7 +110,7 @@ if [ $# -gt 0 ]; then
     # do some file munging
     find $WORKSPACE/artifacts -type f \
         -regex '.*\.pc$' -o -regex '.*\.la$' -print0 \
-        | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
+        | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then

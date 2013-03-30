@@ -121,13 +121,17 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
         | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
-        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}!!")
+        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
+            SED_EXPR="s!^libdir='.*'!libdir=':MUNGE_ME:'!"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
-            sed -i "s!^libdir='.*'!libdir=':MUNGE_ME:'!" "${MUNGE_FILE}"
+            info "'sed' expression is: ${SED_EXPR}"
+            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
         elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
+            SED_EXPR="s!^prefix=.*!prefix=:MUNGE_ME:!"
             info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
-            sed -i "s!^prefix=.*!prefix=:MUNGE_ME:!" "${MUNGE_FILE}"
+            info "'sed' expression is: ${SED_EXPR}"
+            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
         else
             warn "No handler for munging ${SHORT_MUNGE_FILE}"
             exit 1

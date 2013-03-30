@@ -108,9 +108,8 @@ if [ $# -gt 0 ]; then
     done
 
     # do some file munging
-    find $WORKSPACE/artifacts -type f \
-        -regex '.*\.pc$' -o -regex '.*\.la$' -print0 \
-        | while IFS= read -d $'\0' MUNGE_FILE;
+    find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
+            | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then

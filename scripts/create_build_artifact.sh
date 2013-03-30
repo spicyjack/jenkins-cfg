@@ -118,9 +118,8 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
     # mangle libtool/pkgconfig files
-    find "$PWD" -type f -regex '.*\.pc$' -o -regex '.*\.la$' -print0 \
-        | while IFS= read -d $'\0' MUNGE_FILE;
-    #   | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
+    find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
+        | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}!!")
         if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then

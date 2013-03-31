@@ -124,7 +124,7 @@ info "SOURCE_DIR is ${SOURCE_DIR}"
 # remove the existing source directory
 if [ -d $SOURCE_DIR ]; then
     info "Found existing SOURCE_DIR: ${SOURCE_DIR}; deleting..."
-    rm -rf $SOURCE_DIR
+    rm -rvf $SOURCE_DIR
 fi
 
 # unarchive the tarball

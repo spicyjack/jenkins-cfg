@@ -84,7 +84,7 @@ if [ $# -gt 0 ]; then
     # remove the old artifacts directory
     if [ -d $WORKSPACE/artifacts ]; then
         info "Deleting old artifacts directory..."
-        rm -rf $WORKSPACE/artifacts
+        rm -rvf $WORKSPACE/artifacts
     fi
     # make a new directory
     info "Creating new artifacts directory..."

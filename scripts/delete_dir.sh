@@ -94,8 +94,8 @@ fi
 ### SCRIPT MAIN LOOP ###
 show_script_header
 if [ -d ${DELETE_DIR} ]; then
-    info "Running 'rm -rf' on ${DELETE_DIR}"
-    /bin/rm -rf $DELETE_DIR
+    info "Running 'rm -rvf' on ${DELETE_DIR}"
+    /bin/rm -rvf $DELETE_DIR
     EXIT_STATUS=$?
     check_exit_status $EXIT_STATUS "rm -rf" " "
 else

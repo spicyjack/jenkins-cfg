@@ -95,7 +95,7 @@ fi
 show_script_header
 if [ -d ${DELETE_DIR} ]; then
     info "Running 'rm -rf' on ${DELETE_DIR}"
-    RM_OUTPUT=$(rm -rf $DELETE_DIR 2>&1)
+    RM_OUTPUT=$(/bin/rm -rf $DELETE_DIR 2>&1)
     EXIT_STATUS=$?
     check_exit_status $EXIT_STATUS "rm -rf" $RM_OUTPUT
 else

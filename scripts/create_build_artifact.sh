@@ -127,7 +127,7 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
         SED_EXPR="{$SED_EXPR}"
         info "Munging libtool file: ${SHORT_MUNGE_FILE}"
         info "'sed' expression is: ${SED_EXPR}"
-        sed -i "'${SED_EXPR}'" "${MUNGE_FILE}"
+        sed -i "${SED_EXPR}" "${MUNGE_FILE}"
     done
     # create a stampfile
     STAMP_FILE="${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}.stamp"

@@ -117,7 +117,7 @@ if [ $# -gt 0 ]; then
             SED_EXPR="{$SED_EXPR}"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
-            sed -i "'${SED_EXPR}'" "${MUNGE_FILE}"
+            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
             # FIXME check_exit_status here
     done
 fi

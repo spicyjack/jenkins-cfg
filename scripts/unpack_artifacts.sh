@@ -113,7 +113,7 @@ if [ $# -gt 0 ]; then
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
 #        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
-            SED_EXPR="s!:MUNGE_ME:!${WORKSPACE}/artifacts!"
+            SED_EXPR="s!:MUNGE_ME:!${WORKSPACE}/artifacts!g"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
             sed -i "${SED_EXPR}" "${MUNGE_FILE}"

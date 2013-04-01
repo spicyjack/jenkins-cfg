@@ -112,22 +112,22 @@ if [ $# -gt 0 ]; then
             | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${WORKSPACE}!!")
-        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
-            SED_EXPR="s!^libdir=':MUNGE_ME:'!libdir=${WORKSPACE}/artifacts/lib!"
+#        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
+            SED_EXPR="s!:MUNGE_ME:!${WORKSPACE}/artifacts!"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
             sed -i "${SED_EXPR}" "${MUNGE_FILE}"
             # FIXME check_exit_status here
-        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
-            SED_EXPR="s!^prefix=:MUNGE_ME:!prefix=${WORKSPACE}/artifacts!"
-            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
-            info "'sed' expression is: ${SED_EXPR}"
-            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-            # FIXME check_exit_status here
-        else
-            warn "No handler for munging ${SHORT_MUNGE_FILE}"
-            EXIT_STATUS=1
-        fi
+#        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
+#            SED_EXPR="s!:MUNGE_ME:!${WORKSPACE}/artifacts!"
+#            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
+#            info "'sed' expression is: ${SED_EXPR}"
+#            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+#            # FIXME check_exit_status here
+#        else
+#            warn "No handler for munging ${SHORT_MUNGE_FILE}"
+#            EXIT_STATUS=1
+#        fi
     done
 fi
 

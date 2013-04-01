@@ -122,20 +122,20 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
         | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
-        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
+#        if [ $(echo $MUNGE_FILE | grep -c "\.la$") -gt 0 ]; then
             SED_EXPR="s!${OUTPUT_DIR}/output!:MUNGE_ME:!g"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
             sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
-            SED_EXPR="s!${OUTPUT_DIR}/output!${OUTPUT_DIR}/output!"
-            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
-            info "'sed' expression is: ${SED_EXPR}"
-            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-        else
-            warn "No handler for munging ${SHORT_MUNGE_FILE}"
-            exit 1
-        fi
+#        elif [ $(echo $MUNGE_FILE | grep -c "\.pc$") -gt 0 ]; then
+#            SED_EXPR="s!${OUTPUT_DIR}/output!:MUNGE_ME:!"
+#            info "Munging pkgconfig file: ${SHORT_MUNGE_FILE}"
+#            info "'sed' expression is: ${SED_EXPR}"
+#            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+#        else
+#            warn "No handler for munging ${SHORT_MUNGE_FILE}"
+#            exit 1
+#        fi
     done
     # create a stampfile
     STAMP_FILE="${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}.stamp"

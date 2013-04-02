@@ -79,7 +79,7 @@ while true ; do
             shift 2;;
         # output to log?
         -l|--log)
-            LOGFILE=$2;
+            WGET_LOG=$2;
             shift 2;;
         # Base URL that contains $FILE
         -u|--url)
@@ -113,8 +113,8 @@ fi
 # check to see if the tarball is in OUTDIR before downloading
 if [ ! -e $OUTDIR/$TARBALL ]; then
     # log wget output, or send to STDERR?
-    if [ "x$LOG" != "x" ]; then
-        WGET_OPTS="-o $LOG"
+    if [ "x$WGET_LOG" != "x" ]; then
+        WGET_OPTS="-o $WGET_LOG"
     fi
     eval OUTPUT=$(wget $WGET_OPTS -O $OUTDIR/$TARBALL \
         $BASE_URL/$TARBALL 2>/dev/null)

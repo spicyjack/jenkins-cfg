@@ -27,8 +27,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp:s:t:"
-GETOPT_LONG="help,quiet,prefix:,sourcedir:,tarball:"
+GETOPT_SHORT="hqp:c:t:"
+GETOPT_LONG="help,quiet,prefix:,config-args:,configargs:,config:,tarball:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -68,10 +68,10 @@ while true ; do
             QUIET=1
             shift;;
         # prefix path
-        -p|--prefix|--path) 
+        -p|--prefix|--path)
             PREFIX_PATH="$2";
             shift 2;;
-        # configure args y
+        # configure args
         -c|--config-args|--config|--configargs)
             CONFIG_ARGS="$2";
             shift 2;;

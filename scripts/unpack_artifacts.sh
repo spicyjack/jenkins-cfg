@@ -46,7 +46,11 @@ cat <<-EOF
     -q|--quiet          No script output (unless an error occurs)
 
     Example usage:
-    ${SCRIPTNAME} -- foo.artifact.tar.gz bar.artifact.tar.gz
+    ${SCRIPTNAME} -- foo bar
+
+    Note: artifact files should be named 'library.artifact.tar.xz', the
+    library name 'library' is the only part of the artifact file that should
+    be passed in to this script.
 
 EOF
 }
@@ -96,11 +100,11 @@ if [ $# -gt 0 ]; then
     while [ $# -gt 0 ];
     do
         ARTIFACT=$1
-        if [ -r $WORKSPACE/$ARTIFACT ]; then
-            info "Unpacking artifact '$ARTIFACT'"
-            tar -Jxvf ../$ARTIFACT
+        if [ -r "${WORKSPACE}/${ARTIFACT}.artifact.tar.xz" ]; then
+            info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz"
+            tar -Jxvf ../${ARTIFACT}.artifact.tar.xz
         else
-            warn "Artifact $WORKSPACE/$ARTIFACT doesn't exist"
+            warn "Artifact ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"
             EXIT_STATUS=1
         fi
         # pop the file off of the arg stack

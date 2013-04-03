@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build HarfBuzz OpenType text shaping library&#xd;
-http://www.freedesktop.org/software/harfbuzz/release</description>
+  <description>GTK+ - a multi-platform toolkit for creating graphical user interfaces&#xd;
+http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -16,16 +16,17 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
-          <description></description>
-          <defaultValue>harfbuzz</defaultValue>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>gtk+</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of HarfBuzz to build</description>
+          <description>Version of libgtk2 to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.9.14</string>
-              <string>0.9.13</string>
+              <string>2.24.17</string>
+              <string>2.24.16</string>
+              <string>2.24.15</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -68,28 +69,59 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libcairo-dep-libpixman</project>
+      <filter>pixman.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libcairo</project>
+      <filter>libcairo.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-fontconfig</project>
+      <filter>fontconfig.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-harfbuzz</project>
+      <filter>harfbuzz.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
       <project>libpango-dep-freetype</project>
       <filter>freetype.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango</project>
+      <filter>libpango.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libglib libffi freetype</command>
+ -- libglib libffi freetype fontconfig harfbuzz libpango
+    </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
-  --url http://www.freedesktop.org/software/${PKG_NAME}/release \
-  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url http://ftp.gnome.org/pub/gnome/sources/${PKG_NAME}/2.24/ \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --config-args=&quot;--disable-silent-rules&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
@@ -98,14 +130,14 @@ LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
-  --name=${PKG_NAME} \
+  --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>harfbuzz.artifact.tar.xz</artifacts>
+      <artifacts>libpango.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

@@ -56,18 +56,6 @@
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libpango-dep-fontconfig</project>
-      <filter>fontconfig.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libpango-dep-harfbuzz</project>
-      <filter>harfbuzz.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
       <project>libglib</project>
       <filter>libglib.artifact.tar.xz</filter>
       <target></target>
@@ -79,10 +67,28 @@
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-fontconfig</project>
+      <filter>fontconfig.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-harfbuzz</project>
+      <filter>harfbuzz.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- fontconfig.artifact.tar.xz harfbuzz.artifact.tar.xz \
-    libglib.artifact.tar.xz libffi.artifact.tar.xz</command>
+ -- libglib libffi freetype fontconfig harfbuzz
+    </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
@@ -93,10 +99,11 @@
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
   /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz
+# for debugging:
+# --disable-silent-rules --enable-explicit-deps=yes</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \

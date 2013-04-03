@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build HarfBuzz OpenType text shaping library&#xd;
-http://www.freedesktop.org/software/harfbuzz/release</description>
+  <description>ATK dependency for GTK+&#xd;
+http://ftp.gnome.org/pub/gnome/sources/atk/2.6/</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -16,16 +16,15 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
-          <description></description>
-          <defaultValue>harfbuzz</defaultValue>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>atk</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of HarfBuzz to build</description>
+          <description>Version of libatk to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.9.14</string>
-              <string>0.9.13</string>
+              <string>2.6.0</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -51,16 +50,8 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/artifacts</command>
+  --path $WORKSPACE/output</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib</project>
-      <filter>libglib.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
       <project>libglib-dep-libffi</project>
       <filter>libffi.artifact.tar.xz</filter>
@@ -68,46 +59,52 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libpango-dep-freetype</project>
-      <filter>freetype.artifact.tar.xz</filter>
+      <project>libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libglib libffi freetype</command>
+ -- libffi libglib</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
-  --url http://www.freedesktop.org/software/${PKG_NAME}/release \
-  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url http://ftp.gnome.org/pub/gnome/sources/${PKG_NAME}/2.6/ \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+      <command>LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION} \
-  --test</command>
+  --test
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}</command>
+  --output=${WORKSPACE}
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>harfbuzz.artifact.tar.xz</artifacts>
+      <artifacts>atk.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
 </project>

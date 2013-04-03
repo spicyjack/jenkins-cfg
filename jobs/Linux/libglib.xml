@@ -73,10 +73,11 @@
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libffi.artifact.tar.xz</command>
+ -- libffi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+      <command>LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/glib-${PKG_VERSION}.tar.xz</command>

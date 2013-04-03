@@ -119,6 +119,12 @@ fi
 show_script_header
 info "Backing up 'config.xml' files"
 info "Jenkins path: ${JENKINS_PATH}"
+# -h == symbolic link test
+if [ -h $JENKINS_PATH ]; then
+    if [ $(echo $JENKINS_PATH | grep -c '/$') -eq 0 ]; then
+        JENKINS_PATH="${JENKINS_PATH}/"
+    fi
+fi
 find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do

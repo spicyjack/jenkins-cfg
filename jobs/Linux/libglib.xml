@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>glib library - http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/</description>
+  <description>Glib library&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/&quot;&gt;&#xd;
+http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -100,6 +102,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
     <hudson.tasks.ArtifactArchiver>
       <artifacts>libglib.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>libglib depenency &apos;libffi&apos; - ftp://sourceware.org/pub/libffi</description>
+  <description>libffi (Glib dependency)&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;ftp://sourceware.org/pub/libffi&quot;&gt;&#xd;
+ftp://sourceware.org/pub/libffi&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -81,6 +83,7 @@
     <hudson.tasks.ArtifactArchiver>
       <artifacts>libffi.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

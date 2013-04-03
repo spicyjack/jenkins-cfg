@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Simple Direct Layer image library&lt;br&gt;&#xd;
-&lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#xd;
+  <description>Simple Direct Layer networking library&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#xd;
   http://www.libsdl.org/projects/SDL_net&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
@@ -18,11 +18,11 @@
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>SDL_mixer</defaultValue>
+          <defaultValue>SDL_net</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of SDL to build</description>
+          <description>Version of SDL_net to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>1.2.12</string>
@@ -94,7 +94,7 @@
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL_mixer.artifact.tar.xz</artifacts>
+      <artifacts>libSDL_net.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

@@ -1,9 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Chocolate Doom is a Doom source port that accurately reproduces the experience of Doom&#xd;
-as it was played in the 1990s.&#xd;
-http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom</description>
+  <description>Chocolate Doom&lt;br&gt;&#xd;
+A Doom source port that accurately reproduces the experience of Doom&lt;br&gt;&#xd;
+as it was played in the 1990s.&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://tinyurl.com/cpt69pd&quot;&gt;&#xd;
+http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -83,6 +85,7 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom</description
     <hudson.tasks.ArtifactArchiver>
       <artifacts>chocolate-doom.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>

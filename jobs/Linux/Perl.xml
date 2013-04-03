@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Perl for x86_64 systems - http://www.cpan.org/src/5.0</description>
+  <description>Perl for x86_64 systems&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.cpan.org/src/5.0&quot;&gt;http://www.cpan.org/src/5.0&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -99,6 +100,7 @@ sh Configure -de \
     <hudson.tasks.ArtifactArchiver>
       <artifacts>perl.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

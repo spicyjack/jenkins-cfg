@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build FreeType software library to render fonts&#xd;
-http://download.savannah.gnu.org/releases/freetype/</description>
+  <description>Build FreeType software library to render fonts&lt;br&gt;&#xd;
+Download: &lt;a href=&quot;http://download.savannah.gnu.org/releases/freetype/&quot;&gt;&#xd;
+http://download.savannah.gnu.org/releases/freetype/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -81,6 +82,7 @@ http://download.savannah.gnu.org/releases/freetype/</description>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>freetype.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

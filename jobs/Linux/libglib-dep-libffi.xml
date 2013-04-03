@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>libglib depenency &apos;libffi&apos; - ftp://sourceware.org/pub/libffi</description>
+  <description>libglib depenency &apos;libffi&apos;<br>
+  <a href="ftp://sourceware.org/pub/libffi">
+  ftp://sourceware.org/pub/libffi</a></description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

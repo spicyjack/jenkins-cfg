@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>libpixman dependency for libcairo - http://www.cairographics.org/releases</description>
+  <description>libpixman dependency for libcairo<br>
+  <a href="http://www.cairographics.org/releases">
+  http://www.cairographics.org/releases</a></description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

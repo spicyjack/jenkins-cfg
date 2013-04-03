@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Fontconfig library - http://www.freedesktop.org/software/fontconfig/release</description>
+  <description>Fontconfig library<br>
+  <a href="http://www.freedesktop.org/software/fontconfig/release">
+  http://www.freedesktop.org/software/fontconfig/release</a></description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

@@ -131,7 +131,7 @@ do
     DIFF_STATUS=$?
     if [ $DIFF_STATUS -gt 0 ]; then
         if [ $DRY_RUN -eq 0 ]; then
-            /bin/cp -f $JENKINS_CFG $TARGET_FILE
+            /bin/cp -vf $JENKINS_CFG $TARGET_FILE
         else
             echo "  Would have copied files, but dry-run was set"
             echo "  Source: $JENKINS_CFG"

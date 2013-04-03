@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build HarfBuzz OpenType text shaping library&#xd;
-http://www.freedesktop.org/software/harfbuzz/release</description>
+  <description>Chocolate Doom is a Doom source port that accurately reproduces the experience of Doom&#xd;
+as it was played in the 1990s.&#xd;
+http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -16,16 +17,15 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
-          <description></description>
-          <defaultValue>harfbuzz</defaultValue>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>chocolate-doom</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of HarfBuzz to build</description>
+          <description>Version of chocolate-doom to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.9.14</string>
-              <string>0.9.13</string>
+              <string>1.7.0</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -51,63 +51,43 @@ http://www.freedesktop.org/software/harfbuzz/release</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/artifacts</command>
-    </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib</project>
-      <filter>libglib.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib-dep-libffi</project>
-      <filter>libffi.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libpango-dep-freetype</project>
-      <filter>freetype.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libglib libffi freetype</command>
+  --path $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
-  --url http://www.freedesktop.org/software/${PKG_NAME}/release \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --url http://downloads.sourceforge.net/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION} \
-  --test</command>
+  --test
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}</command>
+  --output=${WORKSPACE}
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>harfbuzz.artifact.tar.xz</artifacts>
+      <artifacts>chocolate-doom.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
 </project>

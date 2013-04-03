@@ -1,9 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build FreeType software library to render fonts&#xd;<br>
-    <a href="http://download.savannah.gnu.org/releases/freetype/">
-    http://download.savannah.gnu.org/releases/freetype/</a></description>
+  <description>Build FreeType software library to render fonts&#xd;
+http://download.savannah.gnu.org/releases/freetype/</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

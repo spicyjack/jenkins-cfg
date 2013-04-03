@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Pango library<br>
-  <a href="http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/">
-  http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/</a></description>
+  <description>Pango library - http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

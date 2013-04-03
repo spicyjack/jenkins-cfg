@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Cairo library<br>
-  <a href="http://www.cairographics.org/releases">
-  http://www.cairographics.org/releases</a></description>
+  <description>cairo library - http://www.cairographics.org/releases</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

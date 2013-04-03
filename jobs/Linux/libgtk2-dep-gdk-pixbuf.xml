@@ -1,9 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Gdk-Pixbuf dependency for GTK+&#xd;<br>
-    <a href="http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/2.26/">
-    http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/2.26/</a></description>
+  <description>Gdk-Pixbuf dependency for GTK+&#xd;
+http://ftp.gnome.org/pub/gnome/sources/gdk-pixbuf/2.26/</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

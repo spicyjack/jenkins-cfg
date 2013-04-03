@@ -1,9 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Perl for x86_64 systems<br>
-  <a href="http://www.cpan.org/src/5.0">http://www.cpan.org/src/5.0</a>
-  </description>
+  <description>Perl for x86_64 systems - http://www.cpan.org/src/5.0</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

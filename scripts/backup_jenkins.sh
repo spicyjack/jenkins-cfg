@@ -17,6 +17,9 @@ SCRIPTNAME=$(basename $0)
 # verbose script output by default
 QUIET=0
 
+# verbose script output by default
+DRY_RUN=0
+
 # default exit status
 EXIT_STATUS=0
 
@@ -27,8 +30,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqj:t:"
-GETOPT_LONG="help,quiet,jenkins:,target:"
+GETOPT_SHORT="hqnj:t:"
+GETOPT_LONG="help,quiet,dry-run,jenkins:,target:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -42,6 +45,7 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
+    -n|--dry-run    Explain what would be done, don't actually do it
     -j|--jenkins    Path to the Jenkins 'jobs' directory
     -t|--target     Target path for copying 'config.xml' config files
 
@@ -65,6 +69,10 @@ while true ; do
         # don't output anything (unless there's an error)
         -q|--quiet)
             QUIET=1
+            shift;;
+        # don't actually do anything
+        -n|--dry-run)
+            DRY_RUN=1
             shift;;
         # Path to Jenkins install
         -j|--jenkins)
@@ -114,21 +122,27 @@ info "Jenkins path: ${JENKINS_PATH}"
 find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do
-    say "config: ${JENKINS_CFG}"
-    JOB_DIR=$(dirname ${JENKINS_CFG} \
+    say "Config: ${JENKINS_CFG}"
+    JOB_NAME=$(dirname ${JENKINS_CFG} \
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');
-    TARGET_FILE="$TARGET_PATH/${JOB_DIR}.xml"
-    if [ -r $TARGET_FILE ]; then
-       say "target file $TARGET_FILE exists"
-    else
-       say "target file $TARGET_FILE doesn't exist"
+    TARGET_FILE="$TARGET_PATH/${JOB_NAME}.xml"
+    diff --brief ${JENKINS_CFG} ${TARGET_FILE} 1>/dev/null 2>&1
+    DIFF_STATUS=$?
+    if [ $DIFF_STATUS -gt 0 ]; then
+        if [ $DRY_RUN -eq 0 ]; then
+            /bin/cp -f $JENKINS_CFG $TARGET_FILE
+        else
+            echo "  Would have copied files, but dry-run was set"
+            echo "  Source: $JENKINS_CFG"
+            echo "  Target: $TARGET_FILE"
+        fi
+        EXIT_STATUS=$?
     fi
-    EXIT_STATUS=$?
 done
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: jenkins-cfg.git repo was not updated"
+    warn "ERROR: backup_jenkins.sh completed with errors"
 fi
 
 exit $EXIT_STATUS

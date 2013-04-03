@@ -118,7 +118,7 @@ fi
 ### SCRIPT MAIN LOOP ###
 show_script_header
 info "Backing up 'config.xml' files"
-info "Jenkins path: ${JENKINS_PATH}"
+info "Running 'find' in Jenkins path: ${JENKINS_PATH}"
 # -h == symbolic link test
 if [ -h $JENKINS_PATH ]; then
     if [ $(echo $JENKINS_PATH | grep -c '/$') -eq 0 ]; then
@@ -128,7 +128,7 @@ fi
 find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do
-    say "Config: ${JENKINS_CFG}"
+    say "Found config: ${JENKINS_CFG}"
     JOB_NAME=$(dirname ${JENKINS_CFG} \
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');
@@ -139,7 +139,7 @@ do
         if [ $DRY_RUN -eq 0 ]; then
             /bin/cp --force --verbose $JENKINS_CFG $TARGET_FILE
         else
-            echo "  Would have copied files, but dry-run was set"
+            echo "  Need to copy files with changes, but dry-run was set;"
             echo "  Source: $JENKINS_CFG"
             echo "  Target: $TARGET_FILE"
         fi

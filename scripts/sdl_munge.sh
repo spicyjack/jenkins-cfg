@@ -31,8 +31,8 @@ UNMUNGE_SDL=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqms"
-GETOPT_LONG="help,quiet,munge,set-path"
+GETOPT_SHORT="hqmsu"
+GETOPT_LONG="help,quiet,munge,unmunge,set-path"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments

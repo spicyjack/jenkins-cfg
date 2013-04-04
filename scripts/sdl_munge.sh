@@ -21,8 +21,8 @@ QUIET=0
 EXIT_STATUS=0
 
 # What are we munging?  nothing by default
-MUNGE_SDL_OUTPUT=0
-MUNGE_SDL_ARTIFACT=0
+MUNGE_SDL=0
+UNMUNGE_SDL=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
@@ -47,10 +47,10 @@ cat <<-EOF
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
     -m|--munge          Change paths in 'sdl-config' to ':MUNGE_ME:'
-    -s|--set-path       Change ':MUNGE_ME:' to the current artifacts path
+    -u|--unmunge        Change ':MUNGE_ME:' to the current artifacts path
 
     Example usage:
-    ${SCRIPTNAME} [--munge|--set-path]
+    ${SCRIPTNAME} [--munge|--unmunge]
 
     Note: The path to artifacts is assumed by the script to be
     located at \$WORKSPACE/artifacts
@@ -75,11 +75,11 @@ while true ; do
             shift;;
         # Munge '$WORKSPACE/output/bin/sdl-config'
         -m|--munge)
-            MUNGE_SDL_OUTPUT=1
+            MUNGE_SDL=1
             shift;;
-        # Munge '$WORKSPACE/artifacts/bin/sdl-config'
-        -s|--set-path)
-            MUNGE_SDL_ARTIFACT=1
+        # Unmunge '$WORKSPACE/artifacts/bin/sdl-config'
+        -u|--unmunge|-s|--set-path)
+            UNMUNGE_SDL=1
             shift;;
         --) shift;
             break;;
@@ -92,26 +92,26 @@ while true ; do
 done
 
 ### SCRIPT MAIN LOOP ###
-if [ $MUNGE_SDL_OUTPUT -eq 0 -a $MUNGE_SDL_ARTIFACT -eq 0 ]; then
+if [ $MUNGE_SDL -eq 0 -a $UNMUNGE_SDL -eq 0 ]; then
     warn "ERROR: please choose either --munge or --set-path"
     warn "See script --help for more options/information"
     exit 1
 fi
-if [ $MUNGE_SDL_OUTPUT -eq 1 -a $MUNGE_SDL_ARTIFACT -eq 1 ]; then
+if [ $MUNGE_SDL -eq 1 -a $UNMUNGE_SDL -eq 1 ]; then
     warn "ERROR: please choose either --munge or --set-path"
     warn "See script --help for more options/information"
     exit 1
 fi
 
 # test here to see if we're munging in /output or /artifacts
-if [ $MUNGE_SDL_OUTPUT -eq 1 ]; then
+if [ $MUNGE_SDL -eq 1 ]; then
     MUNGE_FILE="${WORKSPACE}/output/bin/sdl-config"
     SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
     info "Munging '${SHORT_FILE}' (\$WORKSPACE/output -> :ARTIFACTS:)"
     SED_EXPR="s!${WORKSPACE}/output!:ARTIFACTS:!g"
     info "'sed' expression is: ${SED_EXPR}"
     sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-elif [ $MUNGE_SDL_ARTIFACT -eq 1 ]; then
+elif [ $UNMUNGE_SDL -eq 1 ]; then
     MUNGE_FILE="${WORKSPACE}/artifacts/bin/sdl-config"
     SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
     info "Un-munging '${SHORT_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts"
@@ -119,7 +119,8 @@ elif [ $MUNGE_SDL_ARTIFACT -eq 1 ]; then
     info "'sed' expression is: ${SED_EXPR}"
     sed -i "${SED_EXPR}" "${MUNGE_FILE}"
 else
-    warn "ERROR: can't decide to munge output or artifacts"
+    warn "ERROR: can't decide to munge or unmunge 'sdl-config'"
+    warn "ERROR: this block of code should not have been reached"
     EXIT_STATUS=1
 fi
 

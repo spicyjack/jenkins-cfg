@@ -72,7 +72,7 @@ while true ; do
             PREFIX_PATH="$2";
             shift 2;;
         # configure args
-        -c|--config-args|--config|--configargs)
+        -c|--config-args|--config|--configargs|--configure-args)
             CONFIG_ARGS="$2";
             shift 2;;
         # tarball to unpack

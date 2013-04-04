@@ -133,11 +133,11 @@ do
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');
     TARGET_FILE="$TARGET_PATH/${JOB_NAME}.xml"
-    diff --brief ${JENKINS_CFG} ${TARGET_FILE} 1>/dev/null 2>&1
+    diff --brief "${JENKINS_CFG}" "${TARGET_FILE}" 1>/dev/null 2>&1
     DIFF_STATUS=$?
     if [ $DIFF_STATUS -gt 0 ]; then
         if [ $DRY_RUN -eq 0 ]; then
-            /bin/cp --force --verbose $JENKINS_CFG $TARGET_FILE
+            /bin/cp --force --verbose "$JENKINS_CFG" "$TARGET_FILE"
         else
             echo "  Need to copy files with changes, but dry-run was set;"
             echo "  Source: $JENKINS_CFG"

@@ -31,8 +31,8 @@ MUNGE_SDL_ARTIFACT=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hq"
-GETOPT_LONG="help,quiet"
+GETOPT_SHORT="hqms"
+GETOPT_LONG="help,quiet,munge,set-path"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -52,7 +52,8 @@ cat <<-EOF
     Example usage:
     ${SCRIPTNAME} [--munge|--set-path]
 
-    Note: The current artifacts path is assumed to be \$WORKSPACE/artifacts
+    Note: The path to artifacts is assumed by the script to be
+    located at \$WORKSPACE/artifacts
 
 EOF
 }

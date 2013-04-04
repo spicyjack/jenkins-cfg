@@ -1,0 +1,152 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Builds the Glib libraries (http://ftp.gnome.org/pub/gnome/sources/glib/) and dependencies.  &#xd;
+GLib is a general-purpose utility library, which provides many useful data types, &#xd;
+macros, type conversions, string utilities, file utilities, a main loop abstraction, and so on. </description>
+  <keepDependencies>true</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>OUTPUT_DIR</name>
+          <description>Directory to use for the installation of files from a build.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>output</string>
+              <string>build</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_GLIB_MAJOR_VERSION</name>
+          <description>Major version of Glib libraries to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>2.31</string>
+              <string>2.30</string>
+              <string>2.29</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JNK_GLIB_MINOR_VERSION</name>
+          <description>Minor version of GLIB libraries to build</description>
+          <defaultValue>6</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_LIBFFI_VERSION</name>
+          <description>The libffi library (http://sourceware.org/libffi/) provides a portable, high level programming interface to various calling conventions.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>3.0.10</string>
+              <string>3.0.11</string>
+              <string>3.0.9</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># remove the output directory, then recreate it
+/bin/rm -rf $WORKSPACE/$OUTPUT_DIR
+/bin/mkdir $WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># download files
+GLIB_VERSION=&quot;${JNK_GLIB_MAJOR_VERSION}.${JNK_GLIB_MINOR_VERSION}&quot;
+
+# download libffi
+if [ ! -e $JENKINS_HOME/Tarballs/libffi-${JNK_LIBFFI_VERSION}.tar.gz ]; then 
+    wget -O $JENKINS_HOME/Tarballs/libffi-${JNK_LIBFFI_VERSION}.tar.gz \
+        ftp://sourceware.org/pub/libffi/libffi-${JNK_LIBFFI_VERSION}.tar.gz
+fi
+
+# download glib
+if [ ! -e $JENKINS_HOME/Tarballs/glib-${GLIB_VERSION}.tar.xz ]; then 
+    wget -O $JENKINS_HOME/Tarballs/glib-${GLIB_VERSION}.tar.xz \
+        http://ftp.gnome.org/pub/GNOME/sources/glib/${JNK_GLIB_MAJOR_VERSION}/glib-${GLIB_VERSION}.tar.xz
+fi
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># configure and build libffi
+/bin/rm -rf $WORKSPACE/glib-*
+
+# 
+tar -zxvf $JENKINS_HOME/Tarballs/libffi-${JNK_LIBFFI_VERSION}.tar.gz
+
+#
+cd libffi-${JNK_LIBFFI_VERSION}
+
+#
+./configure --prefix=$WORKSPACE/$OUTPUT_DIR
+
+#
+time make
+
+# 
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Configure glib
+GLIB_VERSION=&quot;${JNK_GLIB_MAJOR_VERSION}.${JNK_GLIB_MINOR_VERSION}&quot;
+
+/bin/rm -rf $WORKSPACE/glib-*
+
+#
+xz --decompress --stdout $JENKINS_HOME/Tarballs/glib-${GLIB_VERSION}.tar.xz | tar -xvf -
+
+#
+cd glib-${GLIB_VERSION}
+
+#
+PKG_CONFIG_PATH=../output/lib/pkgconfig ./configure --prefix=$WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Build glib
+GLIB_VERSION=&quot;${JNK_GLIB_MAJOR_VERSION}.${JNK_GLIB_MINOR_VERSION}&quot;
+
+cd glib-${GLIB_VERSION}
+
+#
+time make
+
+# 
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># create a tarball of the build
+GLIB_VERSION=&quot;${JNK_GLIB_MAJOR_VERSION}.${JNK_GLIB_MINOR_VERSION}&quot;
+
+tar -cvf glib-${GLIB_VERSION}.tar output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command></command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>*.tar</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.Fingerprinter>
+      <targets>glib-*.tar</targets>
+      <recordBuildArtifacts>true</recordBuildArtifacts>
+    </hudson.tasks.Fingerprinter>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper/>
+  </buildWrappers>
+</project>

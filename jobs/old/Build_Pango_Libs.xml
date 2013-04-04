@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Builds the Pango text rendering library (http://www.pango.org/)</description>
+  <keepDependencies>true</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>OUTPUT_DIR</name>
+          <description>Directory to use for the installation of files from a build.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>output</string>
+              <string>build</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_PANGO_MAJOR_VERSION</name>
+          <description>Major version of Pango libraries to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.29</string>
+              <string>1.28</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>JNK_PANGO_MINOR_VERSION</name>
+          <description>Minor version of Pango libraries to build</description>
+          <defaultValue>5</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># remove the output directory, then recreate it
+/bin/rm -rf $WORKSPACE/$OUTPUT_DIR
+/bin/mkdir $WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>PANGO_VERSION=&quot;${JNK_PANGO_MAJOR_VERSION}.${JNK_PANGO_MINOR_VERSION}&quot;
+# pango
+if [ ! -e $JENKINS_HOME/Tarballs/pango-${PANGO_VERSION}.tar.bz2 ]; then 
+    wget -O $JENKINS_HOME/Tarballs/pango-${PANGO_VERSION}.tar.bz2 \
+        http://ftp.gnome.org/pub/GNOME/sources/pango/${JNK_PANGO_MAJOR_VERSION}/pango-${PANGO_VERSION}.tar.bz2
+fi
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>PANGO_VERSION=&quot;${JNK_PANGO_MAJOR_VERSION}.${JNK_PANGO_MINOR_VERSION}&quot;
+# Configure pango
+/bin/rm -rf $WORKSPACE/pango-*
+
+#
+tar -jxvf $JENKINS_HOME/Tarballs/pango-${PANGO_VERSION}.tar.bz2
+
+#
+cd pango-${PANGO_VERSION}
+
+#
+PKG_CONFIG_PATH=../output/lib/pkgconfig ./configure --prefix=$WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>PANGO_VERSION=&quot;${JNK_PANGO_MAJOR_VERSION}.${JNK_PANGO_MINOR_VERSION}&quot;
+# Build pango
+cd pango-${PANGO_VERSION}
+
+#
+#time make
+
+# 
+#time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>PANGO_VERSION=&quot;${JNK_PANGO_MAJOR_VERSION}.${JNK_PANGO_MINOR_VERSION}&quot;
+# create a tarball of the build
+#tar -cvf pango-${PANGO_VERSION}.tar output</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>*.tar</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.Fingerprinter>
+      <targets>*.tar</targets>
+      <recordBuildArtifacts>true</recordBuildArtifacts>
+    </hudson.tasks.Fingerprinter>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper/>
+  </buildWrappers>
+</project>

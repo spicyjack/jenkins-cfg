@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Builds the Perl scripting language</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_PERL_VERSION</name>
+          <description>Version of Perl to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.14.2</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>OUTPUT_DIR</name>
+          <description>Directory to use for the installation of files from a build.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>output</string>
+              <string>build</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># remove the output directory, then recreate it
+/bin/rm -rf $WORKSPACE/$OUTPUT_DIR
+/bin/mkdir $WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>if [ ! -e $JENKINS_HOME/Tarballs/perl-${JNK_PERL_VERSION}.tar.gz ]; then 
+    wget -O $JENKINS_HOME/Tarballs/perl-${JNK_PERL_VERSION}.tar.gz \
+        http://www.cpan.org/src/5.0/perl-${JNK_PERL_VERSION}.tar.gz
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#
+/bin/rm -rf $WORKSPACE/perl-${JNK_PERL_VERSION}
+
+#
+tar -zxvf $JENKINS_HOME/Tarballs/perl-${JNK_PERL_VERSION}.tar.gz
+
+#
+cd perl-${JNK_PERL_VERSION}
+
+#
+./Configure -de -Dusethreads -Dprefix=$WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#
+cd perl-${JNK_PERL_VERSION}
+
+#
+time make</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#
+cd perl-${JNK_PERL_VERSION}
+
+#
+#time make test</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#
+cd perl-${JNK_PERL_VERSION}
+
+#
+make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>tar -cvf perl-${JNK_PERL_VERSION}.tar output</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>*.tar</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper/>
+  </buildWrappers>
+</project>

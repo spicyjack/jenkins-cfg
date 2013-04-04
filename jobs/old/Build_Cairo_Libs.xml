@@ -1,0 +1,138 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Builds the Cairo graphics library (http://cairographics.org/)</description>
+  <keepDependencies>true</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>OUTPUT_DIR</name>
+          <description>Directory to use for the installation of files from a build.</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>output</string>
+              <string>build</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_CAIRO_VERSION</name>
+          <description>Version of Cairo libraries to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.10.2</string>
+              <string>1.10.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>JNK_PIXMAN_VERSION</name>
+          <description>Version of Cairo pixman libraries to build; required dependency for Cairo</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0.24.0</string>
+              <string>0.22.0</string>
+              <string>0.20.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command># remove the output directory, then recreate it
+/bin/rm -rf $WORKSPACE/$OUTPUT_DIR
+/bin/mkdir $WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># pixman
+if [ ! -e $JENKINS_HOME/Tarballs/pixman-${JNK_PIXMAN_VERSION}.tar.gz ]; then 
+    wget -O $JENKINS_HOME/Tarballs/pixman-${JNK_PIXMAN_VERSION}.tar.gz \
+        http://cairographics.org/releases/pixman-${JNK_PIXMAN_VERSION}.tar.gz
+fi
+# cairo
+if [ ! -e $JENKINS_HOME/Tarballs/cairo-${JNK_CAIRO_VERSION}.tar.gz ]; then 
+    wget -O $JENKINS_HOME/Tarballs/cairo-${JNK_CAIRO_VERSION}.tar.gz \
+        http://cairographics.org/releases/cairo-${JNK_CAIRO_VERSION}.tar.gz
+fi
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Configure pixman
+/bin/rm -rf $WORKSPACE/pixman-${JNK_PIXMAN_VERSION}
+
+#
+tar -zxvf $JENKINS_HOME/Tarballs/pixman-${JNK_PIXMAN_VERSION}.tar.gz
+
+#
+cd pixman-${JNK_PIXMAN_VERSION}
+
+#
+./configure --prefix=$WORKSPACE/$OUTPUT_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Build pixman
+cd pixman-${JNK_PIXMAN_VERSION}
+
+# 
+time make
+
+# 
+#time make test
+
+#
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Configure cairo
+/bin/rm -rf $WORKSPACE/cairo-${JNK_CAIRO_VERSION}
+
+#
+tar -zxvf $JENKINS_HOME/Tarballs/cairo-${JNK_CAIRO_VERSION}.tar.gz
+
+#
+cd cairo-${JNK_CAIRO_VERSION}
+
+#
+PKG_CONFIG_PATH=../output/lib/pkgconfig ./configure --prefix=$WORKSPACE/$OUTPUT_DIR --with-x</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Build cairo
+cd cairo-${JNK_CAIRO_VERSION}
+
+#
+time make
+
+# 
+time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># create a tarball of the build
+tar -cvf cairo-${JNK_CAIRO_VERSION}.tar output</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>*.tar</artifacts>
+      <latestOnly>false</latestOnly>
+    </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.Fingerprinter>
+      <targets>*.tar</targets>
+      <recordBuildArtifacts>true</recordBuildArtifacts>
+    </hudson.tasks.Fingerprinter>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper/>
+  </buildWrappers>
+</project>

@@ -129,7 +129,7 @@ find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do
     say "Found config: ${JENKINS_CFG}"
-    JOB_NAME=$(dirname ${JENKINS_CFG} \
+    JOB_NAME=$(dirname "${JENKINS_CFG}" \
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');
     TARGET_FILE="$TARGET_PATH/${JOB_NAME}.xml"

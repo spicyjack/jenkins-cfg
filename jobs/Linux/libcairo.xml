@@ -25,9 +25,9 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
           <description>Version of libcairo to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.12.2</string>
-              <string>1.12.4</string>
-              <string>1.12.8</string>
+              <string>1.12.14</string>
+              <string>1.12.12</string>
+              <string>1.12.10</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>

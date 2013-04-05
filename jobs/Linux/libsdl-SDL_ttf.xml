@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Simple Direct Layer networking library&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#xd;
-  http://www.libsdl.org/projects/SDL_net&lt;/a&gt;</description>
+  <description>Simple Direct Layer TrueType font library&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_ttf/&quot;&gt;&#xd;
+  http://www.libsdl.org/projects/SDL_ttf&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -18,14 +18,14 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>SDL_net</defaultValue>
+          <defaultValue>SDL_ttf</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of SDL_net to build</description>
+          <description>Version of SDL_ttf to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.2.8</string>
+              <string>2.0.11</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -61,9 +61,15 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libSDL
+ -- libSDL freetype
 /bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -74,14 +80,17 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+      <command>LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION}
+  --path=${PKG_NAME}-${PKG_VERSION} \
+  --test
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -94,7 +103,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL_net.artifact.tar.xz</artifacts>
+      <artifacts>libSDL_ttf.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

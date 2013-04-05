@@ -68,9 +68,11 @@ http://www.libsdl.org/download-1.2.php</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION} \
-  --test
+  --path=${PKG_NAME}-${PKG_VERSION}
 </command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --munge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
@@ -84,6 +86,7 @@ http://www.libsdl.org/download-1.2.php</description>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>libSDL.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>

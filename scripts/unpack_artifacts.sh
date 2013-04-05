@@ -101,7 +101,7 @@ if [ $# -gt 0 ]; then
     do
         ARTIFACT=$1
         if [ -r "${WORKSPACE}/${ARTIFACT}.artifact.tar.xz" ]; then
-            info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz"
+            info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz)"
             tar -Jxvf ../${ARTIFACT}.artifact.tar.xz
         else
             warn "Artifact ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"

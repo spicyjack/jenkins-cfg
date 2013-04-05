@@ -93,7 +93,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
-  --name=${PKG_NAME} \
+  --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>
@@ -101,7 +101,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>gdk-pixbuf.artifact.tar.xz</artifacts>
+      <artifacts>libgdk-pixbuf.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

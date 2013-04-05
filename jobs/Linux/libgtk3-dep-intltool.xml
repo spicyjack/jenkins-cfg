@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>ATK dependency for GTK+&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&quot;&gt;&#xd;
-http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&lt;/a&gt;</description>
+  <description>intltool is a set of tools to centralize translation of many different file formats&lt;br&gt;&#xd;
+using GNU gettext-compatible PO files.&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://launchpad.net/intltool/+download&quot;&gt;&#xd;
+https://launchpad.net/intltool/+download&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -18,14 +19,15 @@ http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>atk</defaultValue>
+          <defaultValue>intltool</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of libatk to build</description>
+          <description>Version of intltool to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>2.6.0</string>
+              <string>0.50.2</string>
+              <string>0.50.1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -53,45 +55,26 @@ http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&lt;/a&gt;</description>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
   --path $WORKSPACE/output</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib-dep-libffi</project>
-      <filter>libffi.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib</project>
-      <filter>libglib.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libffi libglib</command>
-    </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --url http://ftp.gnome.org/pub/gnome/sources/${PKG_NAME}/2.6/ \
-  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --url https://launchpad.net/${PKG_NAME}/trunk/${PKG_VERSION}/+download \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION} \
-  --test
-</command>
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>
@@ -99,7 +82,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libatk.artifact.tar.xz</artifacts>
+      <artifacts>intltool.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

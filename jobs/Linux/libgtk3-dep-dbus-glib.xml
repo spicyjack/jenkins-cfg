@@ -1,9 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Cairo library&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://www.cairographics.org/releases&quot;&gt;&#xd;
-http://www.cairographics.org/releases&lt;/a&gt;</description>
+  <description>Homepage: &lt;a href=&quot;http://www.freedesktop.org/wiki/Software/DBusBindings&quot;&gt;&#xd;
+http://www.freedesktop.org/wiki/Software/DBusBindings&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -18,16 +17,14 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>cairo</defaultValue>
+          <defaultValue>libdbus-glib</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of libcairo to build</description>
+          <description>Version of libdbus to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.12.14</string>
-              <string>1.12.12</string>
-              <string>1.12.10</string>
+              <string>git</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -49,7 +46,7 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
   <builders>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
-  --deps &quot;libx11-dev&quot;</command>
+  --deps &quot;gtk-doc-tools&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
@@ -58,53 +55,79 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
   --path $WORKSPACE/output
+# delete the cloned git repo too
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/artifacts
-/bin/rm -f $WORKSPACE/libpixman.artifact.tar.xz</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --url http://www.cairographics.org/releases \
-  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
-  --outdir $TARBALL_DIR</command>
+  --path $WORKSPACE/libdbus-glib</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libcairo-dep-libpixman</project>
-      <filter>pixman.artifact.tar.xz</filter>
+      <project>libgtk3-dep-intltool</project>
+      <filter>intltool.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- pixman</command>
+  -- intltool libglib libffi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
-  --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz</command>
+      <command>#/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+#  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+#  --url http://dbus.freedesktop.org/releases/${PKG_NAME}/ \
+#  --log $WORKSPACE/wget.${PKG_NAME}.log \
+#  --outdir $TARBALL_DIR
+git clone git://anongit.freedesktop.org/git/dbus/dbus-glib $WORKSPACE/libdbus-glib</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## BUILD AND TEST LIBCAIRO
-cd ${PKG_NAME}-${PKG_VERSION}
+      <command>#PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+#PATH=${WORKSPACE}/artifacts/bin:$PATH \
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+#  --prefix=${WORKSPACE}/output \
+#  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz
+cd $WORKSPACE/libdbus-glib
+./autogen.sh
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+./configure --prefix=${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+#  --path=${PKG_NAME}-${PKG_VERSION} \
+#  --test
+cd $WORKSPACE/libdbus-glib
 time make
-time make test TARGETS=xlib,xlib-render-0_0
+time make test
 time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}</command>
+  --output=${WORKSPACE}
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libcairo.artifact.tar.xz</artifacts>
+      <artifacts>libdbus-glib.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
 </project>

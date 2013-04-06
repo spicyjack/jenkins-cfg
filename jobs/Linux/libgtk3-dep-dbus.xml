@@ -1,10 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>AT-SPI is the primary service interface by which assistive technologies&lt;br&gt;&#xd;
-query and receive notifications from running applications.&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://ftp.gnome.org/pub/GNOME/sources/at-spi/1.32/&quot;&gt;&#xd;
-http://ftp.gnome.org/pub/GNOME/sources/at-spi/1.32/&lt;/a&gt;</description>
+  <description>D-Bus is a message bus system, a simple way for applications to talk to one another.&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://dbus.freedesktop.org/releases/dbus/&quot;&gt;&#xd;
+http://dbus.freedesktop.org/releases/dbus/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -19,15 +18,16 @@ http://ftp.gnome.org/pub/GNOME/sources/at-spi/1.32/&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>at-spi</defaultValue>
+          <defaultValue>dbus</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of libat-spi to build</description>
+          <description>Version of libdbus to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.32.0</string>
-              <string>1.30.1</string>
+              <string>1.7.0</string>
+              <string>1.6.8</string>
+              <string>1.6.6</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -62,56 +62,8 @@ http://ftp.gnome.org/pub/GNOME/sources/at-spi/1.32/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk2-dep-atk</project>
-      <filter>libatk.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-popt</project>
-      <filter>libpopt.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-libIDL</project>
-      <filter>libIDL.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-ORBit2</project>
-      <filter>libORBit2.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-bonobo</project>
-      <filter>libbonobo.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk2</project>
-      <filter>libgtk2+.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-gconf</project>
-      <filter>libGConf.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-dbus</project>
-      <filter>libdbus.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libgtk3-dep-dbus-glib</project>
-      <filter>libdbus-glib.artifact.tar.xz</filter>
+      <project>libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -121,31 +73,23 @@ http://ftp.gnome.org/pub/GNOME/sources/at-spi/1.32/&lt;/a&gt;</description>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libglib</project>
-      <filter>libglib.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- intltool libatk libpopt libIDL libORBit2 libbonobo libgtk2+ \
-    libGConf libdbus libdbus-glib libffi libglib</command>
+      <command>#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+#  -- intltool libglib libffi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
-  --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/1.30/ \
-  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --url http://dbus.freedesktop.org/releases/${PKG_NAME}/ \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 PATH=${WORKSPACE}/artifacts/bin:$PATH \
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
@@ -163,7 +107,7 @@ PATH=${WORKSPACE}/artifacts/bin:$PATH \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libat-spi.artifact.tar.xz</artifacts>
+      <artifacts>libdbus.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

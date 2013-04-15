@@ -103,7 +103,7 @@ while true ; do
     esac
 done
 
-if [ "x$PREFIX_PATH" = "x" ]; then
+if [ "x$PREFIX_PATH" = "x" -a $NO_CONFIGURE -eq 0 ]; then
     warn "ERROR: Please pass a path to the build output directory (--prefix)"
     exit 1
 fi
@@ -146,7 +146,7 @@ info "Unpack command: ${UNARCHIVE_CMD} ${TARBALL}"
 # 'eval' the unarchive command so tildes expand themselves and whatnot
 eval $UNARCHIVE_CMD $TARBALL
 
-if [ $NO_CONFIGURE == 0 ]; then
+if [ $NO_CONFIGURE -eq 0 ]; then
 # then run configure
     START_DIR=$PWD
     info "Changing into ${SOURCE_DIR}"

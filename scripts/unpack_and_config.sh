@@ -20,6 +20,9 @@ QUIET=0
 # default exit status
 EXIT_STATUS=0
 
+# don't run ./configure; 0 = run configure, 1 = don't run configure
+NO_CONFIGURE=0
+
 ### SCRIPT SETUP ###
 # source jenkins functions
 . ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
@@ -28,7 +31,8 @@ EXIT_STATUS=0
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqp:c:t:"
-GETOPT_LONG="help,quiet,prefix:,config-args:,configargs:,config:,tarball:"
+GETOPT_LONG="help,quiet,prefix:,no-config"
+GETOPT_LONG="${GETOPT_LONG},config-args:,configargs:,config:,tarball:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -43,12 +47,18 @@ cat <<-EOF
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
     -p|--prefix         Prefix to install path; usually \$WORKSPACE/output
+    -n|--no-config      Don't run './configure'; use for CMake and friends
     -c|--config-args    Arguments to pass to './configure'
     -t|--tarball        Filename of tarball to download and/or unpack
 
     Example usage:
+    # for ./configure
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
     --config-args="--arg1=foo --arg2=bar" \\
+    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+
+    # for CMake
+    ${SCRIPTNAME} --no-config \\
     --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
 
 EOF
@@ -75,6 +85,10 @@ while true ; do
         -c|--config-args|--config|--configargs|--configure-args)
             CONFIG_ARGS="$2";
             shift 2;;
+        # Don't run ./configure
+        -n|--no-config)
+            NO_CONFIGURE=1
+            shift;;
         # tarball to unpack
         -t|--tarball)
             TARBALL="$2";
@@ -132,17 +146,21 @@ info "Unpack command: ${UNARCHIVE_CMD} ${TARBALL}"
 # 'eval' the unarchive command so tildes expand themselves and whatnot
 eval $UNARCHIVE_CMD $TARBALL
 
+if [ $NO_CONFIGURE == 0 ]; then
 # then run configure
-START_DIR=$PWD
-info "Changing into ${SOURCE_DIR}"
-cd $SOURCE_DIR
-CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
-info "Running: ${CONFIGURE_CMD}"
-eval $CONFIGURE_CMD 2>&1
-check_exit_status $? "$CONFIGURE_CMD" " "
-EXIT_STATUS=$?
-info "Changing back to start directory ${START_DIR}"
-cd $START_DIR
+    START_DIR=$PWD
+    info "Changing into ${SOURCE_DIR}"
+    cd $SOURCE_DIR
+    CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
+    info "Running: ${CONFIGURE_CMD}"
+    eval $CONFIGURE_CMD 2>&1
+    check_exit_status $? "$CONFIGURE_CMD" " "
+    EXIT_STATUS=$?
+    info "Changing back to start directory ${START_DIR}"
+    cd $START_DIR
+else
+    info "Skipping running of './configure"
+fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
     warn "ERROR: command '${CONFIGURE_CMD}'"

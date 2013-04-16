@@ -132,6 +132,9 @@ elif [ $(echo $TARBALL | grep -c 'xz$') -gt 0 ]; then
 elif [ $(echo $TARBALL | grep -c 'bz2$') -gt 0 ]; then
     UNARCHIVE_CMD="tar -jxvf"
     SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.tar\.bz2$//')
+else
+    echo "ERROR: Don't know how to unpack $TARBALL!"
+    exit 1
 fi
 info "SOURCE_DIR is ${SOURCE_DIR}"
 

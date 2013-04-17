@@ -1,0 +1,164 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The Eternity Engine is Team Eternity&apos;s advanced Doom source port&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://dl.dropbox.com/u/285097&quot;&gt;&#xd;
+https://dl.dropbox.com/u/285097&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>ee</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of eternity to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>3.40.30</string>
+              <string>3.40.25</string>
+              <string>3.40.20</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+  --deps &quot;cmake&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl</project>
+      <filter>libSDL.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_image</project>
+      <filter>libSDL_image.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_mixer</project>
+      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_net</project>
+      <filter>libSDL_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_ttf</project>
+      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
+/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># https://dl.dropbox.com/u/285097
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}-src.zip \
+  --url https://dl.dropbox.com/u/285097 \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  --no-config \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}-src.zip
+cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}-src
+# generate a configure file if one doesn&apos;t exist
+if [ ! -e configure ]; then
+  # create a HERE document that rewrites autogen.sh
+  cat &lt;&lt; EOAG &gt; autogen.sh
+if [ ! -d autotools ]; then
+  mkdir autotools
+fi
+aclocal -I${WORKSPACE}/artifacts/share/aclocal
+automake -a -c
+autoconf
+automake
+
+./configure --prefix=${WORKSPACE}/output
+EOAG
+# end of HERE document; now run autogen.sh
+  SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+    LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+    PATH=$PATH:${WORKSPACE}/artifacts/bin \
+    sh autogen.sh
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION}-src</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+  --name=eternity \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>eternity.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

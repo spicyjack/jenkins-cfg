@@ -1,0 +1,158 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>The EDGE project is a programming project to develop a DOOM style engine&lt;br&gt;&#xd;
+aimed at the Total Conversion developer, but still able to play the original&lt;br&gt;&#xd;
+DOOM games.&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://sourceforge.net/projects/edge/files&quot;&gt;&#xd;
+https://sourceforge.net/projects/edge/files&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>Edge</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of edge to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.35</string>
+              <string>1.34</string>
+              <string>1.31</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+  --deps &quot;libglew1.5-dev&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl</project>
+      <filter>libSDL.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_image</project>
+      <filter>libSDL_image.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_mixer</project>
+      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_net</project>
+      <filter>libSDL_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_ttf</project>
+      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
+/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file Edge-${PKG_VERSION}-source.tar.bz2 \
+  --url http://downloads.sourceforge.net/${PKG_NAME} \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  --no-config \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}-source.tar.bz2</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>cd $WORKSPACE/${PKG_NAME}-${PKG_VERSION}-source
+
+# mangle the Makefile to add the SDL includes
+/bin/sed -i &apos;s!CFLAGS += -I\.!CFLAGS += -I. -I${WORKSPACE}/artifacts/include!&apos; \
+  Makefile.linux
+
+# then run the build
+time SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  PATH=$PATH:/home/jenkins/.jenkins/jobs/edge/workspace/artifacts/bin \
+  make -f Makefile.linux</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Move artifacts to their own directory
+mkdir -p $WORKSPACE/output/bin
+cd $WORKSPACE/${PKG_NAME}-${PKG_VERSION}-source
+cp -av obj_linux/* $WORKSPACE/output/bin</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+  --name=edge \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>edge.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

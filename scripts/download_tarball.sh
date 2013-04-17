@@ -111,17 +111,31 @@ if [ ! -d $OUTDIR ]; then
 fi
 
 # check to see if the tarball is in OUTDIR before downloading
+# FIXME check for zero-length files, warn if one is found
 if [ ! -e $OUTDIR/$TARBALL ]; then
     # log wget output, or send to STDERR?
     if [ "x$WGET_LOG" != "x" ]; then
-        WGET_OPTS="-o $WGET_LOG"
+        OUTPUT=$(wget -o $WGET_LOG -O $OUTDIR/$TARBALL \
+            $BASE_URL/$TARBALL 2>&1)
+        SCRIPT_EXIT=$?
+    else
+        wget -O $OUTDIR/$TARBALL $BASE_URL/$TARBALL 2>&1
+        SCRIPT_EXIT=$?
     fi
-    eval OUTPUT=$(wget $WGET_OPTS -O $OUTDIR/$TARBALL \
-        $BASE_URL/$TARBALL 2>/dev/null)
-    check_exit_status $? "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
-    info "Download complete!"
+    # check the status of the last command
+    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
+    if [ $SCRIPT_EXIT -eq 0 ]; then
+        info "Download of ${TARBALL} successful!"
+    else
+        info "Download of ${TARBALL} failed!"
+        if [ -e $OUTDIR/$TARBALL ]; then
+            /bin/rm -f $OUTDIR/$TARBALL
+        fi
+    fi
 else
-    info "File already exists: ${OUTDIR}/${TARBALL}"
+    FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUTDIR}/${TARBALL})
+    info "File already exists: ${OUTDIR}/${TARBALL};"
+    info "File size: ${FILE_SIZE} byte(s)"
 fi
 
 exit ${SCRIPT_EXIT}

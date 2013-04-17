@@ -124,7 +124,7 @@ mkdir bin
 cd src
 time SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-  PATH=$PATH:/home/jenkins/.jenkins/jobs/doom-legacy/workspace/artifacts/bin \
+  PATH=$PATH:${WORKSPACE}/artifacts/bin \
   make
 
 # now run configure

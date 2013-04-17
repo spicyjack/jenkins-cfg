@@ -116,26 +116,13 @@ https://dl.dropbox.com/u/285097&lt;/a&gt;</description>
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}-src.zip
 cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}-src
-# generate a configure file if one doesn&apos;t exist
-if [ ! -e configure ]; then
-  # create a HERE document that rewrites autogen.sh
-  cat &lt;&lt; EOAG &gt; autogen.sh
-if [ ! -d autotools ]; then
-  mkdir autotools
-fi
-aclocal -I${WORKSPACE}/artifacts/share/aclocal
-automake -a -c
-autoconf
-automake
-
-./configure --prefix=${WORKSPACE}/output
-EOAG
-# end of HERE document; now run autogen.sh
-  SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-    LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-    PATH=$PATH:${WORKSPACE}/artifacts/bin \
-    sh autogen.sh
-fi</command>
+mkdir jenk-build
+cd jenk-build
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  PATH=$PATH:${WORKSPACE}/artifacts/bin \
+  cmake ..
+time make</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \

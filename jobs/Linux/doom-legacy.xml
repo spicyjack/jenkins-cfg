@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Doom Legacy is a source port of Doom available for DOS, Win32, Linux, OS/2 and MacOS,&lt;br&gt;&#xd;
+originally written by Boris Pereira and Fabrice &quot;faB&quot; Denis.&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://doomlegacy.sourceforge.net/releases&quot;&gt;&#xd;
+http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>doomlegacy</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of doom-legacy to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.44_alpha4_src_r999</string>
+              <string>1.44_alpha3_src_r845</string>
+              <string>1.44_alpha1_src_r752</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl</project>
+      <filter>libSDL.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_image</project>
+      <filter>libSDL_image.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_mixer</project>
+      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_net</project>
+      <filter>libSDL_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_ttf</project>
+      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
+/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}_${PKG_VERSION}.zip \
+  --url http://downloads.sourceforge.net/${PKG_NAME} \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># custom source dir delete, since the names of things change in doomlegacy source
+SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+rm -rvf $WORKSPACE/${PKG_NAME}_${SHORT_PKG_VERSION}
+# clean up the output directory
+rm -rvf $WORKSPACE/bin
+# unpack
+unzip $TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip
+
+cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
+
+# make a directory for the binaries output during the compile
+mkdir bin
+
+# enter the source dir and build
+cd src
+time SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  PATH=$PATH:/home/jenkins/.jenkins/jobs/doom-legacy/workspace/artifacts/bin \
+  make
+
+# now run configure
+#SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+#  --prefix=${WORKSPACE}/output \
+#  --tarball=$TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+#/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+#  --path=${PKG_NAME}_${SHORT_PKG_VERSION}
+# custom source dir delete, since the names of things change in doomlegacy source
+SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
+tar -Jcvf $WORKSPACE/${PKG_NAME}.artifact.tar.xz bin</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+#  --name=${PKG_NAME} \
+#  --source-version=${PKG_VERSION} \
+#  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>doomlegacy.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

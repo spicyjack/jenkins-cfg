@@ -50,7 +50,7 @@ cat <<-EOF
     -t|--target     Target path for copying 'config.xml' config files
 
     Example usage:
-    ${SCRIPTNAME} --jenkins /path/to/jenkins/jobs \
+    ${SCRIPTNAME} --jenkins /path/to/jenkins/jobs \\
       --target ~/src/jenkins-cfg.git/jobs/Platform
 EOF
 }

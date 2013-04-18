@@ -121,8 +121,13 @@ cd jenk-build
 SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
   PATH=$PATH:${WORKSPACE}/artifacts/bin \
-  cmake ..
-time make</command>
+  cmake .. \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
+    -G&quot;Unix Makefiles&quot;
+time make
+ln -s libpng/libpng15.a libpng/libpng.a
+time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \

@@ -126,6 +126,8 @@ if [ -h $JENKINS_PATH ]; then
     fi
 fi
 CONFIGS_COPIED=0
+BACKUP_JENKINS_STATEFILE=/tmp/backup_jenkins.$$
+
 find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do
@@ -137,23 +139,32 @@ do
     diff --brief "${JENKINS_CFG}" "${TARGET_FILE}" 1>/dev/null 2>&1
     DIFF_STATUS=$?
     if [ $DIFF_STATUS -gt 0 ]; then
+        CONFIGS_COPIED=$((${CONFIGS_COPIED} + 1))
+        echo $CONFIGS_COPIED > $BACKUP_JENKINS_STATEFILE
         if [ $DRY_RUN -eq 0 ]; then
-            say "  Has changes: $JENKINS_CFG"
+            say "- Has changes: $JENKINS_CFG"
             /bin/cp --force --verbose "$JENKINS_CFG" "$TARGET_FILE"
-            CONFIGS_COPIED=$((CONFIGS_COPIED + 1))
+            EXIT_STATUS=$?
         else
-            echo "  Need to copy files with changes, but dry-run was set;"
-            echo "  Source: $JENKINS_CFG"
-            echo "  Target: $TARGET_FILE"
+            echo "  Would have copied: $JENKINS_CFG"
         fi
-        EXIT_STATUS=$?
     fi
 done
 
-if [ $CONFIGS_COPIED -gt 0 ]; then
-    info "Copied ${CONFIGS_COPIED} configuration files"
+if [ -e $BACKUP_JENKINS_STATEFILE ]; then
+    CONFIGS_COPIED=$(cat $BACKUP_JENKINS_STATEFILE)
+    rm $BACKUP_JENKINS_STATEFILE
+    if [ $DRY_RUN -eq 0 ]; then
+        info "Copied ${CONFIGS_COPIED} configuration files"
+    else
+        info "Would have copied ${CONFIGS_COPIED} configuration files"
+    fi
 else
-    info "No configuration files copied"
+    if [ $DRY_RUN -eq 0 ]; then
+        info "No configuration files copied"
+    else
+        info "No configuration files would have been copied"
+    fi
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then

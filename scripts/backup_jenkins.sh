@@ -150,7 +150,7 @@ do
     fi
 done
 
-if [ $CONFIGS_COPIED -gt 0 ];
+if [ $CONFIGS_COPIED -gt 0 ]; then
     info "Copied ${CONFIGS_COPIED} configuration files"
 else
     info "No configuration files copied"

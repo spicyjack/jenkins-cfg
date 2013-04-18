@@ -49,7 +49,12 @@ https://dl.dropbox.com/u/285097&lt;/a&gt;</description>
   <builders>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
-  --deps &quot;cmake&quot;</command>
+  --deps &quot;cmake&quot;
+# check to see if the faux-fink link is set up correctly
+if [ ! -h &quot;/sw&quot; ]; then
+  echo &quot;ERROR: faux-Fink symlink from &apos;/sw&apos; not set up&quot;
+  exit 1
+fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
@@ -128,10 +133,6 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 time make
 ln -s libpng/libpng15.a libpng/libpng.a
 time make install</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION}-src</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \

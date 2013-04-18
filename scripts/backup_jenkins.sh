@@ -125,10 +125,11 @@ if [ -h $JENKINS_PATH ]; then
         JENKINS_PATH="${JENKINS_PATH}/"
     fi
 fi
+CONFIGS_COPIED=0
 find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
     | while IFS= read -d $'\0' JENKINS_CFG;
 do
-    say "Found config: ${JENKINS_CFG}"
+    #say "Found config: ${JENKINS_CFG}"
     JOB_NAME=$(dirname "${JENKINS_CFG}" \
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');
@@ -137,7 +138,9 @@ do
     DIFF_STATUS=$?
     if [ $DIFF_STATUS -gt 0 ]; then
         if [ $DRY_RUN -eq 0 ]; then
+            say "  Has changes: $JENKINS_CFG"
             /bin/cp --force --verbose "$JENKINS_CFG" "$TARGET_FILE"
+            CONFIGS_COPIED=$((CONFIGS_COPIED + 1))
         else
             echo "  Need to copy files with changes, but dry-run was set;"
             echo "  Source: $JENKINS_CFG"
@@ -146,6 +149,12 @@ do
         EXIT_STATUS=$?
     fi
 done
+
+if [ $CONFIGS_COPIED -gt 0 ];
+    info "Copied ${CONFIGS_COPIED} configuration files"
+else
+    info "No configuration files copied"
+fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
     warn "ERROR: backup_jenkins.sh completed with errors"

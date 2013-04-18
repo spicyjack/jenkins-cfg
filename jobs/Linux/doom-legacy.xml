@@ -3,6 +3,7 @@
   <actions/>
   <description>Doom Legacy is a source port of Doom available for DOS, Win32, Linux, OS/2 and MacOS,&lt;br&gt;&#xd;
 originally written by Boris Pereira and Fabrice &quot;faB&quot; Denis.&lt;br&gt;&#xd;
+Builds with: GNU make, no &apos;./configure&apos;&#xd;
 Downloads: &lt;a href=&quot;http://doomlegacy.sourceforge.net/releases&quot;&gt;&#xd;
 http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -125,21 +126,10 @@ cd src
 time SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
   PATH=$PATH:${WORKSPACE}/artifacts/bin \
-  make
-
-# now run configure
-#SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
-#  --prefix=${WORKSPACE}/output \
-#  --tarball=$TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip</command>
+  make</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
-#  --path=${PKG_NAME}_${SHORT_PKG_VERSION}
-# custom source dir delete, since the names of things change in doomlegacy source
-SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+      <command>SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
 cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
 tar -Jcvf $WORKSPACE/${PKG_NAME}.artifact.tar.xz bin</command>
     </hudson.tasks.Shell>

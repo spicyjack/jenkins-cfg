@@ -3,6 +3,7 @@
   <actions/>
   <description>PrBoom - PrBoom, the purest Doom-Port? Aims to be the most stable Doom port&#xd;
 with the highest compatibility to the major Doom versions.&#xd;
+Builds with: GNU make&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://sourceforge.net/projects/prboom/files/prboom%20stable&quot;&gt;&#xd;
 http://sourceforge.net/projects/prboom/files/prboom%20stable&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">

@@ -4,6 +4,7 @@
   <description>The Doomsday Engine allows you to play the classic first-person shooters DOOM,&lt;br&gt;&#xd;
 Heretic, and Hexen using modern technology, with hardware accelerated 3D graphics,&lt;br&gt;&#xd;
 surround sound and much more..&lt;br&gt;&#xd;
+Builds with: QT make (qmake)&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://sourceforge.net/projects/deng/files/&quot;&gt;&#xd;
 http://sourceforge.net/projects/deng/files/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">

@@ -3,6 +3,7 @@
   <actions/>
   <description>Chocolate Doom - A Doom source port that accurately reproduces&lt;br&gt;&#xd;
 the experience of Doom as it was played in the 1990s.&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://tinyurl.com/cpt69pd&quot;&gt;&#xd;
 http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">

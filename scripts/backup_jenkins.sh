@@ -128,8 +128,8 @@ fi
 CONFIGS_COPIED=0
 BACKUP_JENKINS_STATEFILE=/tmp/backup_jenkins.$$
 
-find "$JENKINS_PATH" -name "config.xml" -print0 2>/dev/null | sort -z \
-    | while IFS= read -d $'\0' JENKINS_CFG;
+find "$JENKINS_PATH" -maxdepth 2 -name "config.xml" -print0 2>/dev/null \
+    | sort -z | while IFS= read -d $'\0' JENKINS_CFG;
 do
     #say "Found config: ${JENKINS_CFG}"
     JOB_NAME=$(dirname "${JENKINS_CFG}" \

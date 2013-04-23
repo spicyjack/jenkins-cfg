@@ -135,6 +135,9 @@ elif [ $(echo $TARBALL | grep -c 'bz2$') -gt 0 ]; then
 elif [ $(echo $TARBALL | grep -c 'zip$') -gt 0 ]; then
     UNARCHIVE_CMD="unzip"
     SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.zip$//')
+elif [ $(echo $TARBALL | grep -c '7z$') -gt 0 ]; then
+    UNARCHIVE_CMD="unlzma"
+    SOURCE_DIR=$(/usr/bin/basename $TARBALL | sed 's/\.7z$//')
 else
     echo "ERROR: Don't know how to unpack $TARBALL!"
     exit 1

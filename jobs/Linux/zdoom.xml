@@ -1,0 +1,215 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>ZDoom is an enhanced port of the official DOOM source code to Win32.&lt;br&gt;&#xd;
+Builds with: CMake&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://zdoom.org/files/zdoom/&quot;&gt;&#xd;
+http://zdoom.org/files/zdoom&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>zdoom</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_BRANCH_VER</name>
+          <description>&quot;Branch&quot; version number, which is part of the download file&apos;s URL</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>2.6</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of prboom+ to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>2.6.1</string>
+              <string>2.6.0</string>
+              <string>2.5.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>FMOD_VERSION</name>
+          <description>Version of FMOD library to download</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>43824</string>
+              <string>44412</string>
+              <string>44411</string>
+              <string>44410</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+  --deps &quot;cmake p7zip fluidsynth libfluidsynth-dev fluid-soundfont-gm 
+    fluid-soundfont-gs&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins-cfg.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/output
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+  --path $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl</project>
+      <filter>libSDL.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_image</project>
+      <filter>libSDL_image.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_mixer</project>
+      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_net</project>
+      <filter>libSDL_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libsdl-SDL_ttf</project>
+      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-freetype</project>
+      <filter>freetype.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+ -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
+/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}-src.7z \
+  --url http://zdoom.org/files/${PKG_NAME}/${PKG_BRANCH_VER} \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#http://www.fmod.org/index.php/release/version/fmodapi44412linux.tar.gz
+# fmodapi44412linux/api/[inc|lib]
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+  --file fmodapi${FMOD_VERSION}linux64.tar.gz \
+  --url http://www.fmod.org/index.php/release/version \
+  --log $WORKSPACE/wget.fmodapi.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># unpack fmod, and copy files into $WORKSPACE/artifacts/lib
+cd ${WORKSPACE}/artifacts
+tar -zxvf $TARBALL_DIR/fmodapi${FMOD_VERSION}linux64.tar.gz
+cp -av fmodapi${FMOD_VERSION}linux64/api/lib/* lib
+cp -av fmodapi${FMOD_VERSION}linux64/api/inc/* include</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># do manual unpack and configure for zdoom
+if [ -d ${PKG_NAME}-${PKG_VERSION} ]; then
+  rm -rf ${PKG_NAME}-${PKG_VERSION}
+fi 
+mkdir ${PKG_NAME}-${PKG_VERSION}
+cd ${PKG_NAME}-${PKG_VERSION}
+7zr x $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}-src.7z
+
+MACHINE_NAME=$(uname -m)
+if [ $(echo $MACHINE_NAME | grep -c &quot;64&quot;) -gt 0 ]; then
+  LIBFMOD=&quot;libfmodex64.so&quot;
+else
+  LIBFMOD=&quot;libfmodex.so&quot;
+fi
+echo &quot;=== LIBFMOD is: ${LIBFMOD}; MACHINE_NAME is ${MACHINE_NAME} ===&quot;
+
+# create the build dir for cmake
+mkdir jenk-build
+cd jenk-build
+SDLDIR=${WORKSPACE}/artifacts/include \
+  PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  PATH=$PATH:${WORKSPACE}/artifacts/bin \
+  cmake .. \
+    -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
+    -DFMOD_LIBRARY=${WORKSPACE}/artifacts/lib/${LIBFMOD} \
+    -DFMOD_INCLUDE_DIR=${WORKSPACE}/artifacts/include
+
+# run the actual build
+time make
+#time make install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Copy the different files to the $WORKSPACE/output directory
+mkdir -p ${WORKSPACE}/output/bin ${WORKSPACE}/output/share/games/doom
+# copy the binaries
+cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/jenk-build
+cp zdoom ${WORKSPACE}/output/bin
+# copy the wad file
+cp zdoom.pk3 ${WORKSPACE}/output/share/games/doom
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>zdoom.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>PrBoom - PrBoom, the purest Doom-Port? Aims to be the most stable Doom port&#xd;
-with the highest compatibility to the major Doom versions.&#xd;
+  <description>PrBoom - PrBoom, the purest Doom-Port? Aims to be the most stable Doom port&lt;br&gt;&#xd;
+with the highest compatibility to the major Doom versions.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://sourceforge.net/projects/prboom/files/prboom%20stable&quot;&gt;&#xd;
 http://sourceforge.net/projects/prboom/files/prboom%20stable&lt;/a&gt;</description>

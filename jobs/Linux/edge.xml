@@ -4,7 +4,7 @@
   <description>The EDGE project is a programming project to develop a DOOM style engine&lt;br&gt;&#xd;
 aimed at the Total Conversion developer, but still able to play the original&lt;br&gt;&#xd;
 DOOM games.&lt;br&gt;&#xd;
-Builds with: GNU make, static makefile (make -f)&#xd;
+Builds with: GNU make, static makefile (make -f)&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;https://sourceforge.net/projects/edge/files&quot;&gt;&#xd;
 https://sourceforge.net/projects/edge/files&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">

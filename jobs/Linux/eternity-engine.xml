@@ -51,13 +51,7 @@ https://dl.dropbox.com/u/285097&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
   --deps &quot;cmake&quot;
-# check to see if the faux-fink link is set up correctly
-# 18Apr2013 - I think the correct incantation of &apos;cmake&apos; was found so that
-# the symlink to /sw is no longer needed
-#if [ ! -h &quot;/sw&quot; ]; then
-#  echo &quot;ERROR: faux-Fink symlink from &apos;/sw&apos; not set up&quot;
-#  exit 1
-#fi</command>
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
@@ -126,17 +120,17 @@ https://dl.dropbox.com/u/285097&lt;/a&gt;</description>
 cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}-src
 mkdir jenk-build
 cd jenk-build
-# SDLDIR is for CMake, won&apos;t work without it
-SDLDIR=${WORKSPACE}/artifacts/include/SDL \
-SDLNETDIR=${WORKSPACE}/artifacts \
-SDLMIXERDIR=${WORKSPACE}/artifacts \
+# SDLDIR and friends is for CMake, the build won&apos;t happen without it
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
   PATH=$PATH:${WORKSPACE}/artifacts/bin \
   cmake .. \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
-    -G&quot;Unix Makefiles&quot;
+    -G&quot;Unix Makefiles&quot; \
+
+# run the actual build
 time make
 ln -s libpng/libpng15.a libpng/libpng.a
 time make install</command>

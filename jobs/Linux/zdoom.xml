@@ -32,7 +32,7 @@ http://zdoom.org/files/zdoom&lt;/a&gt;</description>
         </hudson.model.ChoiceParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of prboom+ to build</description>
+          <description>Version of ZDoom to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>2.6.1</string>

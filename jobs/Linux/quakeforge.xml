@@ -112,10 +112,21 @@ http://prdownloads.sourceforge.net/quake&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --no-config
+
+cd ${PKG_NAME}-${PKG_VERSION}
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+./configure --prefix=${WORKSPACE}/output \
+  --with-sharepath=${WORKSPACE}/output/share/games/quakeforge \
+  --with-plugin-path=${WORKSPACE}/output/lib/quakeforge \
+  --with-ipv6 \
+  --with-x \
+  --with-clients=sdl,x11,glx,sgl \
+  --with-servers=master,nq,qw,qtv \
+--with-tools=bsp2img,carne,pak,qfbsp,qfcc,qflight,qfmodelgen,qfvis,qwaq,wad,wav</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
@@ -132,7 +143,7 @@ http://prdownloads.sourceforge.net/quake&lt;/a&gt;</description>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>prboom.artifact.tar.xz</artifacts>
+      <artifacts>quakeforge.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Perl for x86_64 systems&lt;br&gt;&#xd;
+  <description>Perl 5 is a highly capable, feature-rich programming language&lt;br&gt;&#xd;
+with over 25 years of development.&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://www.cpan.org/src/5.0&quot;&gt;&#xd;
 http://www.cpan.org/src/5.0&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -64,7 +65,7 @@ http://www.cpan.org/src/5.0&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## UNPACK AND CONFIGURE
-echo &quot;-&gt; Unpacking and configuring Perl ${{PERL_VERSION}&quot;
+echo &quot;-&gt; Unpacking and configuring Perl ${PKG_VERSION}&quot;
 
 # always unpack fresh source
 if [ -d ${PKG_NAME}-${PKG_VERSION} ]; then
@@ -73,7 +74,7 @@ fi
 
 tar -zxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz
 
-cd perl-${PERL_VERSION}
+cd perl-${PKG_VERSION}
 
 # now run Configure
 echo &quot;Current directory is: $(pwd)&quot;

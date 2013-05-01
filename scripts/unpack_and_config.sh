@@ -108,11 +108,6 @@ if [ "x$PREFIX_PATH" = "x" -a $NO_CONFIGURE -eq 0 ]; then
     exit 1
 fi
 
-#if [ "x$SOURCE_DIR" = "x" ]; then
-#    warn "ERROR: Please pass a path to the unpacked source dir. (--source)"
-#    exit 1
-#fi
-
 if [ "x$TARBALL" = "x" ]; then
     warn "ERROR: Please pass the filename of the tarball file (--tarball)"
     exit 1
@@ -158,15 +153,20 @@ eval $UNARCHIVE_CMD $TARBALL
 if [ $NO_CONFIGURE -eq 0 ]; then
 # then run configure
     START_DIR=$PWD
-    info "Changing into ${SOURCE_DIR}"
-    cd $SOURCE_DIR
-    CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
-    info "Running: ${CONFIGURE_CMD}"
-    eval $CONFIGURE_CMD 2>&1
-    check_exit_status $? "$CONFIGURE_CMD" " "
-    EXIT_STATUS=$?
-    info "Changing back to start directory ${START_DIR}"
-    cd $START_DIR
+    if [ -d ${SOURCE_DIR} ]; then
+        info "Changing into ${SOURCE_DIR}"
+        cd $SOURCE_DIR
+        CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
+        info "Running: ${CONFIGURE_CMD}"
+        eval $CONFIGURE_CMD 2>&1
+        check_exit_status $? "$CONFIGURE_CMD" " "
+        EXIT_STATUS=$?
+        info "Changing back to start directory ${START_DIR}"
+        cd $START_DIR
+    else
+        warn "ERROR: Source directory ${SOURCE_DIR} does not exist!"
+        EXIT_STATUS=1
+    fi
 else
     info "Skipping running of './configure"
 fi

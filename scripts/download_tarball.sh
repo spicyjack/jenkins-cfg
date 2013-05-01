@@ -45,9 +45,9 @@ cat <<-EOF
     NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
 
     Example usage:
-    sh download.sh -o ~/tmp -f perl-5.16.2.tar.gz \
+    sh download.sh -o ~/tmp -f perl-5.16.2.tar.gz \\
       -u http://www.cpan.org/src/5.0
-    sh download.sh --outdir ~/tmp --file perl-5.16.2.tar.gz \
+    sh download.sh --outdir ~/tmp --file perl-5.16.2.tar.gz \\
       --url http://www.cpan.org/src/5.0
 EOF
 }

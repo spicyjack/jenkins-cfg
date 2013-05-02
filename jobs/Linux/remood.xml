@@ -3,8 +3,8 @@
   <actions/>
   <description>ReMooD - ReMooD is a source port based off Doom Legacy 1.42.&lt;br&gt;&#xd;
 Builds with: GNU make, static makefile (make -f)&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://sourceforge.net/projects/prboom/files/prboom%20stable&quot;&gt;&#xd;
-http://sourceforge.net/projects/prboom/files/prboom%20stable&lt;/a&gt;</description>
+Downloads: &lt;a href=&quot;http://sourceforge.net/projects/remood&quot;&gt;&#xd;
+http://sourceforge.net/projects/remood&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

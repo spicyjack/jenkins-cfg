@@ -117,7 +117,7 @@ if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
   /bin/rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
 fi
 
-# now unpack the archive again
+# now unpack the archive
 tar -zxvf ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tgz
 cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/Quake
 time make release SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \</command>

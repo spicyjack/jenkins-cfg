@@ -104,7 +104,7 @@ if [ $# -gt 0 ]; then
             info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz)"
             tar -Jxvf ../${ARTIFACT}.artifact.tar.xz
         else
-            warn "Artifact ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"
+            warn "ERROR: ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"
             EXIT_STATUS=1
         fi
         # pop the file off of the arg stack

@@ -99,10 +99,9 @@ while true ; do
 done
 
 ### SCRIPT MAIN LOOP ###
-if [ $QUIET -ne 1 ]; then
-    info "Downloading file ${BASE_URL}/${TARBALL}"
-    info "to directory ${OUTDIR}"
-fi
+show_script_header
+info "Downloading file ${BASE_URL}/${TARBALL}"
+info "to directory ${OUTDIR}"
 
 # check to see if OUTDIR exists; if not create it
 if [ ! -d $OUTDIR ]; then
@@ -112,6 +111,7 @@ fi
 
 # check to see if the tarball is in OUTDIR before downloading
 # FIXME check for zero-length files, warn if one is found
+
 if [ ! -e $OUTDIR/$TARBALL ]; then
     # log wget output, or send to STDERR?
     if [ "x$WGET_LOG" != "x" ]; then

@@ -104,6 +104,7 @@ if [ $MUNGE_SDL -eq 1 -a $UNMUNGE_SDL -eq 1 ]; then
 fi
 
 # test here to see if we're munging in /output or /artifacts
+show_script_header
 if [ $MUNGE_SDL -eq 1 ]; then
     MUNGE_FILE="${WORKSPACE}/output/bin/sdl-config"
     SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")

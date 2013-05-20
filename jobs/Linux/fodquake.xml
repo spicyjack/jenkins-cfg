@@ -1,12 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>QuakeSpasm is a *Nix friendly Quake Engine based on the SDL port of the popular FitzQuake.&lt;br&gt;&#xd;
-It includes some new features, important fixes, and aims for portability and 64 bit&lt;br&gt;&#xd;
-correctness.&lt;br&gt;&#xd;
+  <description>Evolved from FuhQuake, Fodquake takes the experience to a new level, &lt;br&gt;&#xd;
+gives you a vast number of enhancements and new features.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://prdownloads.sourceforge.net/quakespasm&quot;&gt;&#xd;
-http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
+Downloads: &lt;a href=&quot;http://fodquake.net/files&quot;&gt;&#xd;
+http://fodquake.net/files&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -21,16 +20,15 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>quakespasm</defaultValue>
+          <defaultValue>fodquake</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of quakespasm to build</description>
+          <description>Version of fodquake to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.85.9</string>
-              <string>0.85.8</string>
-              <string>0.85.7</string>
+              <string>0.3</string>
+              <string>0.2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -52,7 +50,7 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
   <builders>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
-  --deps &quot;libogg0 libogg-dev libmad0-dev&quot;</command>
+  --deps &quot;libogg0 libogg-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
@@ -65,32 +63,38 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libsdl</project>
-      <filter>libSDL.artifact.tar.xz</filter>
+      <project>libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libsdl-SDL_image</project>
-      <filter>libSDL_image.artifact.tar.xz</filter>
+      <project>libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libsdl-SDL_mixer</project>
-      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <project>libcairo-dep-libpixman</project>
+      <filter>pixman.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libsdl-SDL_net</project>
-      <filter>libSDL_net.artifact.tar.xz</filter>
+      <project>libcairo</project>
+      <filter>libcairo.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
-      <project>libsdl-SDL_ttf</project>
-      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <project>libpango-dep-fontconfig</project>
+      <filter>fontconfig.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango-dep-harfbuzz</project>
+      <filter>harfbuzz.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -100,15 +104,40 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libpango</project>
+      <filter>libpango.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libgtk2-dep-atk</project>
+      <filter>libatk.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libgtk2-dep-gdk-pixbuf</project>
+      <filter>libgdk-pixbuf.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+      <project>libgtk2</project>
+      <filter>libgtk2+.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
- -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
-/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+ -- libglib libffi freetype fontconfig harfbuzz libpango libatk \
+  libgdk-pixbuf libgtk2+
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tgz \
-  --url http://downloads.sourceforge.net/project/${PKG_NAME}/Source \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
+  --url http://fodquake.net/files/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
@@ -119,14 +148,15 @@ if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
 fi
 
 # now unpack the archive
-tar -zxvf ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tgz
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/Quake
-time make release SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config</command>
+tar -jxvf ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.bz2
+cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  time make all</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>mkdir -p ${WORKSPACE}/output/bin
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-cp Quake/quakespasm ${WORKSPACE}/output/bin</command>
+cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/objects/x86_64-linux-gnu
+cp gl/fodquake-gl sw/fodquake-sw ${WORKSPACE}/output/bin</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
@@ -138,7 +168,7 @@ cp Quake/quakespasm ${WORKSPACE}/output/bin</command>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>quakespasm.artifact.tar.xz</artifacts>
+      <artifacts>fodquake.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>QuakeSpasm is a *Nix friendly Quake Engine based on the SDL port of the popular FitzQuake.&lt;br&gt;&#xd;
-It includes some new features, important fixes, and aims for portability and 64 bit&lt;br&gt;&#xd;
-correctness.&lt;br&gt;&#xd;
+  <description>EDuke32 is an awesome, free homebrew game engine and source port of the classic&lt;br&gt;&#xd;
+PC first person shooter Duke Nukem 3D— Duke3D for short—to &lt;br&gt;&#xd;
+Windows, Linux, Mac OS X, FreeBSD, several handhelds, your family toaster,&lt;br&gt;&#xd;
+and to your girlfriend&apos;s vibrator.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://prdownloads.sourceforge.net/quakespasm&quot;&gt;&#xd;
-http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
+Downloads: &lt;a href=&quot;http://dukeworld.duke4.net/eduke32&quot;&gt;&#xd;
+http://dukeworld.duke4.net/eduke32&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -21,16 +22,14 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>quakespasm</defaultValue>
+          <defaultValue>eduke32</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of quakespasm to build</description>
+          <description>Version of eduke32 to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.85.9</string>
-              <string>0.85.8</string>
-              <string>0.85.7</string>
+              <string>current</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -50,10 +49,6 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
   <triggers class="vector"/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
-  --deps &quot;libogg0 libogg-dev libmad0-dev&quot;</command>
-    </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
   --path $HOME/src/jenkins-cfg.git</command>
@@ -107,26 +102,21 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tgz \
-  --url http://downloads.sourceforge.net/project/${PKG_NAME}/Source \
+  --file ${PKG_NAME}_${PKG_VERSION}.zip \
+  --url http://dukeworld.duke4.net/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># delete the old source directory
-if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
-  /bin/rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-fi
-
-# now unpack the archive
-tar -zxvf ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tgz
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/Quake
-time make release SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config</command>
+      <command>SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>mkdir -p ${WORKSPACE}/output/bin
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-cp Quake/quakespasm ${WORKSPACE}/output/bin</command>
+      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION}
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
@@ -138,7 +128,7 @@ cp Quake/quakespasm ${WORKSPACE}/output/bin</command>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>quakespasm.artifact.tar.xz</artifacts>
+      <artifacts>prboom-plus.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

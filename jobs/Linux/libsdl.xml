@@ -72,7 +72,7 @@ http://www.libsdl.org/download-1.2.php</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --munge</command>
+      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/munge_sdl.sh --munge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \

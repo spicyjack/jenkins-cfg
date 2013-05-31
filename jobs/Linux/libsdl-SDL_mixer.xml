@@ -57,7 +57,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
 /bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl</project>
       <filter>libSDL.artifact.tar.xz</filter>
       <target></target>
@@ -66,7 +66,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
  -- libSDL
-/bin/bash $HOME/src/jenkins-cfg.git/scripts/sdl_munge.sh --unmunge</command>
+/bin/bash $HOME/src/jenkins-cfg.git/scripts/munge_sdl.sh --unmunge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \

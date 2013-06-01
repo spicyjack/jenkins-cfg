@@ -6,8 +6,8 @@
 # License terms are listed at the bottom of this file
 #
 # Impotant URLs:
-# Clone:    https://github.com/spicyjack/jenkins-cfg.git
-# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
+# Clone:    https://github.com/spicyjack/jenkins-config.git
+# Issues:   https://github.com/spicyjack/jenkins-config/issues
 
 ### MAIN SCRIPT ###
 # what's my name?
@@ -25,7 +25,7 @@ EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
-. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
+. ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
@@ -46,12 +46,12 @@ cat <<-EOF
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
     -n|--dry-run    Explain what would be done, don't actually do it
-    -j|--jenkins    Path to the Jenkins 'jobs' directory
+    -j|--jobs       Path to the Jenkins 'jobs' directory
     -t|--target     Target path for copying 'config.xml' config files
 
     Example usage:
     ${SCRIPTNAME} --jenkins /path/to/jenkins/jobs \\
-      --target ~/src/jenkins-cfg.git/jobs/Platform
+      --target ~/src/some_git_repo.git/jobs
 EOF
 }
 
@@ -75,8 +75,8 @@ while true ; do
             DRY_RUN=1
             shift;;
         # Path to Jenkins install
-        -j|--jenkins)
-            JENKINS_PATH="$2";
+        -j|--jobs)
+            JENKINS_JOBS_PATH="$2";
             shift 2;;
         # Target path
         -t|--target)
@@ -95,13 +95,13 @@ while true ; do
     esac
 done
 
-if [ "x$JENKINS_PATH" = "x" ]; then
+if [ "x$JENKINS_JOBS_PATH" = "x" ]; then
     warn "ERROR: Please pass a path to the Jenkins directory (--jenkins)"
     exit 1
 fi
 
-if [ ! -d "$JENKINS_PATH" ]; then
-    warn "ERROR: jenkins-cfg.git path ${JENKINS_PATH} does not exist"
+if [ ! -d "$JENKINS_JOBS_PATH" ]; then
+    warn "ERROR: Jenkins jobs path ${JENKINS_JOBS_PATH} does not exist"
     exit 1
 fi
 
@@ -118,20 +118,22 @@ fi
 ### SCRIPT MAIN LOOP ###
 show_script_header
 info "Backing up 'config.xml' files"
-info "Running 'find' in Jenkins path: ${JENKINS_PATH}"
+info "Running 'find' in Jenkins path: ${JENKINS_JOBS_PATH}"
 # -h == symbolic link test
-if [ -h $JENKINS_PATH ]; then
-    if [ $(echo $JENKINS_PATH | grep -c '/$') -eq 0 ]; then
-        JENKINS_PATH="${JENKINS_PATH}/"
+if [ -h $JENKINS_JOBS_PATH ]; then
+    if [ $(echo $JENKINS_JOBS_PATH | grep -c '/$') -eq 0 ]; then
+        JENKINS_JOBS_PATH="${JENKINS_JOBS_PATH}/"
     fi
 fi
 CONFIGS_COPIED=0
 BACKUP_JENKINS_STATEFILE=/tmp/backup_jenkins.$$
 
-find "$JENKINS_PATH" -maxdepth 2 -name "config.xml" -print0 2>/dev/null \
+find "$JENKINS_JOBS_PATH" -maxdepth 2 -name "config.xml" -print0 2>/dev/null \
     | sort -z | while IFS= read -d $'\0' JENKINS_CFG;
 do
     #say "Found config: ${JENKINS_CFG}"
+    # "awk NF" == number of fields, so print the last field out of all the
+    # fields
     JOB_NAME=$(dirname "${JENKINS_CFG}" \
         | awk -F"/" '{last = NF; print $last;}');
     TARGET_PATH=$(echo $TARGET_PATH | sed 's!/$!!');

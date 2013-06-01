@@ -1,13 +1,13 @@
 #!/bin/sh
 
-# Update the jenkins-cfg.git repo as needed
+# Update the jenkins-config.git repo as needed
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
 #
 # Impotant URLs:
-# Clone:    https://github.com/spicyjack/jenkins-cfg.git
-# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
+# Clone:    https://github.com/spicyjack/jenkins-config.git
+# Issues:   https://github.com/spicyjack/jenkins-config/issues
 
 ### MAIN SCRIPT ###
 # what's my name?
@@ -22,7 +22,7 @@ EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
-. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
+. ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
@@ -42,11 +42,11 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -p|--path       Path to the 'jenkins-cfg.git' directory
-    -f|--force      Force an update of jenkins-cfg, ignore stampfile
+    -p|--path       Path to the 'jenkins-config.git' directory
+    -f|--force      Force an update of jenkins-config, ignore stampfile
 
     Example usage:
-    ${SCRIPTNAME} --path /path/to/jenkins-cfg.git
+    ${SCRIPTNAME} --path /path/to/jenkins-config.git
 EOF
 }
 
@@ -83,18 +83,18 @@ while true ; do
 done
 
 if [ "x$JENKINS_CFG_PATH" = "x" ]; then
-    warn "ERROR: Please pass a path to the jenkins-cfg.git directory (--path)"
+    warn "ERROR: Please pass path to jenkins-config.git directory (--path)"
     exit 1
 fi
 
 if [ ! -d "$JENKINS_CFG_PATH" ]; then
-    warn "ERROR: jenkins-cfg.git path ${JENKINS_CFG_PATH} does not exist"
+    warn "ERROR: jenkins-config.git path ${JENKINS_CFG_PATH} does not exist"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Updating jenkins-cfg.git..."
+info "Updating jenkins-config.git..."
 info "Running 'git pull' in path: ${JENKINS_CFG_PATH}"
 START_DIR=$PWD
 cd $JENKINS_CFG_PATH
@@ -104,7 +104,7 @@ EXIT_STATUS=$?
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: jenkins-cfg.git repo was not updated"
+    warn "ERROR: jenkins-config.git repo was not updated"
 fi
 
 exit $EXIT_STATUS

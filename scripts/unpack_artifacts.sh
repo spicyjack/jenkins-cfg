@@ -8,8 +8,8 @@
 # License terms are listed at the bottom of this file
 #
 # Impotant URLs:
-# Clone:    https://github.com/spicyjack/jenkins-cfg.git
-# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
+# Clone:    https://github.com/spicyjack/jenkins-config.git
+# Issues:   https://github.com/spicyjack/jenkins-config/issues
 
 ### MAIN SCRIPT ###
 # what's my name?
@@ -24,7 +24,7 @@ EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
-. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
+. ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"

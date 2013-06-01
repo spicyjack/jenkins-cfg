@@ -6,8 +6,8 @@
 # License terms are listed at the bottom of this file
 #
 # Impotant URLs:
-# Clone:    https://github.com/spicyjack/jenkins-cfg.git
-# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
+# Clone:    https://github.com/spicyjack/jenkins-config.git
+# Issues:   https://github.com/spicyjack/jenkins-config/issues
 
 ## FUNC: say()
 ## ARG:  MESSAGE to be written on STDOUT

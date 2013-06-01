@@ -6,12 +6,12 @@
 # License terms are listed at the bottom of this file
 #
 # Impotant URLs:
-# Clone:    https://github.com/spicyjack/jenkins-cfg.git
-# Issues:   https://github.com/spicyjack/jenkins-cfg/issues
+# Clone:    https://github.com/spicyjack/jenkins-config.git
+# Issues:   https://github.com/spicyjack/jenkins-config/issues
 
 ### FUNCTIONS ###
 # now located in common_jenkins_functions.sh
-. ~/src/jenkins-cfg.git/scripts/common_jenkins_functions.sh
+. ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
 ### MAIN SCRIPT ###
 # what's my name?

@@ -73,11 +73,7 @@ while true ; do
         # Path to libraries that need to be munged
         -l|--libs-path)
             LIBRARIES_PATH=$2
-            shift 2
-        # Path to set in any libraries that are found in --libs-path
-        -m|--munge-path)
-            LIBRARIES_PATH=$2
-            shift 2
+            shift 2;;
         --) shift;
             break;;
         *) # we shouldn't get here; die gracefully
@@ -89,15 +85,12 @@ while true ; do
 done
 
 ### SCRIPT MAIN LOOP ###
-if [ $MUNGE_RPATH -eq 0 -a $UNMUNGE_RPATH -eq 0 ]; then
-    warn "ERROR: please choose either --munge or --set-path"
-    warn "See script --help for more options/information"
-    exit 1
-fi
-if [ $MUNGE_RPATH -eq 1 -a $UNMUNGE_RPATH -eq 1 ]; then
-    warn "ERROR: please choose either --munge or --set-path"
-    warn "See script --help for more options/information"
-    exit 1
+if [ ! -d $LIBRARIES_PATH ]; then
+    LIBRARIES_PATH=${WORKSPACE}/artifacts/lib
+    if [ ! -d $LIBRARIES_PATH ]; then
+        warn "ERROR: LIBRARIES_PATH $LIBRARIES_PATH doesn't exist"
+        exit 1
+    fi
 fi
 
 # test here to see if we're munging in /output or /artifacts
@@ -105,7 +98,7 @@ show_script_header
 for LIBFILE in for ${WORKSPACE}/artifacts/lib/*.so.*;
 do
     info "Setting RPATH to ${WORKSPACE}/artifacts/lib for ${LIBFILE}"
-    /usr/local/bin/patchelf --set-rpath ${WORKSPACE}/artifacts/lib ${LIBFILE}
+    /usr/local/bin/patchelf --set-rpath ${LIBRARIES_PATH} ${LIBFILE}
     if [ $EXIT_STATUS -gt 0 ]; then
         warn "ERROR: Setting RPATH via 'patchelf' resulted in an error"
         EXIT_STATUS=1

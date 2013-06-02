@@ -49,21 +49,21 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;libogg0 libogg-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
-  --path $HOME/src/jenkins-cfg.git</command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://disenchant.net/files/engine \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -87,7 +87,7 @@ cp  tyr-glquake tyr-glqwcl tyr-quake tyr-qwcl tyr-qwsv \
   ${WORKSPACE}/output/bin</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}

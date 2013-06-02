@@ -47,17 +47,17 @@ http://celephais.net/fitzquake/files&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;libogg0 libogg-dev libxpm-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
-  --path $HOME/src/jenkins-cfg.git</command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
@@ -97,12 +97,12 @@ http://celephais.net/fitzquake/files&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
  -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
-/bin/bash $HOME/src/jenkins-cfg.git/scripts/munge_sdl.sh --unmunge</command>
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}${PKG_VERSION}src.zip \
   --url http://celephais.net/fitzquake/files \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -122,7 +122,7 @@ unzip ${TARBALL_DIR}/${PKG_NAME}${PKG_VERSION}src.zip</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+#/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
 #  --prefix=${WORKSPACE}/output \
 #  --tarball=$TARBALL_DIR/${PKG_NAME}${PKG_VERSION}src.zip \
 #  --no-config
@@ -140,7 +140,7 @@ cd ${WORKSPACE}/${PKG_NAME}
 cp binaries ${WORKSPACE}/output/bin</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}

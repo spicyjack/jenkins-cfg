@@ -45,18 +45,18 @@ http://www.freedesktop.org/wiki/Software/DBusBindings&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/deps_check.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;gtk-doc-tools&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
-  --path $HOME/src/jenkins-cfg.git</command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+  --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/output
 # delete the cloned git repo too
-/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
+/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/libdbus-glib</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
@@ -78,11 +78,11 @@ http://www.freedesktop.org/wiki/Software/DBusBindings&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_artifacts.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
   -- intltool libglib libffi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#/bin/sh $HOME/src/jenkins-cfg.git/scripts/download_tarball.sh \
+      <command>#/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
 #  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
 #  --url http://dbus.freedesktop.org/releases/${PKG_NAME}/ \
 #  --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -92,7 +92,7 @@ git clone git://anongit.freedesktop.org/git/dbus/dbus-glib $WORKSPACE/libdbus-gl
     <hudson.tasks.Shell>
       <command>#PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 #PATH=${WORKSPACE}/artifacts/bin:$PATH \
-#/bin/sh $HOME/src/jenkins-cfg.git/scripts/unpack_and_config.sh \
+#/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
 #  --prefix=${WORKSPACE}/output \
 #  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz
 cd $WORKSPACE/libdbus-glib
@@ -102,7 +102,7 @@ LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 ./configure --prefix=${WORKSPACE}/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#/bin/sh $HOME/src/jenkins-cfg.git/scripts/build_source.sh \
+      <command>#/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
 #  --path=${PKG_NAME}-${PKG_VERSION} \
 #  --test
 cd $WORKSPACE/libdbus-glib
@@ -111,7 +111,7 @@ time make test
 time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}

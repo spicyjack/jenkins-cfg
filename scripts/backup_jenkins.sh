@@ -31,7 +31,7 @@ EXIT_STATUS=0
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqnj:t:"
-GETOPT_LONG="help,quiet,dry-run,jenkins:,target:"
+GETOPT_LONG="help,quiet,dry-run,jobs:,target:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments

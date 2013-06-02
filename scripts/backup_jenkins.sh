@@ -170,7 +170,7 @@ else
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: backup_jenkins.sh completed with errors"
+    warn "ERROR: ${SCRIPTNAME} completed with errors"
 fi
 
 exit $EXIT_STATUS

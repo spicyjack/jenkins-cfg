@@ -107,11 +107,13 @@ fi
 show_script_header
 for LIBFILE in for ${LIBRARIES_PATH}/*.so.*;
 do
-    info "Setting RPATH to ${LIBRARIES_PATH} for ${LIBFILE}"
-    /usr/local/bin/patchelf --set-rpath ${MUNGE_PATH} ${LIBFILE}
-    if [ $EXIT_STATUS -gt 0 ]; then
-        warn "ERROR: Setting RPATH via 'patchelf' resulted in an error"
-        EXIT_STATUS=1
+    if [ ! -h ${LIBFILE} ]; then
+        info "Setting RPATH to ${WORKSPACE}/artifacts/lib for ${LIBFILE}"
+        /usr/local/bin/patchelf --set-rpath ${LIBRARIES_PATH} ${LIBFILE}
+        if [ $EXIT_STATUS -gt 0 ]; then
+            warn "ERROR: Setting RPATH via 'patchelf' resulted in an error"
+            EXIT_STATUS=1
+        fi
     fi
 done
 

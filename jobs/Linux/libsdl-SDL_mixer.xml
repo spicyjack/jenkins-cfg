@@ -49,7 +49,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
   <builders>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
-  --path $HOME/src/jenkins-cfg.git</command>
+  --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \

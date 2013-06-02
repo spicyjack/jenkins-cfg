@@ -48,7 +48,7 @@ http://www.libsdl.org/download-1.2.php</description>
   <builders>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/update_jenkins_cfg.sh \
-  --path $HOME/src/jenkins-cfg.git</command>
+  --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins-cfg.git/scripts/delete_dir.sh \
@@ -72,7 +72,8 @@ http://www.libsdl.org/download-1.2.php</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/munge_sdl.sh --munge</command>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins-cfg.git/scripts/create_build_artifact.sh \

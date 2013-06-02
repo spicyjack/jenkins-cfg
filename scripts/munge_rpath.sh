@@ -102,31 +102,15 @@ fi
 
 # test here to see if we're munging in /output or /artifacts
 show_script_header
-if [ $MUNGE_RPATH -eq 1 ]; then
-    # FIXME get a list of libraries to munge RPATH on here
-    MUNGE_FILE="${WORKSPACE}/output/bin/sdl-config"
-    SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    info "Munging '${SHORT_FILE}' (\$WORKSPACE/output -> :ARTIFACTS:)"
-    SED_EXPR="s!${WORKSPACE}/output!:ARTIFACTS:!g"
-    info "'sed' expression is: ${SED_EXPR}"
-    sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-elif [ $UNMUNGE_RPATH -eq 1 ]; then
-    # FIXME get a list of libraries to munge RPATH on here
-    MUNGE_FILE="${WORKSPACE}/artifacts/bin/sdl-config"
-    SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    info "Un-munging '${SHORT_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts"
-    SED_EXPR="s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
-    info "'sed' expression is: ${SED_EXPR}"
-    sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-else
-    warn "ERROR: can't decide to munge or unmunge 'sdl-config'"
-    warn "ERROR: this block of code should not have been reached"
-    EXIT_STATUS=1
-fi
-
-if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: Unpacking artifacts resulted in an error"
-fi
+for LIBFILE in for ${WORKSPACE}/artifacts/lib/*.so.*;
+do
+    info "Setting RPATH to ${WORKSPACE}/artifacts/lib for ${LIBFILE}"
+    /usr/local/bin/patchelf --set-rpath ${WORKSPACE}/artifacts/lib ${LIBFILE}
+    if [ $EXIT_STATUS -gt 0 ]; then
+        warn "ERROR: Setting RPATH via 'patchelf' resulted in an error"
+        EXIT_STATUS=1
+    fi
+done
 
 exit $EXIT_STATUS
 

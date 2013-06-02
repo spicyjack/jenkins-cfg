@@ -31,8 +31,8 @@ UNMUNGE_RPATH=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqmsu"
-GETOPT_LONG="help,quiet,munge,unmunge,set-path"
+GETOPT_SHORT="hqlm"
+GETOPT_LONG="help,quiet,libs-path,libs,munge-path,munge"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -71,8 +71,11 @@ while true ; do
             QUIET=1
             shift;;
         # Path to libraries that need to be munged
-        -l|--libs-path)
+        -l|--libs-path|--libs)
             LIBRARIES_PATH=$2
+            shift 2;;
+        -m|--munge-path|--munge)
+            MUNGE_PATH=$2
             shift 2;;
         --) shift;
             break;;
@@ -85,20 +88,27 @@ while true ; do
 done
 
 ### SCRIPT MAIN LOOP ###
-if [ ! -d $LIBRARIES_PATH ]; then
+if [ "x$LIBRARIES_PATH" == "x" ]; then
     LIBRARIES_PATH=${WORKSPACE}/artifacts/lib
-    if [ ! -d $LIBRARIES_PATH ]; then
-        warn "ERROR: LIBRARIES_PATH $LIBRARIES_PATH doesn't exist"
-        exit 1
-    fi
+    warn "Warning: setting LIBRARIES_PATH to $LIBRARIES_PATH"
+fi
+
+if [ "x$MUNGE_PATH" == "x" ]; then
+    MUNGE_PATH=${LIBRARIES_PATH}
+    warn "Warning: setting MUNGE_PATH to $MUNGE_PATH"
+fi
+
+if [ ! -d $LIBRARIES_PATH ]; then
+    warn "ERROR: LIBRARIES_PATH $LIBRARIES_PATH doesn't exist"
+    exit 1
 fi
 
 # test here to see if we're munging in /output or /artifacts
 show_script_header
-for LIBFILE in for ${WORKSPACE}/artifacts/lib/*.so.*;
+for LIBFILE in for ${LIBRARIES_PATH}/*.so.*;
 do
-    info "Setting RPATH to ${WORKSPACE}/artifacts/lib for ${LIBFILE}"
-    /usr/local/bin/patchelf --set-rpath ${LIBRARIES_PATH} ${LIBFILE}
+    info "Setting RPATH to ${LIBRARIES_PATH} for ${LIBFILE}"
+    /usr/local/bin/patchelf --set-rpath ${MUNGE_PATH} ${LIBFILE}
     if [ $EXIT_STATUS -gt 0 ]; then
         warn "ERROR: Setting RPATH via 'patchelf' resulted in an error"
         EXIT_STATUS=1

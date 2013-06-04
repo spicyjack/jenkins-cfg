@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build Perl for Windows</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>The version of Perl to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.18.0</string>
+              <string>5.16.3</string>
+              <string>5.16.2</string>
+              <string>5.19.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>perl</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Path to source code directory</description>
+          <defaultValue>$JENKINS_HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo &quot;Displaying shell environment&quot;
+set
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;-&gt; Updating &apos;jenkins-config.git&apos; repo&quot;
+cd $JENKINS_HOME/src/jenkins-config.git
+git pull</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;-&gt; Downloading Perl ${PKG_VERSION}&quot;
+if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
+  wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+    http://www.cpan.org/src/5.0/${PKG_NAME}-${PKG_VERSION}.tar.gz
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>## UNPACK AND CONFIGURE
+echo &quot;-&gt; Unpacking and configuring Perl ${PKG_VERSION}&quot;
+
+# always unpack fresh source
+echo &quot;-&gt; Checking for existing Perl ${PKG_VERSION}&quot;
+if [ -d ${PKG_NAME}-${PKG_VERSION} ]; then
+  rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
+fi
+
+echo &quot;-&gt; Untarring Perl ${PKG_VERSION} in ${WORKSPACE}&quot;
+gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | tar -xvf -
+
+cd perl-${PKG_VERSION}
+
+# now run Configure
+echo &quot;Current directory is: $(pwd)&quot;
+# -de = use defaults, go on without questions
+# there&apos;s a test in Configure for which file descriptor is connected
+# to Configure, the wrong file descriptor exits Configure
+sh Configure -de \
+  -Dprefix=&quot;${WORKSPACE}/output&quot; \
+  -Dusethreads \
+  -Duserelocatableinc</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

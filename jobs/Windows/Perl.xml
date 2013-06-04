@@ -2,6 +2,12 @@
 <project>
   <actions/>
   <description>Build Perl for Windows</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.model.ParametersDefinitionProperty>
@@ -40,47 +46,89 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo &quot;Displaying shell environment&quot;
-set
+      <command>#echo &quot;==== Displaying shell environment ====&quot;
+#set
 </command>
     </hudson.tasks.Shell>
+    <hudson.tasks.BatchFile>
+      <command>echo ==== Displaying shell environment ====
+set</command>
+    </hudson.tasks.BatchFile>
     <hudson.tasks.Shell>
-      <command>echo &quot;-&gt; Updating &apos;jenkins-config.git&apos; repo&quot;
+      <command>echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
 cd $JENKINS_HOME/src/jenkins-config.git
-git pull</command>
+git pull
+exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;-&gt; Downloading Perl ${PKG_VERSION}&quot;
+      <command>echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
 if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
   wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
     http://www.cpan.org/src/5.0/${PKG_NAME}-${PKG_VERSION}.tar.gz
-fi</command>
+else
+  echo &quot;====  Perl ${PKG_VERSION} already downloaded successfully ====&quot;
+fi
+
+exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>## UNPACK AND CONFIGURE
-echo &quot;-&gt; Unpacking and configuring Perl ${PKG_VERSION}&quot;
-
-# always unpack fresh source
-echo &quot;-&gt; Checking for existing Perl ${PKG_VERSION}&quot;
-if [ -d ${PKG_NAME}-${PKG_VERSION} ]; then
+      <command># always unpack fresh source
+echo &quot;==== Checking for existing Perl ${PKG_VERSION} ====&quot;
+if [ -d &quot;${PKG_NAME}-${PKG_VERSION}&quot; ]; then
+  #chmod -R 755 ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
   rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
 fi
 
-echo &quot;-&gt; Untarring Perl ${PKG_VERSION} in ${WORKSPACE}&quot;
-gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | tar -xvf -
+if [ -e &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}.tar&quot; ]; then
+  rm -f ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}.tar
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;==== Copying Perl ${PKG_VERSION} to ${WORKSPACE} ====&quot;
+cp ${TARBALL_DIR}\\${PKG_NAME}-${PKG_VERSION}.tar.gz ${WORKSPACE}
 
-cd perl-${PKG_VERSION}
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.BatchFile>
+      <command>echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
+echo &quot;gunzip ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}.tar.gz&quot;
+gunzip %WORKSPACE%\%PKG_NAME%-%PKG_VERSION%.tar.gz</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.Shell>
+      <command>#echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
+#echo &quot;gunzip ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}.tar.gz&quot;
+#gunzip ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.BatchFile>
+      <command>echo &quot;==== Untarring Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
+echo &quot;tar -xvf ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}.tar&quot;
+tar -xvf %WORKSPACE%\%PKG_NAME%-%PKG_VERSION%.tar</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.Shell>
+      <command>#cd perl-${PKG_VERSION}
 
 # now run Configure
-echo &quot;Current directory is: $(pwd)&quot;
+#echo &quot;==== Running &apos;Configure&apos;; current directory is: $(pwd) ====&quot;
 # -de = use defaults, go on without questions
 # there&apos;s a test in Configure for which file descriptor is connected
 # to Configure, the wrong file descriptor exits Configure
-sh Configure -de \
-  -Dprefix=&quot;${WORKSPACE}/output&quot; \
-  -Dusethreads \
-  -Duserelocatableinc</command>
+#sh Configure -de \
+#  -Dprefix=&quot;${WORKSPACE}\output&quot; \
+#  -Dusethreads \
+#  -Duserelocatableinc
+
+#exit 0</command>
     </hudson.tasks.Shell>
+    <hudson.tasks.BatchFile>
+      <command>cd perl-%PKG_VERSION%
+
+# now run Configure
+echo ==== Running &apos;Configure&apos;; current directory is: %pwd% ====
+# -de = use defaults, go on without questions
+# there&apos;s a test in Configure for which file descriptor is connected
+# to Configure, the wrong file descriptor exits Configure
+sh Configure -de -Dprefix=&quot;%WORKSPACE%\output&quot; -Dusethreads -Duserelocatableinc</command>
+    </hudson.tasks.BatchFile>
   </builders>
   <publishers/>
   <buildWrappers/>

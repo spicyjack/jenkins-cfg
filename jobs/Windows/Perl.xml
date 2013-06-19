@@ -46,19 +46,21 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 echo &quot;==== Displaying shell environment ====&quot;
-set</command>
+set
+ls -l /
+ls -l /p</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
 cd $JENKINS_HOME/src/jenkins-config.git
 git pull
 exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins&apos;
 echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
 if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
   wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
@@ -70,7 +72,7 @@ fi
 exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 # always unpack fresh source
 echo &quot;==== Checking for existing Perl ${PKG_VERSION} ====&quot;
 if [ -d &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}&quot; ]; then
@@ -81,12 +83,12 @@ else
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
 /bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xvf -</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile &apos;/p/bashrc.jenkins&apos;
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
   cd ${PKG_NAME}-${PKG_VERSION}
 

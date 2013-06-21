@@ -73,7 +73,8 @@ http://www.libsdl.org/download-1.2.php</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+# not needed, it would be hard to munge yourself before you&apos;re even built
+#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \

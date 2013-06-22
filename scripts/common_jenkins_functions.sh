@@ -145,7 +145,7 @@ show_script_header () {
 ## DESC: time, you can tell when it was built, and with what version of the
 ## DESC: source code it was built
 function generate_artifact_timestamp {
-    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H:%m)
+    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
 }
 
 #   This program is free software; you can redistribute it and/or modify

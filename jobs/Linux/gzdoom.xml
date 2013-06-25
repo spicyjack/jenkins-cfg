@@ -114,7 +114,8 @@ http://mancubus.net/svn/hosted/gzdoom/trunk/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
  -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge</command>
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#http://www.fmod.org/index.php/release/version/fmodapi44412linux.tar.gz

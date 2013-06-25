@@ -70,7 +70,9 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_ttf/&quot;&gt;&#x
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
  -- libSDL freetype
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge</command>
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \

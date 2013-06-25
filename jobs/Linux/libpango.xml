@@ -57,31 +57,31 @@ http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/&lt;/a&gt;</description>
 /bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   --path $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libglib</project>
       <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libglib-dep-libffi</project>
       <filter>libffi.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libpango-dep-fontconfig</project>
       <filter>fontconfig.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libpango-dep-freetype</project>
       <filter>freetype.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libpango-dep-harfbuzz</project>
       <filter>harfbuzz.artifact.tar.xz</filter>
       <target></target>
@@ -90,6 +90,8 @@ http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
  -- libglib libffi freetype fontconfig harfbuzz
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh
     </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

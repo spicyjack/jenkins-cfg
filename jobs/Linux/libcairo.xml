@@ -69,7 +69,7 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.26">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libcairo-dep-libpixman</project>
       <filter>pixman.artifact.tar.xz</filter>
       <target></target>
@@ -77,7 +77,8 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
- -- pixman</command>
+ -- pixman
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \

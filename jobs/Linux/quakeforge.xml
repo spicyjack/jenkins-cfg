@@ -120,6 +120,8 @@ http://prdownloads.sourceforge.net/quake&lt;/a&gt;</description>
   --no-config
 
 cd ${PKG_NAME}-${PKG_VERSION}
+# need to set/reset our own path here, in order to pick up GNU bison
+PATH=/usr/local/bin:$PATH \
 SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 ./configure --prefix=${WORKSPACE}/output \
   --with-sharepath=${WORKSPACE}/output/share/games/quakeforge \

@@ -1,0 +1,13 @@
+#!bash
+# .bashrc
+
+KERNEL_NAME=$(/usr/bin/env uname)
+
+# Windows/MSYS
+PATH=/mingw/bin:/usr/bin:/usr/sbin:/c/Windows/System32
+PS1="[\h][\u \W]$ "
+export PATH PS1
+
+
+# vi: set filetype=sh shiftwidth=4 tabstop=4
+# fin!

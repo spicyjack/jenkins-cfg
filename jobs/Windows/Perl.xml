@@ -42,7 +42,7 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers class="vector"/>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
@@ -50,14 +50,16 @@
 echo &quot;==== Displaying shell environment ====&quot;
 set
 ls -l /
-ls -l /p</command>
+echo &quot;JENKINS_HOME is $JENKINS_HOME&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
 cd $JENKINS_HOME/src/jenkins-config.git
 git pull
-exit 0</command>
+echo &quot;==== Updating &apos;camelbox.git&apos; repo ====&quot;
+cd $JENKINS_HOME/src/camelbox.git
+git pull</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins&apos;
@@ -90,21 +92,19 @@ echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
     <hudson.tasks.Shell>
       <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
 if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
-  cd ${PKG_NAME}-${PKG_VERSION}
-
-  # now run Configure
-  echo &quot;==== Running &apos;Configure&apos;; current directory is: $(pwd) ====&quot;
-  # -de = use defaults, go on without questions
-  # there&apos;s a test in Configure for which file descriptor is connected
-  # to Configure, the wrong file descriptor exits Configure
-  C:/MinGW/msys/1.0/bin/bash --rcfile &apos;/p/bashrc.jenkins&apos; \
-    Configure -de \
-    -Dprefix=&quot;${WORKSPACE}/output&quot; \
-    -Dusethreads \
-    -Duserelocatableinc
+  cd ${PKG_NAME}-${PKG_VERSION}/win32
+  mv makefile.mk makefile.mk.orig
+  cp $JENKINS_HOME/src/camelbox.git/build-extras/next_build/perl-5.18.0/win32/makefile.mk .
 else 
   echo &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} not found :(&quot;
 fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
+cd ${PKG_NAME}-${PKG_VERSION}/win32
+time dmake
+time dmake test
+time dmake install</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

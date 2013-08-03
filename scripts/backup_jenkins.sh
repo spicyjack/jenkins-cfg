@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Back up all of the 'config.xml' files in the Jenkins tree
 
@@ -25,7 +25,7 @@ EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
-. ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+source ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"

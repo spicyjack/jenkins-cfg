@@ -150,7 +150,6 @@ do
                 info "Diff returned non-zero; would have copied $CFG_FILE to:"
                 info "$JENKINS_JOBS_PATH/$CONFIG_NAME/config.xml"
             fi
-            CONFIGS_COPIED=$((${CONFIGS_COPIED} + 1))
         fi
     else
         warn "Job $CONFIG_NAME not found in $JENKINS_JOBS_PATH!"

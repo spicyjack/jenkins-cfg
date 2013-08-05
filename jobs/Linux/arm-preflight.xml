@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Shows the running environment for this Jenkins instance</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>4</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>export JENKINS_SCRIPTS=&quot;${HOME}/src/jenkins/config.git/scripts&quot;
+# for common_jenkins_functions
+export QUIET=0
+source ${HOME}/.bashrc.d/env_vars_path
+
+echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
+if [ -e ${JENKINS_SCRIPTS}/common_jenkins_functions.sh ]; then
+  source ${JENKINS_SCRIPTS}/common_jenkins_functions.sh
+else
+  echo &quot;ERROR: common_jenkins_functions.sh not found in ${JENKINS_SCRIPTS}&quot;
+  exit 1
+fi
+
+echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  source ~/.bashrc.d/crosstool-ng
+else
+  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  exit 1
+fi
+
+echo &quot;==== BEGIN JENKINS ENVIRONMENT ====&quot;
+set
+echo &quot;==== END JENKINS ENVIRONMENT ====&quot;
+
+echo &quot;Checking for binaries/scripts...&quot;
+EXISTS_CT_NG=$(which ct-ng)
+check_exit_status $? &quot;ct-ng&quot; &quot;$EXISTSCT_NG&quot;
+EXISTS_GCC=$(which arm-unknown-linux-gnueabi-gcc)
+check_exit_status $? &quot;arm-unknown-linux-gnueabi-gcc&quot; &quot;$EXISTS_GCC&quot;
+
+echo &quot;Checking toolchain...&quot;
+if [ -e $WORKSPACE/test ]; then
+  rm $WORKSPACE/test
+fi
+cat &lt;&lt;EODF &gt; ${WORKSPACE}/test.c
+#include &lt;stdio.h&gt;
+int main() {
+  printf(&quot;Hello, world!\n&quot;); return 0;
+}
+EODF
+
+ls -l
+arm-unknown-linux-gnueabi-gcc -o $WORKSPACE/test $WORKSPACE/test.c
+file $WORKSPACE/test</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

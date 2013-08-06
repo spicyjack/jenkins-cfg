@@ -157,9 +157,9 @@ if [ -e $BACKUP_JENKINS_STATEFILE ]; then
     CONFIGS_COPIED=$(cat $BACKUP_JENKINS_STATEFILE)
     rm $BACKUP_JENKINS_STATEFILE
     if [ $DRY_RUN -eq 0 ]; then
-        info "Copied ${CONFIGS_COPIED} configuration files"
+        info "Copied ${CONFIGS_COPIED} configuration file(s)"
     else
-        info "Would have copied ${CONFIGS_COPIED} configuration files"
+        info "Would have copied ${CONFIGS_COPIED} configuration file(s)"
     fi
 else
     if [ $DRY_RUN -eq 0 ]; then

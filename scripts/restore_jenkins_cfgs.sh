@@ -124,7 +124,7 @@ info "Restoring 'config.xml' files"
 #        JENKINS_JOBS_PATH="${JENKINS_JOBS_PATH}/"
 #    fi
 #fi
-CONFIGS_COPIED=0
+CONFIGS_RESTORED=0
 BACKUP_JENKINS_STATEFILE=/tmp/backup_jenkins.$$
 
 for CFG_FILE in $SOURCE_PATH/*.xml;
@@ -140,8 +140,8 @@ do
             "${CFG_FILE}" 1>/dev/null 2>&1
         DIFF_STATUS=$?
         if [ $DIFF_STATUS -gt 0 ]; then
-            CONFIGS_COPIED=$((${CONFIGS_COPIED} + 1))
-            echo $CONFIGS_COPIED > $BACKUP_JENKINS_STATEFILE
+            CONFIGS_RESTORED=$((${CONFIGS_RESTORED} + 1))
+            echo $CONFIGS_RESTORED > $BACKUP_JENKINS_STATEFILE
             if [ $DRY_RUN -eq 0 ]; then
                 say "Copying $CFG_FILE"
                 say "to $JENKINS_JOBS_PATH/$CONFIG_NAME/config.xml"
@@ -157,9 +157,9 @@ do
 done
 
 if [ $DRY_RUN -eq 0 ]; then
-    info "Copied ${CONFIGS_COPIED} configuration files"
+    info "Restored ${CONFIGS_RESTORED} configuration file(s)"
 else
-    info "Would have copied ${CONFIGS_COPIED} configuration files"
+    info "Would have copied ${CONFIGS_RESTORED} configuration file(s)"
 fi
 if [ $EXIT_STATUS -gt 0 ]; then
     warn "ERROR: ${SCRIPTNAME} completed with errors"

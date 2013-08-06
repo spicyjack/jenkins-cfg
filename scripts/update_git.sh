@@ -42,11 +42,10 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -p|--path       Path to the 'jenkins-config.git' directory
-    -f|--force      Force an update of jenkins-config, ignore stampfile
+    -p|--path       Path to the Git repository directory
 
     Example usage:
-    ${SCRIPTNAME} --path /path/to/jenkins-config.git
+    ${SCRIPTNAME} --path /path/to/repo.git
 EOF
 }
 
@@ -67,7 +66,7 @@ while true ; do
             shift;;
         # dependencies to check for
         -p|--path)
-            JENKINS_CFG_PATH="$2";
+            GIT_REPO_PATH="$2";
             shift 2;;
         # separator between options and arguments
         --)
@@ -82,29 +81,28 @@ while true ; do
     esac
 done
 
-if [ "x$JENKINS_CFG_PATH" = "x" ]; then
-    warn "ERROR: Please pass path to jenkins-config.git directory (--path)"
+if [ "x$GIT_REPO_PATH" = "x" ]; then
+    warn "ERROR: Please pass path to Git repository directory (--path)"
     exit 1
 fi
 
-if [ ! -d "$JENKINS_CFG_PATH" ]; then
-    warn "ERROR: jenkins-config.git path ${JENKINS_CFG_PATH} does not exist"
+if [ ! -d "$GIT_REPO_PATH" ]; then
+    warn "ERROR: Git repo path ${GIT_REPO_PATH} does not exist"
     exit 1
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Updating jenkins-config.git..."
-info "Running 'git pull' in path: ${JENKINS_CFG_PATH}"
+info "Running 'git pull' in path: ${GIT_REPO_PATH}"
 START_DIR=$PWD
-cd $JENKINS_CFG_PATH
+cd $GIT_REPO_PATH
 OUTPUT=$(git pull 2>&1)
 say "git: ${OUTPUT}"
 EXIT_STATUS=$?
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: jenkins-config.git repo was not updated"
+    warn "ERROR: Git repo '${GIT_REPO_PATH} was not updated"
 fi
 
 exit $EXIT_STATUS

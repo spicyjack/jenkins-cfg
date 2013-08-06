@@ -46,7 +46,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

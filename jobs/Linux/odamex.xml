@@ -54,7 +54,7 @@ https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
   --deps &quot;cmake libwxgtk2.8-dev wx-common libportmidi-dev libportmidi0&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

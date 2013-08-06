@@ -51,7 +51,7 @@ https://sourceforge.net/projects/prboom-plus/files/prboom-plus/&lt;/a&gt;</descr
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_jenkins_cfg.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

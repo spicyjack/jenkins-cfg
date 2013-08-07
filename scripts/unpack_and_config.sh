@@ -68,6 +68,7 @@ cat <<-EOF
 
 EOF
 }
+info "Number of positional parameters: $#"
 
 # Note the quotes around `$GETOPT_TEMP': they are essential!
 # read in the $GETOPT_TEMP variable
@@ -111,6 +112,8 @@ while true ; do
             ;;
     esac
 done
+
+info "Number of positional parameters: $#"
 
 if [ "x$PREFIX_PATH" = "x" -a $NO_CONFIGURE -eq 0 ]; then
     warn "ERROR: Please pass a path to the build output directory (--prefix)"
@@ -166,7 +169,9 @@ if [ $NO_CONFIGURE -eq 0 ]; then
         info "Changing into ${SOURCE_DIR}"
         cd $SOURCE_DIR
         CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\""
-        if [ "x${@}" != "x" ]; then
+        info "Positional parameters: $@"
+
+        if [ $# -gt 0 ]; then
             CONFIGURE_CMD="${CONFIGURE_CMD} ${@}"
         fi
         if [ "x${CROSS_COMPILE}" != "x" ]; then

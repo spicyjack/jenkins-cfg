@@ -32,7 +32,6 @@ NO_CONFIGURE=0
 
 GETOPT_SHORT="hqp:nc:a:t:"
 GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:,cross:"
-GETOPT_LONG="${GETOPT_LONG},args:,config-args:,configargs:,config:,"
 GETOPT_LONG="${GETOPT_LONG},tarball:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
@@ -50,19 +49,18 @@ cat <<-EOF
     -p|--prefix         Prefix to install path; usually \$WORKSPACE/output
     -n|--no-config      Don't run './configure'; use for CMake and friends
     -c|--cross-compile  Cross compile to 'host' platform
-    -a|--config-args    Arguments to pass to './configure'
     -t|--tarball        Filename of tarball to download and/or unpack
 
     Example usage:
     # for GNU Make's ./configure
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
-    --config-args="--arg1=foo --arg2=bar" \\
-    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+      --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+      -- --arg1=foo --arg2=bar
 
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
-    --config-args="--arg1=foo --arg2=bar" \\
-    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
-    --cross-compile=arm-unknown-linux-gnueabi
+      --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+      --cross-compile=arm-unknown-linux-gnueabi \\
+      -- --arg1=foo --arg2=bar
 
     # for CMake
     ${SCRIPTNAME} --no-config \\
@@ -168,7 +166,9 @@ if [ $NO_CONFIGURE -eq 0 ]; then
         info "Changing into ${SOURCE_DIR}"
         cd $SOURCE_DIR
         CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\""
-        CONFIGURE_CMD="${CONFIGURE_CMD} ${CONFIG_ARGS}"
+        if [ "x${@}" != "x" ]; then
+            CONFIGURE_CMD="${CONFIGURE_CMD} ${@}"
+        fi
         if [ "x${CROSS_COMPILE}" != "x" ]; then
             # architecture we're building on
             CROSS_BUILD_ARCH=$(uname -m)

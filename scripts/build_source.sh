@@ -138,12 +138,12 @@ do
         exit 1
     fi
     #MAKE_CMD="${TIME} make; ${TIME} make test; ${TIME} make install"
+    if [ $EXIT_STATUS -gt 0 ]; then
+        warn "ERROR: '${MAKE_CMD}' command with exit status ${EXIT_STATUS}"
+        exit $EXIT_STATUS
+    fi
 done
 cd $START_DIR
-
-if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: software build using 'make' failed"
-fi
 
 exit $EXIT_STATUS
 

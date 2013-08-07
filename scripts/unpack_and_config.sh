@@ -30,9 +30,10 @@ NO_CONFIGURE=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp:c:t:"
-GETOPT_LONG="help,quiet,prefix:,no-config"
-GETOPT_LONG="${GETOPT_LONG},config-args:,configargs:,config:,tarball:"
+GETOPT_SHORT="hqp:nc:a:t:"
+GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:"
+GETOPT_LONG="${GETOPT_LONG},args:config-args:,configargs:,config:,"
+GETOPT_LONG="${GETOPT_LONG},tarball:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -48,14 +49,20 @@ cat <<-EOF
     -q|--quiet          No script output (unless an error occurs)
     -p|--prefix         Prefix to install path; usually \$WORKSPACE/output
     -n|--no-config      Don't run './configure'; use for CMake and friends
-    -c|--config-args    Arguments to pass to './configure'
+    -c|--cross-compile  Cross compile to 'host' platform
+    -a|--config-args    Arguments to pass to './configure'
     -t|--tarball        Filename of tarball to download and/or unpack
 
     Example usage:
-    # for ./configure
+    # for GNU Make's ./configure
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
     --config-args="--arg1=foo --arg2=bar" \\
     --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+
+    ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
+    --config-args="--arg1=foo --arg2=bar" \\
+    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+    --cross-compile=arm-unknown-linux-gnueabi
 
     # for CMake
     ${SCRIPTNAME} --no-config \\
@@ -82,8 +89,12 @@ while true ; do
             PREFIX_PATH="$2";
             shift 2;;
         # configure args
-        -c|--config-args|--config|--configargs|--configure-args)
+        -a|--args|--config-args|--config|--configargs|--configure-args)
             CONFIG_ARGS="$2";
+            shift 2;;
+        # cross-compilation
+        -c|--cross-compilation|--cross)
+            CROSS_COMPILE="$2";
             shift 2;;
         # Don't run ./configure
         -n|--no-config)
@@ -156,7 +167,17 @@ if [ $NO_CONFIGURE -eq 0 ]; then
     if [ -d ${SOURCE_DIR} ]; then
         info "Changing into ${SOURCE_DIR}"
         cd $SOURCE_DIR
-        CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\" ${CONFIG_ARGS}"
+        CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\""
+        CONFIGURE_CMD="${CONFIGURE_CMD} ${CONFIG_ARGS}"
+        if [ "x${CROSS_COMPILE}" != "x" ]; then
+            # architecture we're building on
+            CROSS_BUILD_ARCH=$(uname -m)
+            CROSS_HOST_ARCH=$CROSS_COMPILE
+            # NOTE: --target shouldn't be needed according to the docs for GNU
+            # Autoconf
+            CONFIGURE_CMD="${CONFIGURE_CMD} --build=${CROSS_BUILD_ARCH}"
+            CONFIGURE_CMD="${CONFIGURE_CMD} --host=${CROSS_BUILD_ARCH}"
+        fi
         info "Running: ${CONFIGURE_CMD}"
         eval $CONFIGURE_CMD 2>&1
         check_exit_status $? "$CONFIGURE_CMD" " "

@@ -31,7 +31,7 @@ NO_CONFIGURE=0
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqp:nc:a:t:"
-GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:"
+GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:,cross:"
 GETOPT_LONG="${GETOPT_LONG},args:config-args:,configargs:,config:,"
 GETOPT_LONG="${GETOPT_LONG},tarball:"
 # sets GETOPT_TEMP
@@ -93,7 +93,7 @@ while true ; do
             CONFIG_ARGS="$2";
             shift 2;;
         # cross-compilation
-        -c|--cross-compilation|--cross)
+        -c|--cross|--cross-compile)
             CROSS_COMPILE="$2";
             shift 2;;
         # Don't run ./configure

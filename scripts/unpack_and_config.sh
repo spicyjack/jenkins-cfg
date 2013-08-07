@@ -176,7 +176,7 @@ if [ $NO_CONFIGURE -eq 0 ]; then
             # NOTE: --target shouldn't be needed according to the docs for GNU
             # Autoconf
             CONFIGURE_CMD="${CONFIGURE_CMD} --build=${CROSS_BUILD_ARCH}"
-            CONFIGURE_CMD="${CONFIGURE_CMD} --host=${CROSS_BUILD_ARCH}"
+            CONFIGURE_CMD="${CONFIGURE_CMD} --host=${CROSS_HOST_ARCH}"
         fi
         info "Running: ${CONFIGURE_CMD}"
         eval $CONFIGURE_CMD 2>&1

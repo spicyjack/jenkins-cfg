@@ -32,7 +32,7 @@ NO_CONFIGURE=0
 
 GETOPT_SHORT="hqp:nc:a:t:"
 GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:,cross:"
-GETOPT_LONG="${GETOPT_LONG},args:config-args:,configargs:,config:,"
+GETOPT_LONG="${GETOPT_LONG},args:,config-args:,configargs:,config:,"
 GETOPT_LONG="${GETOPT_LONG},tarball:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"

@@ -27,8 +27,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp:"
-GETOPT_LONG="help,quiet,path:"
+GETOPT_SHORT="hq"
+GETOPT_LONG="help,quiet"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -42,10 +42,9 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -p|--path       Path to delete (usually \$WORKSPACE/output)
 
     Example usage:
-    ${SCRIPTNAME} --path \$WORKSPACE/output
+    ${SCRIPTNAME} -- /path/to/dir1 /path/to/dir2
 EOF
 }
 
@@ -64,10 +63,6 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
-        # dependencies to check for
-        -p|--path)
-            DELETE_DIR="$2";
-            shift 2;;
         # separator between options and arguments
         --)
             shift;
@@ -81,30 +76,21 @@ while true ; do
     esac
 done
 
-if [ "x$DELETE_DIR" = "x" ]; then
-    warn "ERROR: Please pass a path to the directory to delete (--path)"
+if [ $# -eq 0 ]; then
+    warn "ERROR: Missing directories to delete!"
+    warn "ERROR: Please pass directories to delete after '--'"
     exit 1
-fi
-
-if [ ! -d "$DELETE_DIR" ]; then
-    info "Nothing to delete; ${DELETE_DIR} doesn't exist"
-    exit 0
 fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-if [ -d ${DELETE_DIR} ]; then
-    info "Running 'rm -rvf' on ${DELETE_DIR}"
-    /bin/rm -rvf $DELETE_DIR
-    EXIT_STATUS=$?
-    check_exit_status $EXIT_STATUS "rm -rf" " "
-else
-    warn "WARNING: ${DELETE_DIR} does not exist"
-    EXIT_STATUS=1
-fi
+info "Running 'rm -rvf' on ${@}"
+/bin/rm -rvf "${@}"
+EXIT_STATUS=$?
+check_exit_status $EXIT_STATUS "rm -rf" " "
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: Something happened while deleting ${DELETE_DIR}"
+    warn "ERROR: Something happened while deleting ${@}"
 fi
 
 exit $EXIT_STATUS

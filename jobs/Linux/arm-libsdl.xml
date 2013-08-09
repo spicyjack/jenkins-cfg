@@ -53,7 +53,7 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output</command>
+  -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
@@ -63,12 +63,39 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  source ~/.bashrc.d/crosstool-ng
+else
+  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  exit 1
+fi
+
+#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+#set
+#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
+/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz</command>
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- --disable-pulseaudio --disable-video-x11 --disable-esd \
+     --disable-arts --disable-video-directfb</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  source ~/.bashrc.d/crosstool-ng
+else
+  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  exit 1
+fi
+
+#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+#set
+#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
+/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>

@@ -57,10 +57,7 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/artifacts
-/bin/rm -f $WORKSPACE/libpixman.artifact.tar.xz</command>
+  -- $WORKSPACE/output $WORKSPACE/artifacts $WORKSPACE/libpixman.artifact.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \

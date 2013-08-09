@@ -53,11 +53,9 @@ http://www.freedesktop.org/wiki/Software/DBusBindings&lt;/a&gt;</description>
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output
-# delete the cloned git repo too
-/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/libdbus-glib</command>
+      <command># delete the cloned git repo too
+      /bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/libdbus-glib</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libgtk3-dep-intltool</project>

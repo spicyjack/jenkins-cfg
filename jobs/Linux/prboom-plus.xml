@@ -56,9 +56,7 @@ https://sourceforge.net/projects/prboom-plus/files/prboom-plus/&lt;/a&gt;</descr
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/output
-/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  --path $WORKSPACE/artifacts</command>
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl</project>

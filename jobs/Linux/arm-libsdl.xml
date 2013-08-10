@@ -1,8 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Simple Direct Layer multimedia libraries&lt;br&gt;&#xd;
+  <description>Description: Simple Direct Layer multimedia libraries&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: http://www.libsdl.org/&lt;br&gt;&#xd;
 Downloads: http://www.libsdl.org/download-1.2.php</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>

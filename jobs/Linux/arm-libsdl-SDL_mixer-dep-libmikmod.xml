@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Description: Mikmod is a module player and library supporting many formats&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: http://mikmod.shlomifish.org/&lt;br&gt;&#xd;
+Downloads: http://mikmod.shlomifish.org/</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>libmikmod</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of libmikmod to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>3.2.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --url http://mikmod.shlomifish.org/files/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  source ~/.bashrc.d/crosstool-ng
+else
+  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  exit 1
+fi
+
+#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+#set
+#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
+/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- </command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  source ~/.bashrc.d/crosstool-ng
+else
+  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  exit 1
+fi
+
+#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+#set
+#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
+/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --path=${PKG_NAME}-${PKG_VERSION}
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
+# not needed, it would be hard to munge yourself before you&apos;re even built
+#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=lib${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>libSDL.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

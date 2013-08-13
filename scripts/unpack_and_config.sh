@@ -30,9 +30,9 @@ NO_CONFIGURE=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp:nc:a:t:"
+GETOPT_SHORT="hqp:nc:a:t:f:"
 GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:,cross:"
-GETOPT_LONG="${GETOPT_LONG},tarball:"
+GETOPT_LONG="${GETOPT_LONG},tarball:,cache-file:,cache:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments

@@ -18,6 +18,8 @@ TIME_CMD="/usr/bin/time"
 RUN_MAKE_TEST=0
 # cross compile?
 CROSS_COMPILE=0
+# number of jobs to run (make --jobs)
+NUM_OF_JOBS=4
 
 # verbose script output by default
 QUIET=0
@@ -32,8 +34,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hp:qtc"
-GETOPT_LONG="help,path:,quiet,test,cross-compile,cross"
+GETOPT_SHORT="hp:qtcj:"
+GETOPT_LONG="help,path:,quiet,test,cross-compile,cross,jobs:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -48,6 +50,7 @@ cat <<-EOF
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
     -p|--path       Path to the unpacked source code directory
+    -j|--jobs       Number of 'make' jobs to run (make -j)
     -c|--cross      Build using a cross-compiler; (sources 'crosstool-ng')
     -t|--test       Run 'make test' after running 'make';
                     not all source code supports running 'make test'
@@ -73,6 +76,10 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
+        # path to source tree
+        -j|--jobs)
+            NUM_OF_JOBS="$2";
+            shift 2;;
         # path to source tree
         -p|--path)
             SOURCE_PATH="$2";
@@ -135,8 +142,8 @@ cd $SOURCE_PATH
 for MAKE_CMD in $MAKE_CMDS;
 do
     if [ $MAKE_CMD = "make" ]; then
-        info "Running 'make' command"
-        $TIME make
+        info "Running command 'make -j ${NUM_OF_JOBS}'"
+        $TIME make -j $NUM_OF_JOBS
         check_exit_status $? "make" " "
         # sets $?
         EXIT_STATUS=$?

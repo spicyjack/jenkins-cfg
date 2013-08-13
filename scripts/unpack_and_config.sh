@@ -122,9 +122,25 @@ if [ "x$TARBALL" = "x" ]; then
     exit 1
 fi
 
+if [ ! -e $TARBALL ]; then
+    warn "ERROR: Tarball file ${TARBALL} not found!"
+fi
+TARBALL_FILE=$(basename ${TARBALL})
+
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Unpacking and configuring $TARBALL"
+if [ "x$CROSS_COMPILE" != "x" ]; then
+    info "Cross-compile of ${TARBALL_FILE} requested"
+    info "Reading in 'crosstool-ng' bashrc.d script"
+    if [ -e ~/.bashrc.d/crosstool-ng ]; then
+      source ~/.bashrc.d/crosstool-ng
+    else
+      warn "ERROR: crosstool-ng bashrc script not found"
+      exit 1
+    fi
+fi
+
+info "Unpacking and configuring ${TARBALL_FILE}"
 #LIB_NAME=$(echo $TARBALL | sed 's/\(.*\)-[0-9].*/\1/')
 # what kind of tarball is it?
 if [ $(echo $TARBALL | grep -c 'gz$') -gt 0 ]; then

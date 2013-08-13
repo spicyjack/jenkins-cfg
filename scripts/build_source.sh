@@ -16,6 +16,8 @@ TIME_CMD="/usr/bin/time"
 
 # run 'make test'?
 RUN_MAKE_TEST=0
+# cross compile?
+CROSS_COMPILE=0
 
 # verbose script output by default
 QUIET=0
@@ -30,8 +32,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hp:qt"
-GETOPT_LONG="help,path:,quiet,test"
+GETOPT_SHORT="hp:qtc"
+GETOPT_LONG="help,path:,quiet,test,cross-compile,cross"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -46,11 +48,13 @@ cat <<-EOF
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
     -p|--path       Path to the unpacked source code directory
-    -t|--test       Run 'make test' after running 'make'; 
+    -c|--cross      Build using a cross-compiler; (sources 'crosstool-ng')
+    -t|--test       Run 'make test' after running 'make';
                     not all source code supports running 'make test'
 
     Example usage:
     ${SCRIPTNAME} --path /path/to/source/of/libfoo-0.1.2
+    ${SCRIPTNAME} --cross --path /path/to/source/of/libfoo-0.1.2
 EOF
 }
 
@@ -69,13 +73,17 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
-        # dependencies to check for
+        # path to source tree
         -p|--path)
             SOURCE_PATH="$2";
             shift 2;;
-        # dependencies to check for
+        # run 'make test'?
         -t|--test|--make-test)
             RUN_MAKE_TEST=1;
+            shift;;
+        # run 'make test'?
+        -c|--cross|--cross-compile)
+            CROSS_COMPILE=1;
             shift;;
         # separator between options and arguments
         --)
@@ -101,6 +109,17 @@ fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
+if [ $CROSS_COMPILE -eq 1 ]; then
+    info "Cross-compile of ${SOURCE_PATH} requested"
+    info "Reading in 'crosstool-ng' bashrc.d script"
+    if [ -e ~/.bashrc.d/crosstool-ng ]; then
+      source ~/.bashrc.d/crosstool-ng
+    else
+      warn "ERROR: crosstool-ng bashrc script not found"
+      exit 1
+    fi
+fi
+
 if [ $RUN_MAKE_TEST -eq 0 ]; then
     info "Running 'time make; time make install'"
     info "in path: ${SOURCE_PATH}"

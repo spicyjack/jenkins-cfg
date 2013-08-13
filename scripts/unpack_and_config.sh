@@ -50,6 +50,7 @@ cat <<-EOF
     -n|--no-config      Don't run './configure'; use for CMake and friends
     -c|--cross-compile  Cross compile to 'host' platform
     -t|--tarball        Filename of tarball to download and/or unpack
+    -f|--cache-file     Filename of the file to use as '*.cache'
 
     Example usage:
     # for GNU Make's ./configure
@@ -60,6 +61,7 @@ cat <<-EOF
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
       --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
       --cross-compile=arm-unknown-linux-gnueabi \\
+      --cache-file=\${WORKSPACE}/arm-unknown-linux-gnueabi.cache \\
       -- --arg1=foo --arg2=bar
 
     # for CMake
@@ -93,6 +95,10 @@ while true ; do
         # cross-compilation
         -c|--cross|--cross-compile)
             CROSS_COMPILE="$2";
+            shift 2;;
+        # cache file
+        -f|--cache-file|--cache)
+            CACHE_FILE="$2";
             shift 2;;
         # Don't run ./configure
         -n|--no-config)
@@ -182,6 +188,10 @@ if [ $NO_CONFIGURE -eq 0 ]; then
         info "Changing into ${SOURCE_DIR}"
         cd $SOURCE_DIR
         CONFIGURE_CMD="./configure --prefix=\"${PREFIX_PATH}\""
+        if [ "x$CACHE_FILE" != "x" ]; then
+            CONFIGURE_CMD="${CONFIGURE_CMD} --cache-file=${CACHE_FILE}"
+        fi
+
         if [ $# -gt 0 ]; then
             CONFIGURE_CMD="${CONFIGURE_CMD} ${@}"
         fi

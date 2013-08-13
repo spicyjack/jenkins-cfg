@@ -55,7 +55,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_ttf/&quot;&gt;&#x
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl</project>
-      <filter>libSDL.artifact.tar.xz</filter>
+      <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -67,7 +67,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_ttf/&quot;&gt;&#x
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
- -- libSDL freetype
+ -- libsdl freetype
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
@@ -103,7 +103,7 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL_ttf.artifact.tar.xz</artifacts>
+      <artifacts>libsdl_ttf.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

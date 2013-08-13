@@ -57,13 +57,13 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl</project>
-      <filter>libSDL.artifact.tar.xz</filter>
+      <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
- -- libSDL
+ -- libsdl
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 
@@ -98,7 +98,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL_mixer.artifact.tar.xz</artifacts>
+      <artifacts>libsdl_mixer.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

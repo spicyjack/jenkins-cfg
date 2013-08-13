@@ -64,31 +64,31 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl</project>
-      <filter>libSDL.artifact.tar.xz</filter>
+      <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_image</project>
-      <filter>libSDL_image.artifact.tar.xz</filter>
+      <filter>libsdl_image.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_mixer</project>
-      <filter>libSDL_mixer.artifact.tar.xz</filter>
+      <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_net</project>
-      <filter>libSDL_net.artifact.tar.xz</filter>
+      <filter>libsdl_net.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_ttf</project>
-      <filter>libSDL_ttf.artifact.tar.xz</filter>
+      <filter>libsdl_ttf.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -100,7 +100,7 @@ http://prdownloads.sourceforge.net/quakespasm&lt;/a&gt;</description>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
- -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
+ -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>

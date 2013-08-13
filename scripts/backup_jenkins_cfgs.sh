@@ -117,7 +117,7 @@ fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Backing up 'config.xml' files"
+info "Backing up project 'config.xml' files"
 info "Running 'find' in Jenkins path: ${JENKINS_JOBS_PATH}"
 # -h == symbolic link test
 if [ -h $JENKINS_JOBS_PATH ]; then

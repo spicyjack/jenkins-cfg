@@ -117,7 +117,7 @@ fi
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Restoring 'config.xml' files"
+info "Restoring project 'config.xml' files"
 # -h == symbolic link test
 #if [ -h $JENKINS_JOBS_PATH ]; then
 #    if [ $(echo $JENKINS_JOBS_PATH | grep -c '/$') -eq 0 ]; then

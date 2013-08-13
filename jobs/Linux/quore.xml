@@ -101,7 +101,7 @@ http://prdownloads.sourceforge.net/quore&lt;/a&gt;</description>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
  -- libSDL libSDL_image libSDL_mixer libSDL_net libSDL_ttf freetype
 
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

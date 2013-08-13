@@ -72,7 +72,7 @@ http://www.libsdl.org/download-1.2.php</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --munge
 # not needed, it would be hard to munge yourself before you&apos;re even built
 #/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>

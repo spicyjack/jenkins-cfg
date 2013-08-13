@@ -4,7 +4,7 @@
   <description>Description: Mikmod is a module player and library supporting many formats&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
 Homepage: http://mikmod.shlomifish.org/&lt;br&gt;&#xd;
-Downloads: http://mikmod.shlomifish.org/</description>
+Downloads: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;http://mikmod.shlomifish.org/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -57,8 +57,8 @@ Downloads: http://mikmod.shlomifish.org/</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://mikmod.shlomifish.org/files/${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --url http://mikmod.shlomifish.org/files/ \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -98,13 +98,8 @@ fi
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
-# not needed, it would be hard to munge yourself before you&apos;re even built
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>
@@ -112,7 +107,7 @@ fi
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL.artifact.tar.xz</artifacts>
+      <artifacts>libmikmod.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

@@ -2,6 +2,8 @@
 <project>
   <actions/>
   <description>Simple Direct Layer mixer library&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://www.libsdl.org&quot;&gt;http://www.libsd.org&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&#xd;
   http://www.libsdl.org/projects/SDL_mixer&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -61,9 +63,15 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libmikmod</project>
+      <filter>libmikmod.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
- -- libSDL
+ -- libSDL libmikmod
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --unmunge
 
@@ -89,6 +97,7 @@ fi
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
+PATH=${WORKSPACE}/artifacts/bin:${PATH} \
 SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \

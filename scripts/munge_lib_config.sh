@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Munge 'sdl-config', setting the path to the current artifacts directory
+# Munge files like 'sdl-config' and 'libmikmod-config', setting the path to
+# the current artifacts directory
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
@@ -31,8 +32,8 @@ UNMUNGE_SDL=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqmsu"
-GETOPT_LONG="help,quiet,munge,unmunge,set-path"
+GETOPT_SHORT="hqf:mu"
+GETOPT_LONG="help,quiet,file:,munge,unmunge"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -46,14 +47,16 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
-    -m|--munge          Change paths in 'sdl-config' to ':MUNGE_ME:'
-    -u|--unmunge        Change ':MUNGE_ME:' to the current artifacts path
+    -f|--file           Filename of the file to munge/unmunge
+    -m|--munge          Change paths in '--file' to ':ARTIFACTS:'
+    -u|--unmunge        Change ':ARTIFACTS:' in '--file' to artifacts path
 
     Example usage:
-    ${SCRIPTNAME} [--munge|--unmunge]
+    ${SCRIPTNAME} --munge --file /path/to/sdl-config
+    ${SCRIPTNAME} --unmunge --file /path/to/libmikmod-config
 
-    Note: The path to artifacts is assumed by the script to be
-    located at \$WORKSPACE/artifacts
+    Note: The path to the lib configs to munge/unmunge is assumed by this
+    script to be located at \$WORKSPACE/artifacts.
 
 EOF
 }
@@ -74,11 +77,15 @@ while true ; do
             QUIET=1
             shift;;
         # Munge '$WORKSPACE/output/bin/sdl-config'
+        -f|--file)
+            MUNGE_FILE="$2"
+            shift 2;;
+        # Munge '$WORKSPACE/output/bin/sdl-config'
         -m|--munge)
             MUNGE_SDL=1
             shift;;
         # Unmunge '$WORKSPACE/artifacts/bin/sdl-config'
-        -u|--unmunge|-s|--set-path)
+        -u|--unmunge)
             UNMUNGE_SDL=1
             shift;;
         --) shift;
@@ -92,13 +99,15 @@ while true ; do
 done
 
 ### SCRIPT MAIN LOOP ###
+MUNGE_CONFUSION=0
 if [ $MUNGE_SDL -eq 0 -a $UNMUNGE_SDL -eq 0 ]; then
-    warn "ERROR: please choose either --munge or --set-path"
-    warn "See script --help for more options/information"
-    exit 1
+    MUNGE_CONFUSION=1
 fi
 if [ $MUNGE_SDL -eq 1 -a $UNMUNGE_SDL -eq 1 ]; then
-    warn "ERROR: please choose either --munge or --set-path"
+    MUNGE_CONFUSION=1
+fi
+if [ $MUNGE_CONFUSION -eq 1 ]; then
+    warn "ERROR: please choose either --munge or --unmunge"
     warn "See script --help for more options/information"
     exit 1
 fi
@@ -106,19 +115,19 @@ fi
 # test here to see if we're munging in /output or /artifacts
 show_script_header
 if [ $MUNGE_SDL -eq 1 ]; then
-    MUNGE_FILE="${WORKSPACE}/output/bin/sdl-config"
-    SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    info "Munging '${SHORT_FILE}' (\$WORKSPACE/output -> :ARTIFACTS:)"
+    MUNGE_TARGET="${WORKSPACE}/output/bin/${MUNGE_FILE}"
+    #SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
+    info "Munging '${MUNGE_FILE}' (\$WORKSPACE/output -> :ARTIFACTS:)"
     SED_EXPR="s!${WORKSPACE}/output!:ARTIFACTS:!g"
     info "'sed' expression is: ${SED_EXPR}"
-    sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+    sed -i "${SED_EXPR}" "${MUNGE_TARGET}"
 elif [ $UNMUNGE_SDL -eq 1 ]; then
-    MUNGE_FILE="${WORKSPACE}/artifacts/bin/sdl-config"
-    SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    info "Un-munging '${SHORT_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts"
+    MUNGE_TARGET="${WORKSPACE}/artifacts/bin/${MUNGE_FILE}"
+    #SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
+    info "Un-munging '${MUNGE_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts"
     SED_EXPR="s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
     info "'sed' expression is: ${SED_EXPR}"
-    sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+    sed -i "${SED_EXPR}" "${MUNGE_TARGET}"
 else
     warn "ERROR: can't decide to munge or unmunge 'sdl-config'"
     warn "ERROR: this block of code should not have been reached"

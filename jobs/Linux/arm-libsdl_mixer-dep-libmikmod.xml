@@ -3,8 +3,10 @@
   <actions/>
   <description>Description: Mikmod is a module player and library supporting many formats&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: http://mikmod.shlomifish.org/&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;http://mikmod.shlomifish.org/&lt;/a&gt;</description>
+Homepage: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;&#xd;
+http://mikmod.shlomifish.org/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;&#xd;
+http://mikmod.shlomifish.org/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -62,15 +64,7 @@ Downloads: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;http://mikmod
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng ]; then
-  source ~/.bashrc.d/crosstool-ng
-else
-  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
-  exit 1
-fi
-
-#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
@@ -81,20 +75,17 @@ fi
   -- </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng ]; then
-  source ~/.bashrc.d/crosstool-ng
-else
-  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
-  exit 1
-fi
-
-#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
 /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --munge --file libmikmod-config
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

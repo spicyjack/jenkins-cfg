@@ -54,7 +54,8 @@
       <command>### UNPACK, COPY CONFIG AND BUILD
 tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
 cd ${PKG_NAME}-${PKG_VERSION}
-cp $HOME/src/lack/projects.git/armlack/buildroot/busybox.config.arm.cross-tools .config
+cp $HOME/src/lack/projects.git/armlack/buildroot/busybox.config.arm.cross-tools \
+  .config
 time make</command>
     </hudson.tasks.Shell>
   </builders>

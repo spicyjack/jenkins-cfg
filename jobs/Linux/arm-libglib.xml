@@ -1,10 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: Simple Direct Layer multimedia libraries&lt;br&gt;&#xd;
+  <description>Glib library&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: http://www.libsdl.org/&lt;br&gt;&#xd;
-Downloads: http://www.libsdl.org/download-1.2.php</description>
+Homepage: &lt;a href=&quot;https://developer.gnome.org/glib/stable/&quot;&gt;&#xd;
+https://developer.gnome.org/glib/stable/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://ftp.gnome.org/pub/GNOME/sources/glib/&quot;&gt;&#xd;
+http://ftp.gnome.org/pub/GNOME/sources/glib/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -19,16 +21,19 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>SDL</defaultValue>
+          <defaultValue>glib</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of SDL to build</description>
+          <description>Version of libglib to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.2.15</string>
-              <string>1.2.14</string>
-              <string>1.2.13</string>
+              <string>2.36.4</string>
+              <string>2.36.3</string>
+              <string>2.36.2</string>
+              <string>2.34.3</string>
+              <string>2.34.2</string>
+              <string>2.34.1</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -57,57 +62,78 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
+      <command># I think python-gobject is needed to run the test suite
+#/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+#  --deps &quot;python-gobject&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://www.libsdl.org/release \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/2.36/ \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-zlib</project>
+      <filter>zlib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
-  --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --disable-pulseaudio --disable-video-x11 --disable-esd \
-     --disable-arts --disable-video-directfb</command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
+ -- libffi zlib
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+      <command>cat &lt;&lt;EO_CACHE_FILE &gt; ${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache
+glib_cv_stack_grows=no
+glib_cv_uscore=yes
+ac_cv_func_posix_getpwuid_r=yes
+ac_cv_func_posix_getgrgid_r=yes
+EO_CACHE_FILE
+
+#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
+CPPFLAGS=-I${WORKSPACE}/artifacts/include \
+PATH=/usr/local/bin:$PATH \
+LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/glib-${PKG_VERSION}.tar.xz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  --cache-file=${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>mkdir -p ${WORKSPACE}/output/include ${WORKSPACE}/output/lib
 /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
+#  --test
+# test suite wants pygobject 3.x, which is not available in squeeze :(
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
-# not needed, it would be hard to munge yourself before you&apos;re even built
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}
-</command>
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL.artifact.tar.xz</artifacts>
+      <artifacts>libglib.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
-      <colorMapName>xterm</colorMapName>
-    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
-  </buildWrappers>
+  <buildWrappers/>
 </project>

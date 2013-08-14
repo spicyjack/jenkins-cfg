@@ -85,15 +85,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng ]; then
-  source ~/.bashrc.d/crosstool-ng
-else
-  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
-  exit 1
-fi
-
-#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
@@ -105,19 +97,12 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   --cross-compile=armv6-lack_rpi-linux-gnueabi </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng ]; then
-  source ~/.bashrc.d/crosstool-ng
-else
-  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
-  exit 1
-fi
-
-#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
 /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION} \
   --test</command>
     </hudson.tasks.Shell>

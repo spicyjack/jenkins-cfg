@@ -1,10 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: Simple Direct Layer multimedia libraries&lt;br&gt;&#xd;
-Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: http://www.libsdl.org/&lt;br&gt;&#xd;
-Downloads: http://www.libsdl.org/download-1.2.php</description>
+  <description>libffi - A Portable Foreign Function Interface Library&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt; &#xd;
+Homepage: &lt;a href=&quot;http://sourceware.org/libffi/&quot;&gt;http://sourceware.org/libffi/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;ftp://sourceware.org/pub/libffi&quot;&gt;&#xd;
+ftp://sourceware.org/pub/libffi&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -19,16 +20,18 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>SDL</defaultValue>
+          <defaultValue>libffi</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of SDL to build</description>
+          <description>Version of libffi to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.2.15</string>
-              <string>1.2.14</string>
-              <string>1.2.13</string>
+              <string>3.0.13</string>
+              <string>3.0.12</string>
+              <string>3.0.11</string>
+              <string>3.0.10</string>
+              <string>3.0.9</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -57,57 +60,44 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>## DOWNLOAD LIBFFI
+/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://www.libsdl.org/release \
-  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
+  --url ftp://sourceware.org/pub/${PKG_NAME} \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --disable-pulseaudio --disable-video-x11 --disable-esd \
-     --disable-arts --disable-video-directfb</command>
+  -- </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
-  --path=${PKG_NAME}-${PKG_VERSION}
-</command>
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
-# not needed, it would be hard to munge yourself before you&apos;re even built
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+      <command># move include files to top level directory
+#cd ${WORKSPACE}/output
+#mv lib/${PKG_NAME}-${PKG_VERSION}/include ${WORKSPACE}/output
+#rmdir lib/${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}
-</command>
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL.artifact.tar.xz</artifacts>
+      <artifacts>libffi.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
-      <colorMapName>xterm</colorMapName>
-    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
-  </buildWrappers>
+  <buildWrappers/>
 </project>

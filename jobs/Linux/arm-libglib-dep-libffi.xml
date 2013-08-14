@@ -81,9 +81,9 @@ ftp://sourceware.org/pub/libffi&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command># move include files to top level directory
-#cd ${WORKSPACE}/output
-#mv lib/${PKG_NAME}-${PKG_VERSION}/include ${WORKSPACE}/output
-#rmdir lib/${PKG_NAME}-${PKG_VERSION}</command>
+cd ${WORKSPACE}/output
+mv lib/${PKG_NAME}-${PKG_VERSION}/include ${WORKSPACE}/output
+rmdir lib/${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \

@@ -86,7 +86,11 @@ mv lib/${PKG_NAME}-${PKG_VERSION}/include ${WORKSPACE}/output
 rmdir lib/${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command># munge the libffi.pc file, change includedir
+sed -i &apos;s!^includedir.*$!includedir=${exec_prefix}/include!&apos; \
+  ${WORKSPACE}/output/lib/pkgconfig/libffi.pc
+
+/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

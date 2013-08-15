@@ -102,7 +102,7 @@ EO_CACHE_FILE
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-CPPFLAGS=-I${WORKSPACE}/artifacts/include \
+CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
 PATH=/usr/local/bin:$PATH \
 LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
@@ -110,11 +110,11 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/glib-${PKG_VERSION}.tar.xz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  --cache-file=${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache</command>
+  --cache-file=${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache \
+  -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>mkdir -p ${WORKSPACE}/output/include ${WORKSPACE}/output/lib
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
 #  --test

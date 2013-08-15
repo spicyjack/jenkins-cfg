@@ -22,8 +22,8 @@ QUIET=0
 EXIT_STATUS=0
 
 # What are we munging?  nothing by default
-MUNGE_SDL=0
-UNMUNGE_SDL=0
+MUNGE_CONFIG=0
+UNMUNGE_CONFIG=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
@@ -82,11 +82,11 @@ while true ; do
             shift 2;;
         # Munge '$WORKSPACE/output/bin/sdl-config'
         -m|--munge)
-            MUNGE_SDL=1
+            MUNGE_CONFIG=1
             shift;;
         # Unmunge '$WORKSPACE/artifacts/bin/sdl-config'
         -u|--unmunge)
-            UNMUNGE_SDL=1
+            UNMUNGE_CONFIG=1
             shift;;
         --) shift;
             break;;
@@ -100,10 +100,10 @@ done
 
 ### SCRIPT MAIN LOOP ###
 MUNGE_CONFUSION=0
-if [ $MUNGE_SDL -eq 0 -a $UNMUNGE_SDL -eq 0 ]; then
+if [ $MUNGE_CONFIG -eq 0 -a $UNMUNGE_CONFIG -eq 0 ]; then
     MUNGE_CONFUSION=1
 fi
-if [ $MUNGE_SDL -eq 1 -a $UNMUNGE_SDL -eq 1 ]; then
+if [ $MUNGE_CONFIG -eq 1 -a $UNMUNGE_CONFIG -eq 1 ]; then
     MUNGE_CONFUSION=1
 fi
 if [ $MUNGE_CONFUSION -eq 1 ]; then
@@ -114,28 +114,28 @@ fi
 
 # test here to see if we're munging in /output or /artifacts
 show_script_header
-if [ $MUNGE_SDL -eq 1 ]; then
+if [ $MUNGE_CONFIG -eq 1 ]; then
     MUNGE_TARGET="${WORKSPACE}/output/bin/${MUNGE_FILE}"
     #SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
     info "Munging '${MUNGE_FILE}' (\$WORKSPACE/output -> :ARTIFACTS:)"
     SED_EXPR="s!${WORKSPACE}/output!:ARTIFACTS:!g"
     info "'sed' expression is: ${SED_EXPR}"
     sed -i "${SED_EXPR}" "${MUNGE_TARGET}"
-elif [ $UNMUNGE_SDL -eq 1 ]; then
+elif [ $UNMUNGE_CONFIG -eq 1 ]; then
     MUNGE_TARGET="${WORKSPACE}/artifacts/bin/${MUNGE_FILE}"
     #SHORT_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    info "Un-munging '${MUNGE_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts"
+    info "Un-munging '${MUNGE_FILE}' (:ARTIFACTS: -> \$WORKSPACE/artifacts)"
     SED_EXPR="s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
     info "'sed' expression is: ${SED_EXPR}"
     sed -i "${SED_EXPR}" "${MUNGE_TARGET}"
 else
-    warn "ERROR: can't decide to munge or unmunge 'sdl-config'"
+    warn "ERROR: can't decide to munge or unmunge '${MUNGE_FILE}'"
     warn "ERROR: this block of code should not have been reached"
     EXIT_STATUS=1
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then
-    warn "ERROR: Unpacking artifacts resulted in an error"
+    warn "ERROR: munging files resulted in an error"
 fi
 
 exit $EXIT_STATUS

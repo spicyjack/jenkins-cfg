@@ -122,7 +122,7 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
         | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
-        SED_EXPR="s#^prefix=.*output\$#:OUTPUT:#g"
+        SED_EXPR="s#^prefix=.*output\$#:PREFIX:#g"
         SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/output!:OUTPUT:!g"
         SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/artifacts!:ARTIFACTS:!g"
         SED_EXPR="{$SED_EXPR}"

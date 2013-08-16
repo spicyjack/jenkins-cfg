@@ -117,7 +117,7 @@ if [ $# -gt 0 ]; then
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
             SED_EXPR="s!:PREFIX:!prefix=${WORKSPACE}/artifacts!g"
-            SED_EXPR="s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
+            SED_EXPR="${SED_EXPR}; s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
             SED_EXPR="${SED_EXPR}; s!:OUTPUT:!${WORKSPACE}/artifacts!g"
             SED_EXPR="{$SED_EXPR}"
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"

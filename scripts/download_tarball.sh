@@ -52,6 +52,27 @@ cat <<-EOF
 EOF
 }
 
+download_file () {
+    if [ "x$WGET_LOG" != "x" ]; then
+        OUTPUT=$(wget -o $WGET_LOG -O $OUTDIR/$TARBALL \
+            $BASE_URL/$TARBALL 2>&1)
+        SCRIPT_EXIT=$?
+    else
+        wget -O $OUTDIR/$TARBALL $BASE_URL/$TARBALL 2>&1
+        SCRIPT_EXIT=$?
+    fi
+    # check the status of the last command
+    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
+    if [ $SCRIPT_EXIT -eq 0 ]; then
+        info "Download of ${TARBALL} successful!"
+    else
+        info "Download of ${TARBALL} failed!"
+        if [ -e $OUTDIR/$TARBALL ]; then
+            /bin/rm -f $OUTDIR/$TARBALL
+        fi
+    fi
+}
+
 # Note the quotes around `$GETOPT_TEMP': they are essential!
 # read in the $GETOPT_TEMP variable
 eval set -- "$GETOPT_TEMP"
@@ -100,7 +121,7 @@ done
 
 ### SCRIPT MAIN LOOP ###
 show_script_header
-info "Downloading file ${BASE_URL}/${TARBALL}"
+info "Download file ${BASE_URL}/${TARBALL}"
 info "to directory ${OUTDIR}"
 
 # check to see if OUTDIR exists; if not create it
@@ -114,28 +135,18 @@ fi
 
 if [ ! -e $OUTDIR/$TARBALL ]; then
     # log wget output, or send to STDERR?
-    if [ "x$WGET_LOG" != "x" ]; then
-        OUTPUT=$(wget -o $WGET_LOG -O $OUTDIR/$TARBALL \
-            $BASE_URL/$TARBALL 2>&1)
-        SCRIPT_EXIT=$?
-    else
-        wget -O $OUTDIR/$TARBALL $BASE_URL/$TARBALL 2>&1
-        SCRIPT_EXIT=$?
-    fi
-    # check the status of the last command
-    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
-    if [ $SCRIPT_EXIT -eq 0 ]; then
-        info "Download of ${TARBALL} successful!"
-    else
-        info "Download of ${TARBALL} failed!"
-        if [ -e $OUTDIR/$TARBALL ]; then
-            /bin/rm -f $OUTDIR/$TARBALL
-        fi
-    fi
+    download_tarball
 else
     FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUTDIR}/${TARBALL})
     info "File already exists: ${OUTDIR}/${TARBALL};"
-    info "File size: ${FILE_SIZE} byte(s)"
+    if [ $FILE_SIZE -eq 0 ]; then
+        info "File is zero byes; removing and redownloading"
+        rm -f ${OUTDIR}/${TARBALL}
+        download_tarball
+    else
+        info "File size: ${FILE_SIZE} byte(s)"
+        info "Skipping download..."
+    fi
 fi
 
 exit ${SCRIPT_EXIT}

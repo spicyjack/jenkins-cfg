@@ -52,7 +52,7 @@ cat <<-EOF
 EOF
 }
 
-download_file () {
+download_tarball () {
     if [ "x$WGET_LOG" != "x" ]; then
         OUTPUT=$(wget -o $WGET_LOG -O $OUTDIR/$TARBALL \
             $BASE_URL/$TARBALL 2>&1)

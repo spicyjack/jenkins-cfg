@@ -30,8 +30,9 @@ NO_CONFIGURE=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp:nc:a:t:f:"
-GETOPT_LONG="help,quiet,prefix:,no-config,cross-compile:,cross:"
+GETOPT_SHORT="heqp:nc:a:t:f:"
+GETOPT_LONG="help,examples,show-examples,quiet"
+GETOPT_LONG="${GETOPT_LONG},prefix:,no-config,cross-compile:,cross:"
 GETOPT_LONG="${GETOPT_LONG},tarball:,cache-file:,cache:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
@@ -39,7 +40,7 @@ GETOPT_LONG="${GETOPT_LONG},tarball:,cache-file:,cache:"
 run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
-cat <<-EOF
+cat <<-EOH
 
     ${SCRIPTNAME} [options]
 
@@ -51,13 +52,22 @@ cat <<-EOF
     -c|--cross-compile  Cross compile to 'host' platform
     -t|--tarball        Filename of tarball to download and/or unpack
     -f|--cache-file     Filename of the file to use as '*.cache'
+    -e|--show-examples  Show examples of script usage
 
-    Example usage:
-    # for GNU Make's ./configure
+    Use '--show-examples' to see examples of script usage
+EOH
+}
+
+show_examples () {
+cat <<-EOE
+    Example usage of ${SCRIPTNAME}:
+
+    # Unpack and use GNU Make's ./configure
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
       --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
       -- --arg1=foo --arg2=bar
 
+    # Same as above, use a cross-compiler and a Automake "cache" file
     ${SCRIPTNAME} --prefix=\${WORKSPACE}/output \\
       --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
       --cross-compile=arm-unknown-linux-gnueabi \\
@@ -66,9 +76,10 @@ cat <<-EOF
 
     # for CMake
     ${SCRIPTNAME} --no-config \\
-    --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+      --tarball=\$TARBALL_DIR/tarball_name-version.tar.gz \\
+      -- --arg1=foo --arg2=bar
 
-EOF
+EOE
 }
 
 # Note the quotes around `$GETOPT_TEMP': they are essential!
@@ -80,6 +91,9 @@ while true ; do
     case "$1" in
         -h|--help) # show the script options
             show_help
+            exit 0;;
+        -e|--show-examples|--examples) # show the script options
+            show_examples
             exit 0;;
         -q|--quiet)    # don't output anything (unless there's an error)
             QUIET=1

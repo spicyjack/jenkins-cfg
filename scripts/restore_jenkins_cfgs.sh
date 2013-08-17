@@ -50,7 +50,7 @@ cat <<-EOF
     -s|--source     Source path for copying 'config.xml' config files
 
     Example usage:
-    ${SCRIPTNAME} --jenkins /path/to/jenkins/jobs \\
+    ${SCRIPTNAME} --jobs /path/to/jenkins/jobs \\
       --source ~/src/some_git_repo.git/jobs
 EOF
 }

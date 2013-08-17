@@ -127,6 +127,12 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-expat</project>
+      <filter>expat.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>

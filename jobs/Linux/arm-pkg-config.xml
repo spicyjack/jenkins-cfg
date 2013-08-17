@@ -65,16 +65,43 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libglib-dep-libffi</project>
+      <filter>libffi.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-zlib</project>
+      <filter>zlib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_artifacts.sh \
+ -- libffi zlib
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+# this overwrites the cache file each time the job is run
+# glib appends 
+cat &lt;&lt;EO_CACHE_FILE &gt; ${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache
+glib_cv_stack_grows=no
+glib_cv_uscore=yes
+ac_cv_func_posix_getpwuid_r=yes
+ac_cv_func_posix_getgrgid_r=yes
+EO_CACHE_FILE
 
 /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --with-internal-glib --with-pc-path=&quot;/usr/local/lib/pkgconfig&quot;</command>
+  --cache-file=${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache \
+  -- --with-internal-glib --with-pc-path=&quot;/usr/local/lib/pkgconfig&quot; \
+     --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
@@ -100,7 +127,7 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libmikmod.artifact.tar.xz</artifacts>
+      <artifacts>pkg-config.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

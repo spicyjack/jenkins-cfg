@@ -122,9 +122,13 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
         | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
     do
         SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
-        SED_EXPR="s#^prefix=.*output\$#:PREFIX:#g"
+        # '^prefix=' is in pkgconfig '*.pc' files
+        SED_EXPR="s!^prefix=.*output\$!:PREFIX:!g"
+        # generic sed to catch anything with 'output' in it's path
         SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/output!:OUTPUT:!g"
+        # generic sed to catch anything with 'artifacts' in it's path
         SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/artifacts!:ARTIFACTS:!g"
+        # wrap all of the above sed expressions inside curly brackets
         SED_EXPR="{$SED_EXPR}"
         info "Munging libtool file: ${SHORT_MUNGE_FILE}"
         info "'sed' expression is: ${SED_EXPR}"

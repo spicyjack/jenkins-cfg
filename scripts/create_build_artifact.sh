@@ -117,23 +117,27 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     info "Creating artifact file ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz"
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
-    # mangle libtool/pkgconfig files
-    find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
-        | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
-    do
-        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
-        # '^prefix=' is in pkgconfig '*.pc' files
-        SED_EXPR="s!^prefix=.*output\$!:PREFIX:!g"
-        # generic sed to catch anything with 'output' in it's path
-        SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/output!:OUTPUT:!g"
-        # generic sed to catch anything with 'artifacts' in it's path
-        SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/artifacts!:ARTIFACTS:!g"
-        # wrap all of the above sed expressions inside curly brackets
-        SED_EXPR="{$SED_EXPR}"
-        info "Munging libtool file: ${SHORT_MUNGE_FILE}"
-        info "'sed' expression is: ${SED_EXPR}"
-        sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-    done
+    # run the sed expression as long as --no-mangle **was not** called
+    if [ $NO_MANGLE_METAFILES -ne 1 ];
+        # mangle libtool/pkgconfig files
+        find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
+            | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
+        do
+            SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "s!${OUTPUT_DIR}/*!!")
+            # '^prefix=' is in pkgconfig '*.pc' files
+            SED_EXPR="s!^prefix=.*output\$!:PREFIX:!g"
+            # generic sed to catch anything with 'output' in it's path
+            SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/output!:OUTPUT:!g"
+            # generic sed to catch anything with 'artifacts' in it's path
+            SED_EXPR="${SED_EXPR}; s!${OUTPUT_DIR}/artifacts!:ARTIFACTS:!g"
+            # wrap all of the above sed expressions inside curly brackets
+            SED_EXPR="{$SED_EXPR}"
+            info "Munging libtool file: ${SHORT_MUNGE_FILE}"
+            info "'sed' expression is: ${SED_EXPR}"
+            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+
+        done
+    fi
     # create a stampfile
     STAMP_FILE="${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}.stamp"
     info "Creating stamp file '${STAMP_FILE}'"

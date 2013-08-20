@@ -78,13 +78,14 @@ http://dbus.freedesktop.org/releases/dbus/&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PATH=${WORKSPACE}/artifacts/bin:$PATH \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+LDFLAGS=-L${WORKSPACE}/artifacts/lib \
+CPPFLAGS=-I${WORKSPACE}/artifacts/include \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- </command>
+  -- --without-x</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
@@ -104,7 +105,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libdbus.artifact.tar.xz</artifacts>
+      <artifacts>dbus.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

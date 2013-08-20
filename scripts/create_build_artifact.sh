@@ -118,7 +118,7 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
     # run the sed expression as long as --no-mangle **was not** called
-    if [ $NO_MANGLE_METAFILES -ne 1 ];
+    if [ $NO_MANGLE_METAFILES -ne 1 ]; then
         # mangle libtool/pkgconfig files
         find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
             | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
@@ -135,7 +135,6 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
             sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-
         done
     fi
     # create a stampfile

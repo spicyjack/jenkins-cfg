@@ -92,7 +92,7 @@ http://ftp.gnome.org/pub/GNOME/sources/glib/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-libglib-dep-libdbus</project>
+      <project>arm-libglib-dep-dbus</project>
       <filter>dbus.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>

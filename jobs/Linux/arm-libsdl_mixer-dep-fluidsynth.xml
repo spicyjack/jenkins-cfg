@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: pkg-config is a helper tool used when compiling applications and libraries&lt;br&gt;&#xd;
+  <description>Description: A real-time soundfont software synthesizer&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: &lt;a href=&quot;http://www.freedesktop.org/wiki/Software/pkg-config/&quot;&gt;&#xd;
-http://www.freedesktop.org/wiki/Software/pkg-config/&lt;/a&gt;&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://pkgconfig.freedesktop.org/releases/&quot;&gt;&#xd;
-http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
+Reverse Dependencies: zdoom, prboom-plus&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;https://sourceforge.net/projects/fluidsynth&quot;&gt;&#xd;
+https://sourceforge.net/projects/fluidsynth&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://sourceforge.net/projects/fluidsynth/files&quot;&gt;&#xd;
+https://sourceforge.net/projects/fluidsynth/files&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -21,16 +22,16 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>pkg-config</defaultValue>
+          <defaultValue>fluidsynth</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of pkg-config to build</description>
+          <description>Version of fluidsynth to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>0.28</string>
-              <string>0.27.1</string>
-              <string>0.27</string>
+              <string>1.1.6</string>
+              <string>1.1.5</string>
+              <string>1.1.4</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -60,8 +61,8 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://pkgconfig.freedesktop.org/releases/ \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
+  --url http://downloads.sourceforge.net/fluidsynth \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
@@ -72,9 +73,9 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
 
 /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --with-internal-glib --with-pc-path=&quot;/usr/local/lib/pkgconfig&quot;</command>
+  -- </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
@@ -87,20 +88,21 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --munge --file libmikmod-config
-</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>
     </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># I think python-gobject is needed to run the test suite
+/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+  --deps &quot;uuid-dev&quot;</command>
+    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libmikmod.artifact.tar.xz</artifacts>
+      <artifacts>fluidsynth.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

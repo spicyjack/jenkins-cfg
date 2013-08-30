@@ -26,11 +26,11 @@ SCRIPTNAME=$(basename $0)
 QUIET=0
 
 # directory with *.deb files
-DEB_DIR="${HOME}/debs"
+OUT_DIR="${HOME}/debs"
 
 ### SCRIPT SETUP ###
-GETOPT_SHORT="f:hl:o:qu:"
-GETOPT_LONG="file:,help,log:,outdir:,quiet,url:"
+GETOPT_SHORT="hqo:p:l:"
+GETOPT_LONG="help,quiet,outdir:,package:,log:"
 # sets GETOPT_TEMP
 # # pass in $@ unquoted so it expands, and run_getopt() will then quote it
 # "$@"
@@ -45,37 +45,34 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help       Displays this help message
     -q|--quiet      No script output (unless an error occurs)
-    -o|--outdir     Output directory to download the --file into
-    -f|--file       Name of tarball file to download
+    -o|--outdir     Output directory to download the --package into
+    -p|--package    Name of the package to download
     -l|--log        Logfile for wget to write to; default is STDERR
-    -u|--url        Base URL where --file can be found and downloaded from
     NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
 
     Example usage:
-    sh download.sh -o ~/tmp -f perl-5.16.2.tar.gz \\
-      -u http://www.cpan.org/src/5.0
-    sh download.sh --outdir ~/tmp --file perl-5.16.2.tar.gz \\
-      --url http://www.cpan.org/src/5.0
+    sh deb_download_unpack.sh --outdir ~/pkgs --package perl
+
 EOF
 }
 
 download_tarball () {
     if [ "x$WGET_LOG" != "x" ]; then
-        OUTPUT=$(wget -o $WGET_LOG -O $DEB_DIR/$TARBALL \
-            $BASE_URL/$TARBALL 2>&1)
+        OUTPUT=$(wget -o $WGET_LOG -O $OUT_DIR/$DEB_PKG \
+            $BASE_URL/$DEB_PKG 2>&1)
         SCRIPT_EXIT=$?
     else
-        wget -O $DEB_DIR/$TARBALL $BASE_URL/$TARBALL 2>&1
+        wget -O $OUT_DIR/$DEB_PKG $BASE_URL/$DEB_PKG 2>&1
         SCRIPT_EXIT=$?
     fi
     # check the status of the last command
-    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${TARBALL}" "$OUTPUT"
+    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${DEB_PKG}" "$OUTPUT"
     if [ $SCRIPT_EXIT -eq 0 ]; then
-        info "Download of ${TARBALL} successful!"
+        info "Download of ${DEB_PKG} successful!"
     else
-        info "Download of ${TARBALL} failed!"
-        if [ -e $DEB_DIR/$TARBALL ]; then
-            /bin/rm -f $DEB_DIR/$TARBALL
+        info "Download of ${DEB_PKG} failed!"
+        if [ -e $OUT_DIR/$DEB_PKG ]; then
+            /bin/rm -f $OUT_DIR/$DEB_PKG
         fi
     fi
 }
@@ -97,21 +94,17 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
-        # tarball file that needs to be downloaded
-        -f|--file)
-            TARBALL=$2;
+        # debian package to download
+        -p|--package)
+            DEB_PKG=$2;
             shift 2;;
         # output directory
         -o|--outdir)
-            DEB_DIR=$2;
+            OUT_DIR=$2;
             shift 2;;
         # output to log?
         -l|--log)
             WGET_LOG=$2;
-            shift 2;;
-        # Base URL that contains $FILE
-        -u|--url)
-            BASE_URL=$2;
             shift 2;;
         # separator between options and arguments
         --)
@@ -128,26 +121,38 @@ done
 
     ### SCRIPT MAIN LOOP ###
     show_script_header
-    info "Download file ${BASE_URL}/${TARBALL}"
-    info "to directory ${DEB_DIR}"
+    info "Debian package to download: ${DEB_PKG}"
+    info "to directory: ${OUT_DIR}"
 
-    # check to see if DEB_DIR exists; if not create it
-    if [ ! -d $DEB_DIR ]; then
-        OUTPUT=$(mkdir -p $DEB_DIR)
-        check_exit_status $? "mkdir $DEB_DIR" "$OUTPUT"
+    # check to see if OUT_DIR exists; if not create it
+    if [ ! -d $OUT_DIR ]; then
+        OUTPUT=$(mkdir -p $OUT_DIR)
+        check_exit_status $? "mkdir $OUT_DIR" "$OUTPUT"
     fi
 
-    # check to see if the tarball is in DEB_DIR before downloading
+    # query the package system to get a URL to the file for the native
+    # architecture
+    APT_GET_OUT=$(/usr/bin/apt-get --dry-run --print-uris download ${DEB_PKG})
+    PACKAGE_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
+    PACKAGE_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')
+    PACKAGE_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
+    PACKAGE_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
+    echo "Package URL: ${PACKAGE_URL}"
+    echo "Package filename: ${PACKAGE_FILENAME}"
+    echo "Package size: ${PACKAGE_SIZE}"
+    echo "Package checksum: ${PACKAGE_CHECKSUM}"
+    exit 0
+    # check to see if the tarball is in OUT_DIR before downloading
     # FIXME check for zero-length files, warn if one is found
-    if [ ! -e $DEB_DIR/$TARBALL ]; then
+    if [ ! -e $OUT_DIR/$DEB_PKG ]; then
         # log wget output, or send to STDERR?
         download_tarball
     else
-        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${DEB_DIR}/${TARBALL})
-        info "File already exists: ${DEB_DIR}/${TARBALL};"
+        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUT_DIR}/${DEB_PKG})
+        info "File already exists: ${OUT_DIR}/${DEB_PKG};"
         if [ $FILE_SIZE -eq 0 ]; then
             info "File is zero byes; removing and redownloading"
-            rm -f ${DEB_DIR}/${TARBALL}
+            rm -f ${OUT_DIR}/${DEB_PKG}
             download_tarball
         else
             info "File size: ${FILE_SIZE} byte(s)"

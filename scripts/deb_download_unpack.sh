@@ -29,8 +29,8 @@ QUIET=0
 OUT_DIR="${HOME}/debs"
 
 ### SCRIPT SETUP ###
-GETOPT_SHORT="hqo:p:l:"
-GETOPT_LONG="help,quiet,outdir:,package:,log:"
+GETOPT_SHORT="hqo:p:l:s:t:"
+GETOPT_LONG="help,quiet,outdir:,package:,log:,source:,target:"
 # sets GETOPT_TEMP
 # # pass in $@ unquoted so it expands, and run_getopt() will then quote it
 # "$@"
@@ -48,6 +48,8 @@ cat <<-EOF
     -o|--outdir     Output directory to download the --package into
     -p|--package    Name of the package to download
     -l|--log        Logfile for wget to write to; default is STDERR
+    -s|--source     Source architecture, aka host architecture
+    -t|--target     Target architecture, what arch to download
     NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
 
     Example usage:
@@ -59,18 +61,19 @@ EOF
 download_tarball () {
     if [ "x$WGET_LOG" != "x" ]; then
         OUTPUT=$(wget -o $WGET_LOG -O $OUT_DIR/$DEB_PKG \
-            $BASE_URL/$DEB_PKG 2>&1)
+            $PKG_URL 2>&1)
         SCRIPT_EXIT=$?
     else
-        wget -O $OUT_DIR/$DEB_PKG $BASE_URL/$DEB_PKG 2>&1
+        wget -O $OUT_DIR/$DEB_PKG $PKG_URL 2>&1
         SCRIPT_EXIT=$?
     fi
     # check the status of the last command
-    check_exit_status $SCRIPT_EXIT "wget for ${BASE_URL}/${DEB_PKG}" "$OUTPUT"
+    check_exit_status $SCRIPT_EXIT "wget for ${PKG_URL}" "$OUTPUT"
     if [ $SCRIPT_EXIT -eq 0 ]; then
         info "Download of ${DEB_PKG} successful!"
     else
         info "Download of ${DEB_PKG} failed!"
+        # clean up after ourselves
         if [ -e $OUT_DIR/$DEB_PKG ]; then
             /bin/rm -f $OUT_DIR/$DEB_PKG
         fi
@@ -106,6 +109,14 @@ while true ; do
         -l|--log)
             WGET_LOG=$2;
             shift 2;;
+        # source architecture, what arch are we running on?
+        -s|--source)
+            SOURCE_ARCH=$2;
+            shift 2;;
+        # target architecture, what arch we want to download and unpack
+        -t|--target)
+            TARGET_ARCH=$2;
+            shift 2;;
         # separator between options and arguments
         --)
             shift;
@@ -121,6 +132,8 @@ done
 
     ### SCRIPT MAIN LOOP ###
     show_script_header
+    info "Source architecture: ${SOURCE_ARCH}"
+    info "Target architecture: ${TARGET_ARCH}"
     info "Debian package to download: ${DEB_PKG}"
     info "to directory: ${OUT_DIR}"
 
@@ -133,23 +146,26 @@ done
     # query the package system to get a URL to the file for the native
     # architecture
     APT_GET_OUT=$(/usr/bin/apt-get --dry-run --print-uris download ${DEB_PKG})
-    PACKAGE_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
-    PACKAGE_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')
-    PACKAGE_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
-    PACKAGE_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
-    echo "Package URL: ${PACKAGE_URL}"
-    echo "Package filename: ${PACKAGE_FILENAME}"
-    echo "Package size: ${PACKAGE_SIZE}"
-    echo "Package checksum: ${PACKAGE_CHECKSUM}"
+    PKG_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
+    PKG_URL=$(echo ${PKG_URL} | sed "s/_${SOURCE_ARCH}/_${TARGET_ARCH}/")
+    PKG_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')
+    PKG_FILENAM=$(echo ${PKG_FILENAME} \
+        | sed "s/_${SOURCE_ARCH}/_${TARGET_ARCH}/")
+    PKG_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
+    PKG_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
+    echo "Package URL: ${PKG_URL}"
+    echo "Package filename: ${PKG_FILENAME}"
+    echo "Package size: ${PKG_SIZE}"
+    echo "Package checksum: ${PKG_CHECKSUM}"
     exit 0
     # check to see if the tarball is in OUT_DIR before downloading
     # FIXME check for zero-length files, warn if one is found
-    if [ ! -e $OUT_DIR/$DEB_PKG ]; then
+    if [ ! -e $OUT_DIR/$PKG_FILENAME]; then
         # log wget output, or send to STDERR?
         download_tarball
     else
-        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUT_DIR}/${DEB_PKG})
-        info "File already exists: ${OUT_DIR}/${DEB_PKG};"
+        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUT_DIR}/${PKG_FILENAME})
+        info "File already exists: ${OUT_DIR}/${PKG_FILENAME};"
         if [ $FILE_SIZE -eq 0 ]; then
             info "File is zero byes; removing and redownloading"
             rm -f ${OUT_DIR}/${DEB_PKG}
@@ -160,7 +176,7 @@ done
         fi
     fi
 
-    info "Unpacking and configuring $# tarball(s) in $WORKSPACE/artifacts"
+    info "Unpacking and configuring ${DEB_PKG} in $WORKSPACE/artifacts"
     cd $WORKSPACE
     # remove the old artifacts directory
     if [ -d $WORKSPACE/artifacts ]; then
@@ -172,43 +188,11 @@ done
     mkdir $WORKSPACE/artifacts
     cd $WORKSPACE/artifacts
 
-    # loop across the list of artifacts passed in on the command line
-    # Jenkins puts them into the $WORKSPACE by default
-    while [ $# -gt 0 ];
-    do
-        ARTIFACT=$1
-        if [ -r "${WORKSPACE}/${ARTIFACT}.artifact.tar.xz" ]; then
-            info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz)"
-            tar -Jxvf ../${ARTIFACT}.artifact.tar.xz
-        else
-            warn "ERROR: ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"
-            EXIT_STATUS=1
-        fi
-        # pop the file off of the arg stack
-        shift
-    done
-
-    # do some file munging
-    find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
-            | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
-    do
-        SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-            # '^prefix=' is in pkgconfig '*.pc' files
-            SED_EXPR="s!:PREFIX:!prefix=${WORKSPACE}/artifacts!g"
-            # generic sed to catch anything with 'output' in it's path
-            SED_EXPR="${SED_EXPR}; s!:OUTPUT:!${WORKSPACE}/artifacts!g"
-            # generic sed to catch anything with 'artifacts' in it's path
-            SED_EXPR="${SED_EXPR}; s!:ARTIFACTS:!${WORKSPACE}/artifacts!g"
-            # wrap all of the above sed expressions inside curly brackets
-            SED_EXPR="{$SED_EXPR}"
-            info "Munging libtool file: ${SHORT_MUNGE_FILE}"
-            info "'sed' expression is: ${SED_EXPR}"
-            sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-            # FIXME check_exit_status here
-    done
-
+    # unpack the debian package in the artifacts directory
+    /usr/bin/dpkg --unpack ${OUT_DIR}/${DEB_PKG}
+    EXIT_STATUS=$?
     if [ $EXIT_STATUS -gt 0 ]; then
-        warn "ERROR: Unpacking artifacts resulted in an error"
+        warn "ERROR: Unpacking ${DEB_PKG} resulted in an error"
     fi
 
     exit $EXIT_STATUS

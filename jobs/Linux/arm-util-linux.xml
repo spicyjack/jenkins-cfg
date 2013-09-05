@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>util-linux is a standard package of the Linux operating system&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt; &#xd;
+Homepage: &lt;a href=&quot;http://en.wikipedia.org/wiki/Util-linux&quot;&gt;&#xd;
+https://sourceforge.net/projects/expat/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://www.kernel.org/pub/linux/utils/util-linux/&quot;&gt;&#xd;
+https://www.kernel.org/pub/linux/utils/util-linux/&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>util-linux</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of util-linux to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>2.23.2</string>
+              <string>2.23.1</string>
+              <string>2.23</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --url https://www.kernel.org/pub/linux/utils/${PKG_NAME}/v2.23 \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- --without-ncurses --disable-use-tty-group \
+     --disable-makeinstall-chown --disable-makeinstall-setuid</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --cross-compile \
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>util-linux.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers/>
+</project>

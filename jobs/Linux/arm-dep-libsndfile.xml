@@ -65,13 +65,13 @@ http://www.mega-nerd.com/libsndfile/#Download&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-libsdl_mixer-dep-libogg</project>
+      <project></project>
       <filter>libogg.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-libsdl_mixer-dep-libvorbis</project>
+      <project>arm-dep-libvorbis</project>
       <filter>libvorbis.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>

@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: Free Lossless Audio Codec, an audio format similar to MP3, but lossless&lt;br&gt;&#xd;
-Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: &lt;a href=&quot;https://xiph.org/flac/&quot;&gt;https://xiph.org/flac/&lt;/a&gt;&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://downloads.xiph.org/releases/flac/&quot;&gt;&#xd;
-http://downloads.xiph.org/releases/flac/&lt;/a&gt;</description>
+  <description>util-linux is a standard package of the Linux operating system&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt; &#xd;
+Homepage: &lt;a href=&quot;http://en.wikipedia.org/wiki/Util-linux&quot;&gt;&#xd;
+https://sourceforge.net/projects/expat/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://www.kernel.org/pub/linux/utils/util-linux/&quot;&gt;&#xd;
+https://www.kernel.org/pub/linux/utils/util-linux/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -20,16 +21,16 @@ http://downloads.xiph.org/releases/flac/&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>flac</defaultValue>
+          <defaultValue>util-linux</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of flac to build</description>
+          <description>Version of util-linux to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.3.0</string>
-              <string>1.2.1</string>
-              <string>1.2.0</string>
+              <string>2.23.2</string>
+              <string>2.23.1</string>
+              <string>2.23</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -60,67 +61,36 @@ http://downloads.xiph.org/releases/flac/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --url http://downloads.xiph.org/releases/${PKG_NAME} \
+  --url https://www.kernel.org/pub/linux/utils/${PKG_NAME}/v2.23 \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-dep-libogg</project>
-      <filter>libogg.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-dep-libvorbis</project>
-      <filter>libvorbis.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
- -- libogg libvorbis
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
-PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --disable-xmms-plugin --with-ogg=${WORKSPACE}/artifacts</command>
+  -- --without-ncurses --disable-use-tty-group \
+     --disable-makeinstall-chown --disable-makeinstall-setuid</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
-  --output=${WORKSPACE}
-</command>
+  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>flac.artifact.tar.xz</artifacts>
+      <artifacts>util-linux.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
-  <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
-      <colorMapName>xterm</colorMapName>
-    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
-  </buildWrappers>
+  <buildWrappers/>
 </project>

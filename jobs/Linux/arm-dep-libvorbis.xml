@@ -65,7 +65,7 @@ http://downloads.xiph.org/releases/vorbis/&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-libsdl_mixer-dep-libogg</project>
+      <project></project>
       <filter>libogg.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>

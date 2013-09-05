@@ -67,7 +67,7 @@ https://sourceforge.net/projects/fluidsynth/files&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-util-linux</project>
+      <project></project>
       <filter>util-linux.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
@@ -85,12 +85,15 @@ https://sourceforge.net/projects/fluidsynth/files&lt;/a&gt;</description>
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- </command>
+  -- --disable-oss-support --disable-jack-support \
+    --disable-coreaudio --disable-coremidi --disable-dart \
+    --disable-lash --disable-ladcca</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
 
 /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \

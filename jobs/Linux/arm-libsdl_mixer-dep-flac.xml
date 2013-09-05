@@ -86,9 +86,7 @@ http://downloads.xiph.org/releases/flac/&lt;/a&gt;</description>
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
-PATH=/usr/local/bin:$PATH \
-LDFLAGS=&quot;-L${WORKSPACE}/artifacts/lib -Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
@@ -101,9 +99,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
-LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>

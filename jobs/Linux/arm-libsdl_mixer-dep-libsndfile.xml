@@ -64,6 +64,23 @@ http://www.mega-nerd.com/libsndfile/#Download&lt;/a&gt;</description>
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libogg</project>
+      <filter>libogg.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libvorbis</project>
+      <filter>libvorbis.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- libogg libvorbis
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set

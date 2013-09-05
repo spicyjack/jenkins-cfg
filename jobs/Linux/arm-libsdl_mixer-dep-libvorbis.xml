@@ -64,12 +64,27 @@ http://downloads.xiph.org/releases/vorbis/&lt;/a&gt;</description>
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libogg</project>
+      <filter>libogg.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- libogg
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
+PATH=/usr/local/bin:$PATH \
+LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \

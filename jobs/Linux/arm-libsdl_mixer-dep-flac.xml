@@ -60,30 +60,52 @@ http://downloads.xiph.org/releases/flac/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --url http://downloads.xiph.org/releases/${PKG_NAME}/ \
+  --url http://downloads.xiph.org/releases/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libogg</project>
+      <filter>libogg.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-libsdl_mixer-dep-libvorbis</project>
+      <filter>libvorbis.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
-  --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- </command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- libogg libvorbis
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
+PATH=/usr/local/bin:$PATH \
+LDFLAGS=&quot;-L${WORKSPACE}/artifacts/lib -Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- --disable-xmms-plugin --with-ogg=${WORKSPACE}/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
+#set
+#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
+
+CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
+LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  /bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
-  --path=${PKG_NAME}-${PKG_VERSION}
-</command>
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \

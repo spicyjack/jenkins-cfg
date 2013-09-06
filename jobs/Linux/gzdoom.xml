@@ -135,14 +135,14 @@ cp -av fmodapi${FMOD_VERSION}linux64/api/inc/* include</command>
       <command># FIXME use a stamp file and/or symlink with a generic directory name
 # to indicate what version of source is currently downloaded
 # delete the existing source directory, if it exists
-if [ -d $WORKSPACE/gzdoom-${PKG_SVN_TAG} ]; then
-  cd $WORKSPACE/gzdoom-${PKG_SVN_TAG}
+if [ -d $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG} ]; then
+  cd $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}
   svn update
 else
   # then go snag fresh source
   cd $WORKSPACE
-  svn co http://mancubus.net/svn/hosted/gzdoom/tags/${PKG_SVN_TAG} \
-    $WORKSPACE/gzdoom-${PKG_SVN_TAG}
+  svn co http://mancubus.net/svn/hosted/${PKG_NAME}/tags/${PKG_SVN_TAG} \
+    $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

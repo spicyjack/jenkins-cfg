@@ -64,11 +64,7 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
@@ -76,11 +72,7 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
      --disable-arts --disable-video-directfb</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>

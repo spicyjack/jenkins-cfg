@@ -5,7 +5,7 @@
 Builds with: GNU make&lt;br&gt;&#xd;
 Homepage: &lt;a href=&quot;http://www.libsdl.org&quot;&gt;http://www.libsd.org&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&#xd;
-  http://www.libsdl.org/projects/SDL_mixer&lt;/a&gt;</description>
+http://www.libsdl.org/projects/SDL_mixer&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>

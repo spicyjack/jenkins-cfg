@@ -86,9 +86,8 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_sdl.sh --munge
-# not needed, it would be hard to munge yourself before you&apos;re even built
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file sdl-config --munge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
@@ -100,7 +99,7 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libSDL.artifact.tar.xz</artifacts>
+      <artifacts>libsdl.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

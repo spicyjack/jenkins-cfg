@@ -85,7 +85,8 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --munge --file libmikmod-config
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file libmikmod-config --munge
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

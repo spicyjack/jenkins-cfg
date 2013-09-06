@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: Mikmod is a module player and library supporting many formats&lt;br&gt;&#xd;
+  <description>Description: The Advanced Linux Sound Architecture (ALSA) provides audio&lt;br&gt;&#xd;
+and MIDI functionality to the Linux operating system.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;&#xd;
-http://mikmod.shlomifish.org/&lt;/a&gt;&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://mikmod.shlomifish.org/&quot;&gt;&#xd;
-http://mikmod.shlomifish.org/&lt;/a&gt;</description>
+Homepage: &lt;a href=&quot;http://www.alsa-project.org/main/index.php/Main_Page&quot;&gt;&#xd;
+http://www.alsa-project.org/main/index.php/Main_Page&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;ftp://ftp.alsa-project.org/pub/lib/&quot;&gt;&#xd;
+ftp://ftp.alsa-project.org/pub/lib/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -21,14 +22,16 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>libmikmod</defaultValue>
+          <defaultValue>alsa-lib</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of libmikmod to build</description>
+          <description>Version of libsndfile to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>3.2.0</string>
+              <string>1.0.27.2</string>
+              <string>1.0.27.1</string>
+              <string>1.0.27</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -58,36 +61,29 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://mikmod.shlomifish.org/files/ \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
+  --url ftp://ftp.alsa-project.org/pub/lib \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>#/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+# -- libogg libvorbis flac
+#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
+LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- </command>
+  -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== BEGIN CURRENT ENVIRONMENT ====&quot;
-#set
-#echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
-
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
-  --path=${PKG_NAME}-${PKG_VERSION}
-</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
-  --file libmikmod-config --munge
-</command>
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
@@ -99,7 +95,7 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libmikmod.artifact.tar.xz</artifacts>
+      <artifacts>alsa-lib.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

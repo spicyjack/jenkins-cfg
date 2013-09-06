@@ -1,12 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Description: Libsndfile is a C library for reading and writing files containing sampled sound&lt;br&gt;&#xd;
+  <description>smpeg is an mpeg decoding library, which runs on just about any platform.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Homepage: &lt;a href=&quot;http://www.mega-nerd.com/libsndfile/&quot;&gt;&#xd;
-http://www.mega-nerd.com/libsndfile/&lt;/a&gt;&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://www.mega-nerd.com/libsndfile/#Download&quot;&gt;&#xd;
-http://www.mega-nerd.com/libsndfile/#Download&lt;/a&gt;</description>
+Homepage: &lt;a href=&quot;http://icculus.org/smpeg/&quot;&gt;http://icculus.org/smpeg/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://svn.icculus.org/smpeg/&quot;&gt;&#xd;
+http://svn.icculus.org/smpeg/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -21,15 +20,16 @@ http://www.mega-nerd.com/libsndfile/#Download&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>libsndfile</defaultValue>
+          <defaultValue>smpeg</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>PKG_VERSION</name>
-          <description>Version of libsndfile to build</description>
+          <name>PKG_SVN_TAG</name>
+          <description>SVN tag of smpeg to use for building build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.0.25</string>
-              <string>1.0.24</string>
+              <string>release_0_4_5</string>
+              <string>release_2_0_0</string>
+              <string>trunk</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -50,68 +50,95 @@ http://www.mega-nerd.com/libsndfile/#Download&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
+      <command>#/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+#  --deps &quot;cmake p7zip fluidsynth libfluidsynth-dev fluid-soundfont-gm 
+#    fluid-soundfont-gs&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  -- $WORKSPACE/output</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://www.mega-nerd.com/${PKG_NAME}/files \
-  --log $WORKSPACE/wget.${PKG_NAME}.log \
-  --outdir $TARBALL_DIR</command>
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-dep-libogg</project>
-      <filter>libogg.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-dep-libvorbis</project>
-      <filter>libvorbis.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>arm-dep-flac</project>
-      <filter>flac.artifact.tar.xz</filter>
+      <project>arm-libsdl</project>
+      <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
- -- libogg libvorbis flac
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+ -- libsdl
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file sdl-config --unmunge
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
+      <command># FIXME use a stamp file and/or symlink with a generic directory name
+# to indicate what version of source is currently downloaded
+# delete the existing source directory, if it exists
+if [ ${PKG_SVN_TAG} == &quot;trunk&quot; ]; then
+  SVN_URL=&quot;svn://svn.icculus.org/${PKG_NAME}/${PKG_SVN_TAG}&quot;
+else
+  SVN_URL=&quot;svn://svn.icculus.org/${PKG_NAME}/tags/${PKG_SVN_TAG}&quot;
+fi
+if [ -d $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}.svn ]; then
+  cd $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}.svn
+  svn update
+else
+  # snag fresh source
+  cd $WORKSPACE
+  svn co $SVN_URL ${PKG_NAME}-${PKG_SVN_TAG}.svn
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Source the crosstool-ng shell script; 
+# this adds the cross toolchain to $PATH
+source ~/.bashrc.d/crosstool-ng
+
+# change into the source tree
+cd ${WORKSPACE}/${PKG_NAME}-${PKG_SVN_TAG}.svn
+
+if [ ! -f configure ]; then
+  bash autogen.sh
+else
+  # clean the current source tree
+  make distclean
+fi
+
+# then run configure to set up the source for compiling
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
+CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
 LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
-  --prefix=${WORKSPACE}/output \
-  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --disable-silent-rules</command>
+  ./configure --prefix=$WORKSPACE/output \
+  --build=x86_64 --host=armv6-lack_rpi-linux-gnueabi \
+  --disable-gtktest --disable-gtk-player --disable-opengl-player
+
+# run the actual build
+time make
+time make install
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
-  --cross-compile \
-  --path=${PKG_NAME}-${PKG_VERSION}</command>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file smpeg-config --munge
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
-  --source-version=${PKG_VERSION} \
+  --source-version=${PKG_SVN_TAG} \
   --output=${WORKSPACE}
 </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>libsndfile.artifact.tar.xz</artifacts>
+      <artifacts>smpeg.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

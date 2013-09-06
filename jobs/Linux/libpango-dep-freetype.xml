@@ -68,8 +68,7 @@ http://download.savannah.gnu.org/releases/freetype/&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION} \
-  --test</command>
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \

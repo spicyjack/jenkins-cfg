@@ -89,8 +89,7 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION} \
-  --test
+  --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

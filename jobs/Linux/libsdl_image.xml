@@ -89,7 +89,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_image/&quot;&gt;&
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=libsdl_image \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

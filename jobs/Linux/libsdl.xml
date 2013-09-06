@@ -78,7 +78,7 @@ http://www.libsdl.org/download-1.2.php</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=libsdl \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

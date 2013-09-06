@@ -4,6 +4,8 @@
   <description>Chocolate Doom - A Doom source port that accurately reproduces&lt;br&gt;&#xd;
 the experience of Doom as it was played in the 1990s.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://www.chocolate-doom.org/wiki/index.php/Chocolate_Doom&quot;&gt;&#xd;
+http://www.chocolate-doom.org/wiki/index.php/Chocolate_Doom&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://tinyurl.com/cpt69pd&quot;&gt;&#xd;
 http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -62,12 +64,6 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_image</project>
-      <filter>libsdl_image.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_mixer</project>
       <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
@@ -76,18 +72,6 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_net</project>
       <filter>libsdl_net.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_ttf</project>
-      <filter>libsdl_ttf.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libpango-dep-freetype</project>
-      <filter>freetype.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>

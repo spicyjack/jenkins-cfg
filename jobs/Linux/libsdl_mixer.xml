@@ -90,7 +90,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_mixer/&quot;&gt;&
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=libsdl_mixer \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

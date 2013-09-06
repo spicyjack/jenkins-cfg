@@ -2,8 +2,10 @@
 <project>
   <actions/>
   <description>Simple Direct Layer networking library&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#xd;
-  http://www.libsdl.org/projects/SDL_net&lt;/a&gt;</description>
+Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: http://www.libsdl.org/projects/SDL_net/release-1.2.html&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/release/&quot;&gt;&#xd;
+http://www.libsdl.org/projects/SDL_net/release&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -26,6 +28,8 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>1.2.8</string>
+              <string>1.2.7</string>
+              <string>1.2.6</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -86,7 +90,7 @@ Downloads: &lt;a href=&quot;http://www.libsdl.org/projects/SDL_net/&quot;&gt;&#x
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=libsdl_net \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

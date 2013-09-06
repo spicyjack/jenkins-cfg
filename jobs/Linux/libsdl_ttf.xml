@@ -95,7 +95,7 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+  --name=libsdl_ttf \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

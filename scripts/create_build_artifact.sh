@@ -139,8 +139,11 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     fi
     # create a stampfile
     STAMP_FILE="${SOURCE_NAME}-${SOURCE_VERSION}-${ARTIFACT_TIMESTAMP}.stamp"
-    info "Creating stamp file '${STAMP_FILE}'"
-    touch $STAMP_FILE
+    STAMP_PATH="share/stamp"
+    info "Creating stamp file '${STAMP_PATH}/${STAMP_FILE}'"
+    # we're already in $OUTPUT_DIR/output
+    mkdir -p $STAMP_PATH
+    touch ${STAMP_PATH}/${STAMP_FILE}
     # create the build artifact
     TAR_CMD="tar -Jcvf ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz ."
     eval $TAR_CMD

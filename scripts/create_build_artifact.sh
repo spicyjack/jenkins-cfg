@@ -20,8 +20,8 @@ QUIET=0
 # default exit status
 EXIT_STATUS=0
 
-# mangle metafiles? 0=yes, 1=no
-NO_MANGLE_METAFILES=0
+# munge metafiles? 1=yes, 0=no
+MUNGE_METAFILES=1
 
 ### SCRIPT SETUP ###
 # source jenkins functions
@@ -31,7 +31,7 @@ NO_MANGLE_METAFILES=0
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
 GETOPT_SHORT="hqmn:s:o:"
-GETOPT_LONG="help,quiet,no-mangle,name:"
+GETOPT_LONG="help,quiet,no-munge,name:"
 GETOPT_LONG="${GETOPT_LONG},source-version:,version:,output:,output-dir:"
 # sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
@@ -46,7 +46,7 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
-    -m|--no-mangle      Don't mangle pkgconfig/libtool files in output dir
+    -m|--no-munge       Don't munge pkgconfig/libtool files in output dir
     -n|--name           Name of the artifact tarball to create
     -s|--source-version Version of the source code that was compiled
     -o|--output         Write tarball to this directory (usually \$WORKSPACE)
@@ -71,11 +71,11 @@ while true ; do
             exit 0;;
         # don't output anything (unless there's an error)
         -q|--quiet)
-            QUIET=1
+            QUIET=1;
             shift;;
-        # don't mangle files in $WORKSPACE/output prior to creating artifact
-        -m|--no-mangle|--mangle)
-            NO_MANGLE_METAFILES=1
+        # don't munge files in $WORKSPACE/output prior to creating artifact
+        -m|--no-munge|--munge|--no-mangle|--mangle)
+            MUNGE_METAFILES=0;
             shift;;
         # source package nam
         -n|--name)
@@ -117,9 +117,9 @@ if [ -d "${OUTPUT_DIR}/output" ]; then
     info "Creating artifact file ${OUTPUT_DIR}/${SOURCE_NAME}.artifact.tar.xz"
     START_DIR=$PWD
     cd ${OUTPUT_DIR}/output
-    # run the sed expression as long as --no-mangle **was not** called
-    if [ $NO_MANGLE_METAFILES -ne 1 ]; then
-        # mangle libtool/pkgconfig files
+    # run the sed expression as long as --no-munge **was not** called
+    if [ $MUNGE_METAFILES -eq 1 ]; then
+        # munge libtool/pkgconfig files
         find "$PWD" -print0 | egrep --null-data --null '.la$|.pc$' \
             | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
         do

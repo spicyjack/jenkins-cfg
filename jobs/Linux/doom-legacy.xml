@@ -3,7 +3,9 @@
   <actions/>
   <description>Doom Legacy is a source port of Doom available for DOS, Win32, Linux, OS/2 and MacOS,&lt;br&gt;&#xd;
 originally written by Boris Pereira and Fabrice &quot;faB&quot; Denis.&lt;br&gt;&#xd;
-Builds with: GNU make, no &apos;./configure&apos;&#xd;
+Builds with: GNU make, no &apos;./configure&apos;&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://doomlegacy.sourceforge.net/&quot;&gt;&#xd;
+http://doomlegacy.sourceforge.net/&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://doomlegacy.sourceforge.net/releases&quot;&gt;&#xd;
 http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">

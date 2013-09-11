@@ -3,8 +3,8 @@
   <actions/>
   <description>GZDoom is a 3D-accelerated Doom source port based on ZDoom.&lt;br&gt;&#xd;
 Builds with: CMake&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://mancubus.net/svn/hosted/gzdoom/trunk/&quot;&gt;&#xd;
-http://mancubus.net/svn/hosted/gzdoom/trunk/&lt;/a&gt;</description>
+Downloads: &lt;a href=&quot;https://github.com/coelckers/gzdoom&quot;&gt;&#xd;
+https://github.com/coelckers/gzdoom&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -22,13 +22,13 @@ http://mancubus.net/svn/hosted/gzdoom/trunk/&lt;/a&gt;</description>
           <defaultValue>gzdoom</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
-          <name>PKG_SVN_TAG</name>
+          <name>PKG_GIT_TAG</name>
           <description>Version of GZDoom to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.6.00</string>
-              <string>1.7.00</string>
-              <string>1.5.06</string>
+              <string>g1.8.4</string>
+              <string>g1.8.3</string>
+              <string>g1.8.2</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -125,7 +125,8 @@ http://mancubus.net/svn/hosted/gzdoom/trunk/&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># unpack fmod, and copy files into $WORKSPACE/artifacts/lib
+      <command>echo &quot;=-=-= custom tarball unpack =-=-=&quot;
+# unpack fmod, and copy files into $WORKSPACE/artifacts/lib
 cd ${WORKSPACE}/artifacts
 tar -zxvf $TARBALL_DIR/fmodapi${FMOD_VERSION}linux64.tar.gz
 cp -av fmodapi${FMOD_VERSION}linux64/api/lib/* lib
@@ -135,15 +136,19 @@ cp -av fmodapi${FMOD_VERSION}linux64/api/inc/* include</command>
       <command># FIXME use a stamp file and/or symlink with a generic directory name
 # to indicate what version of source is currently downloaded
 # delete the existing source directory, if it exists
-if [ -d $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG} ]; then
-  cd $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}
-  svn update
+if [ -d $WORKSPACE/${PKG_NAME}.git ]; then
+  cd $WORKSPACE/${PKG_NAME}.git
+  git checkout master
+  git pull --all
 else
   # then go snag fresh source
   cd $WORKSPACE
-  svn co http://mancubus.net/svn/hosted/${PKG_NAME}/tags/${PKG_SVN_TAG} \
-    $WORKSPACE/${PKG_NAME}-${PKG_SVN_TAG}
-fi</command>
+  git clone https://github.com/coelckers/${PKG_NAME}.git ${PKG_NAME}.git
+  cd ${PKG_NAME}.git
+fi
+
+# check out the specified tag
+git checkout -b $PKG_GIT_TAG</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command># do manual unpack and configure for zdoom
@@ -156,7 +161,7 @@ fi
 echo &quot;=== LIBFMOD is: ${LIBFMOD}; MACHINE_NAME is ${MACHINE_NAME} ===&quot;
 
 # change into the source tree
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_SVN_TAG}
+cd ${WORKSPACE}/${PKG_NAME}.git
 
 # remove jenk-build if it already exists
 if [ -d jenk-build ]; then
@@ -184,7 +189,7 @@ time make
       <command># Copy the different files to the $WORKSPACE/output directory
 mkdir -p ${WORKSPACE}/output/bin ${WORKSPACE}/output/share/games/doom
 # copy the binaries
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_SVN_TAG}/jenk-build
+cd ${WORKSPACE}/${PKG_NAME}.git/jenk-build
 cp gzdoom ${WORKSPACE}/output/bin
 # copy the wad file
 cp gzdoom.pk3 ${WORKSPACE}/output/share/games/doom

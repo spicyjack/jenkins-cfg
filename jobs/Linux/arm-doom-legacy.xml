@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Doom Legacy is a source port of Doom available for DOS, Win32, Linux, OS/2 and MacOS,&lt;br&gt;&#xd;
+originally written by Boris Pereira and Fabrice &quot;faB&quot; Denis.&lt;br&gt;&#xd;
+Builds with: GNU make, no &apos;./configure&apos;&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://doomlegacy.sourceforge.net/&quot;&gt;&#xd;
+http://doomlegacy.sourceforge.net/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://doomlegacy.sourceforge.net/releases&quot;&gt;&#xd;
+http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>doomlegacy</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of doom-legacy to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>1.44_alpha4_src_r999</string>
+              <string>1.44_alpha3_src_r845</string>
+              <string>1.44_alpha1_src_r752</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl</project>
+      <filter>libsdl.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl_mixer</project>
+      <filter>libsdl_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl_net</project>
+      <filter>libsdl_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- libsdl libsdl_mixer libsdl_net
+
+# unmunge SDL
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
+
+# munge RPATH
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}_${PKG_VERSION}.zip \
+  --url http://downloads.sourceforge.net/${PKG_NAME} \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># source crosstool-ng binaries
+source ~/.bashrc.d/crosstool-ng
+
+# custom source dir delete, since the names of things change in doomlegacy source
+SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+rm -rvf $WORKSPACE/${PKG_NAME}_${SHORT_PKG_VERSION}
+# clean up the output directory
+rm -rvf $WORKSPACE/bin
+# unpack
+unzip $TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip
+
+cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
+
+# make a directory for the binaries output during the compile
+mkdir bin
+
+# enter the source dir and build
+cd src
+
+PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
+LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+PATH=$PATH:${WORKSPACE}/artifacts/bin \
+  time make CC=armv6-lack_rpi-linux-gnueabi-gcc</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
+tar -Jcvf $WORKSPACE/${PKG_NAME}.artifact.tar.xz bin</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+#  --name=${PKG_NAME} \
+#  --source-version=${PKG_VERSION} \
+#  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>doomlegacy.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

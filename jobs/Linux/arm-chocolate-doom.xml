@@ -169,7 +169,8 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --cross-compile=armv6-lack_rpi-linux-gnueabi </command>
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \

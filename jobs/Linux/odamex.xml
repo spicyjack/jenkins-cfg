@@ -4,6 +4,7 @@
   <description>Odamex is a free, cross-platform (Mac, Windows, Linux) modification of the Doom engine&lt;br&gt;&#xd;
 that allows players to easily join servers dedicated to playing Doom online.&lt;br&gt;&#xd;
 Builds with: CMake&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://odamex.net/&quot;&gt;http://odamex.net/&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;https://sourceforge.net/projects/odamex/files/Odamex/&quot;&gt;&#xd;
 https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -24,9 +25,11 @@ https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of prboom+ to build</description>
+          <description>Version of odamex to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>0.6.4</string>
+              <string>0.6.3</string>
               <string>0.6.2</string>
               <string>0.6.1</string>
               <string>0.6.0</string>
@@ -68,12 +71,6 @@ https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_image</project>
-      <filter>libsdl_image.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
       <project>libsdl_mixer</project>
       <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
@@ -85,21 +82,9 @@ https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_ttf</project>
-      <filter>libsdl_ttf.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libpango-dep-freetype</project>
-      <filter>freetype.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
- -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
+ -- libsdl libsdl_mixer libsdl_net
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
@@ -131,6 +116,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
   PATH=$PATH:${WORKSPACE}/artifacts/bin \
   cmake .. \
+    -DNO_AG-ODALAUNCH_TARGET \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
 

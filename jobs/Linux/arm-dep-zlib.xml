@@ -73,8 +73,7 @@ cd ${PKG_NAME}-${PKG_VERSION}
 # got the below configure string from:
 # http://www.ailis.de/~k/archives/19-arm-cross-compiling-howto.html
 CC=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-cc \
-  LDSHARED=&quot;armv6-lack_rpi-linux-gnueabi -shared -soname,libz.so.1&quot; \
-  ./configure --shared --prefix ../output
+  ./configure --prefix ../output
 time make -j4
 make install</command>
     </hudson.tasks.Shell>

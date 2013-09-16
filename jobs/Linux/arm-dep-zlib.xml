@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>libffi - A Portable Foreign Function Interface Library&lt;br&gt;&#xd;
+  <description>zlib - A Massively Spiffy Yet Delicately Unobtrusive Compression Library&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt; &#xd;
 Homepage: &lt;a href=&quot;http://www.zlib.net/&quot;&gt;http://www.zlib.net/&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://zlib.net&quot;&gt;http://zlib.net&lt;/a&gt;</description>

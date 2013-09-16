@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Odamex is a free, cross-platform (Mac, Windows, Linux) modification of the Doom engine&lt;br&gt;&#xd;
+that allows players to easily join servers dedicated to playing Doom online.&lt;br&gt;&#xd;
+Builds with: CMake&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://odamex.net/&quot;&gt;http://odamex.net/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://sourceforge.net/projects/odamex/files/Odamex/&quot;&gt;&#xd;
+https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>odamex</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of odamex to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>0.6.4</string>
+              <string>0.6.3</string>
+              <string>0.6.2</string>
+              <string>0.6.1</string>
+              <string>0.6.0</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+  --deps &quot;cmake libwxgtk2.8-dev wx-common libportmidi-dev libportmidi0&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl</project>
+      <filter>libsdl.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl_mixer</project>
+      <filter>libsdl_mixer.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>libsdl_net</project>
+      <filter>libsdl_net.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- libsdl libsdl_mixer libsdl_net
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-src-${PKG_VERSION}.tar.bz2 \
+  --url http://downloads.sourceforge.net/odamex \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --no-config \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-src-${PKG_VERSION}.tar.bz2
+cd ${WORKSPACE}/${PKG_NAME}-src-${PKG_VERSION}
+
+# patch Odamex source to allow it to use older wxWidgets
+# http://odamex.net/boards/index.php?topic=2169.5;wap2
+/bin/sed --in-place &apos;s!&lt;wx/defs.h&gt;!&lt;wx/defs.h&gt;\ntypedef long int wxIntPtr;!&apos; \
+  odalaunch/src/lst_custom.cpp
+
+# create the build dir for cmake
+mkdir jenk-build
+cd jenk-build
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+  SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  PATH=$PATH:${WORKSPACE}/artifacts/bin \
+  cmake .. \
+    -DNO_AG-ODALAUNCH_TARGET=1 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
+    -DCMAKE_TOOLCHAIN_FILE=~/src/jenkins/config.git/enviro/armv6-lack_rpi-linux-gnueabi.cmake
+
+#-DCMAKE_C_COMPILER=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-gcc \
+#    -DCMAKE_LD=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-ld
+
+# run the actual build
+time make</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command># Copy the different files to the $WORKSPACE/output directory
+mkdir -p ${WORKSPACE}/output/bin ${WORKSPACE}/output/share/games/doom
+# copy the binaries
+cd ${WORKSPACE}/${PKG_NAME}-src-${PKG_VERSION}/jenk-build
+cp client/odamex master/odamast odalaunch/odalaunch server/odasrv \
+  ${WORKSPACE}/output/bin
+# copy the wad file
+cd ${WORKSPACE}/${PKG_NAME}-src-${PKG_VERSION}
+cp odamex.wad ${WORKSPACE}/output/share/games/doom
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>odamex.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

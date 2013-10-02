@@ -9,7 +9,7 @@ SET(CMAKE_C_COMPILER /opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-
 SET(CMAKE_CXX_COMPILER /opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-g++)
 
 # where is the target environment 
-SET(CMAKE_FIND_ROOT_PATH /opt/cross/armv6-lack_rpi-linux-gnueabi/armv6-lack_rpi-linux-gnueabi/sysroot ${WORKSPACE}/artifacts)
+#SET(CMAKE_FIND_ROOT_PATH /opt/cross/armv6-lack_rpi-linux-gnueabi/armv6-lack_rpi-linux-gnueabi/sysroot ${WORKSPACE}/artifacts)
 
 # search for programs in the build host directories
 SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)

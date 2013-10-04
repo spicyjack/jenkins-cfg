@@ -65,19 +65,19 @@ https://sourceforge.net/projects/odamex/files/Odamex/&lt;/a&gt;</description>
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl</project>
+      <project>arm-libsdl</project>
       <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_mixer</project>
+      <project>arm-libsdl_mixer</project>
       <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
-      <project>libsdl_net</project>
+      <project>arm-libsdl_net</project>
       <filter>libsdl_net.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
@@ -111,15 +111,15 @@ cd ${WORKSPACE}/${PKG_NAME}-src-${PKG_VERSION}
 # create the build dir for cmake
 mkdir jenk-build
 cd jenk-build
-PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-  LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-  PATH=$PATH:${WORKSPACE}/artifacts/bin \
+# copy the customized cmake file
+cp $HOME/src/jenkins/config.git/enviro/armv6-lack_rpi-linux-gnueabi.cmake .
+
+SDLDIR=/home/jenkins/.jenkins/jobs/arm-odamex/workspace/artifacts \
   cmake .. \
     -DNO_AG-ODALAUNCH_TARGET=1 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
-    -DCMAKE_TOOLCHAIN_FILE=~/src/jenkins/config.git/enviro/armv6-lack_rpi-linux-gnueabi.cmake
+    -DCMAKE_TOOLCHAIN_FILE=armv6-lack_rpi-linux-gnueabi.cmake
 
 #-DCMAKE_C_COMPILER=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-gcc \
 #    -DCMAKE_LD=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-ld

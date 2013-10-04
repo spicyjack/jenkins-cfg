@@ -18,6 +18,7 @@
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>1.21.1</string>
+              <string>1.20.3</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -34,7 +35,11 @@
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers/>
+  <triggers>
+    <hudson.triggers.TimerTrigger>
+      <spec>@daily</spec>
+    </hudson.triggers.TimerTrigger>
+  </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
@@ -57,6 +62,21 @@ cd ${PKG_NAME}-${PKG_VERSION}
 cp $HOME/src/lack/projects.git/armlack/buildroot/busybox.config.arm.cross-tools \
   .config
 time make</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME})
+VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT \
+  | grep -c &quot;ELF 32-bit LSB executable, ARM, version 1 (SYSV), statically linked&quot;)
+if [ $VALID_BINARY -gt 0 ]; then
+  echo &quot;==== Test binary compiled successfully! ====&quot;
+  echo &quot;==== Test binary file is: ====&quot;
+  echo $TEST_BINARY_FILE_OUTPUT
+  exit 0
+else
+  echo &quot;ERROR: test binary file output did not match expected output&quot;
+  echo $TEST_BINARY_FILE_OUTPUT
+  exit 1
+fi </command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

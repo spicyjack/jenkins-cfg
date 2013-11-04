@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Description: Platform Independent Library for MIDI I/O&lt;br&gt;&#xd;
+Builds with: GNU make&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://portmedia.sourceforge.net/portmidi/&quot;&gt;&#xd;
+http://portmedia.sourceforge.net/portmidi/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;https://sourceforge.net/projects/portmedia/files/portmidi/&quot;&gt;&#xd;
+https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>portmidi</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>Version of libsndfile to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>217</string>
+              <string>200</string>
+              <string>199</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Directory for downloaded source</description>
+          <defaultValue>$HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file ${PKG_NAME}-src-${PKG_VERSION}.zip \
+  --url  http://downloads.sourceforge.net/portmedia \
+  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+      <project>arm-dep-alsa-lib</project>
+      <filter>alsa-lib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+ -- alsa-lib
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>if [ -d ${WORKSPACE}/${PKG_NAME} ]; then
+  rm -rf ${WORKSPACE}/${PKG_NAME}
+fi
+
+# unpack, but don&apos;t config
+/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --no-config \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-src-${PKG_VERSION}.zip \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+
+# portmidi is not released with the version number in the tarball
+cd ${WORKSPACE}/${PKG_NAME}
+
+# copy CMAKE customization file
+cp $HOME/src/jenkins/config.git/enviro/armv6-lack_rpi-linux-gnueabi.cmake .
+
+cmake \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
+  -DCMAKE_TOOLCHAIN_FILE=armv6-lack_rpi-linux-gnueabi.cmake
+
+#-DCMAKE_C_COMPILER=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-gcc \
+#    -DCMAKE_LD=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-ld
+
+# run the actual build
+time make</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --cross-compile \
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=${PKG_NAME} \
+  --source-version=${PKG_VERSION} \
+  --output=${WORKSPACE}
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>portmidi.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
+</project>

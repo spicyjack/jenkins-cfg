@@ -2,6 +2,9 @@
 
 # Download and unpack a Debian package to be used to meet library dependencies
 # when cross-compiling
+#
+# See notes in the Jenkins project journal for various `apt-file` commands
+# that could be used to get the URL to the correct file
 
 # Copyright (c)2013 by Brian Manning (brian at xaoc dot org)
 # License terms are listed at the bottom of this file
@@ -21,6 +24,9 @@ SCRIPTNAME=$(basename $0)
 
 # verbose script output by default
 QUIET=0
+
+# directory with *.deb files
+DEB_DIR="${HOME}/debs"
 
 ### SCRIPT SETUP ###
 GETOPT_SHORT="f:hl:o:qu:"
@@ -55,11 +61,11 @@ EOF
 
 download_tarball () {
     if [ "x$WGET_LOG" != "x" ]; then
-        OUTPUT=$(wget -o $WGET_LOG -O $OUTDIR/$TARBALL \
+        OUTPUT=$(wget -o $WGET_LOG -O $DEB_DIR/$TARBALL \
             $BASE_URL/$TARBALL 2>&1)
         SCRIPT_EXIT=$?
     else
-        wget -O $OUTDIR/$TARBALL $BASE_URL/$TARBALL 2>&1
+        wget -O $DEB_DIR/$TARBALL $BASE_URL/$TARBALL 2>&1
         SCRIPT_EXIT=$?
     fi
     # check the status of the last command
@@ -68,8 +74,8 @@ download_tarball () {
         info "Download of ${TARBALL} successful!"
     else
         info "Download of ${TARBALL} failed!"
-        if [ -e $OUTDIR/$TARBALL ]; then
-            /bin/rm -f $OUTDIR/$TARBALL
+        if [ -e $DEB_DIR/$TARBALL ]; then
+            /bin/rm -f $DEB_DIR/$TARBALL
         fi
     fi
 }
@@ -97,7 +103,7 @@ while true ; do
             shift 2;;
         # output directory
         -o|--outdir)
-            OUTDIR=$2;
+            DEB_DIR=$2;
             shift 2;;
         # output to log?
         -l|--log)
@@ -123,25 +129,25 @@ done
     ### SCRIPT MAIN LOOP ###
     show_script_header
     info "Download file ${BASE_URL}/${TARBALL}"
-    info "to directory ${OUTDIR}"
+    info "to directory ${DEB_DIR}"
 
-    # check to see if OUTDIR exists; if not create it
-    if [ ! -d $OUTDIR ]; then
-        OUTPUT=$(mkdir -p $OUTDIR)
-        check_exit_status $? "mkdir $OUTDIR" "$OUTPUT"
+    # check to see if DEB_DIR exists; if not create it
+    if [ ! -d $DEB_DIR ]; then
+        OUTPUT=$(mkdir -p $DEB_DIR)
+        check_exit_status $? "mkdir $DEB_DIR" "$OUTPUT"
     fi
 
-    # check to see if the tarball is in OUTDIR before downloading
+    # check to see if the tarball is in DEB_DIR before downloading
     # FIXME check for zero-length files, warn if one is found
-    if [ ! -e $OUTDIR/$TARBALL ]; then
+    if [ ! -e $DEB_DIR/$TARBALL ]; then
         # log wget output, or send to STDERR?
         download_tarball
     else
-        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${OUTDIR}/${TARBALL})
-        info "File already exists: ${OUTDIR}/${TARBALL};"
+        FILE_SIZE=$(/usr/bin/stat --printf="%s" ${DEB_DIR}/${TARBALL})
+        info "File already exists: ${DEB_DIR}/${TARBALL};"
         if [ $FILE_SIZE -eq 0 ]; then
             info "File is zero byes; removing and redownloading"
-            rm -f ${OUTDIR}/${TARBALL}
+            rm -f ${DEB_DIR}/${TARBALL}
             download_tarball
         else
             info "File size: ${FILE_SIZE} byte(s)"

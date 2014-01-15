@@ -11,6 +11,20 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
+      <diskUsageWithoutBuilds>0</diskUsageWithoutBuilds>
+      <slaveWorkspacesUsage class="concurrent-hash-map">
+        <entry>
+          <string></string>
+          <concurrent-hash-map>
+            <entry>
+              <string>/home/jenkins/.jenkins/jobs/arm-preflight/workspace</string>
+              <long>9754</long>
+            </entry>
+          </concurrent-hash-map>
+        </entry>
+      </slaveWorkspacesUsage>
+    </hudson.plugins.disk__usage.DiskUsageProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -30,10 +44,12 @@
 export ARM_COMPILER=&quot;armv6-lack_rpi-linux-gnueabi-gcc&quot;
 # for common_jenkins_functions
 export QUIET=0
+# source environment variables and updated $PATH script
 source ${HOME}/.bashrc.d/env_vars_path
 
 echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
 if [ -e ${JENKINS_SCRIPTS}/common_jenkins_functions.sh ]; then
+  # source jenkins common functions
   source ${JENKINS_SCRIPTS}/common_jenkins_functions.sh
 else
   echo &quot;ERROR: common_jenkins_functions.sh not found in ${JENKINS_SCRIPTS}&quot;
@@ -42,6 +58,7 @@ fi
 
 echo  &quot;Checking for crosstool-ng bashrc script&quot;
 if [ -e ~/.bashrc.d/crosstool-ng ]; then
+  # source crosstool-ng script
   source ~/.bashrc.d/crosstool-ng
 else
   echo &quot;ERROR: crosstool-ng bashrc script not found&quot;

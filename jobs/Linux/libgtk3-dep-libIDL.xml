@@ -39,6 +39,20 @@ http://ftp.gnome.org/pub/GNOME/sources/libIDL/0.8/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
+      <diskUsageWithoutBuilds>51579960</diskUsageWithoutBuilds>
+      <slaveWorkspacesUsage class="concurrent-hash-map">
+        <entry>
+          <string></string>
+          <concurrent-hash-map>
+            <entry>
+              <string>/home/jenkins/.jenkins/jobs/libgtk3-dep-libIDL/workspace</string>
+              <long>51565913</long>
+            </entry>
+          </concurrent-hash-map>
+        </entry>
+      </slaveWorkspacesUsage>
+    </hudson.plugins.disk__usage.DiskUsageProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -56,19 +70,19 @@ http://ftp.gnome.org/pub/GNOME/sources/libIDL/0.8/&lt;/a&gt;</description>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
       <project>libgtk3-dep-intltool</project>
       <filter>intltool.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
       <project>libglib</project>
       <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
       <project>libglib-dep-libffi</project>
       <filter>libffi.artifact.tar.xz</filter>
       <target></target>

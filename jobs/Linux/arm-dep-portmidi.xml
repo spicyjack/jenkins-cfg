@@ -41,6 +41,20 @@ https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</descriptio
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
+      <diskUsageWithoutBuilds>6204616</diskUsageWithoutBuilds>
+      <slaveWorkspacesUsage class="concurrent-hash-map">
+        <entry>
+          <string></string>
+          <concurrent-hash-map>
+            <entry>
+              <string>/home/jenkins/.jenkins/jobs/arm-dep-portmidi/workspace</string>
+              <long>6190645</long>
+            </entry>
+          </concurrent-hash-map>
+        </entry>
+      </slaveWorkspacesUsage>
+    </hudson.plugins.disk__usage.DiskUsageProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -65,7 +79,7 @@ https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</descriptio
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.27">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
       <project>arm-dep-alsa-lib</project>
       <filter>alsa-lib.artifact.tar.xz</filter>
       <target></target>
@@ -98,9 +112,6 @@ cmake \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_INSTALL_PREFIX=${WORKSPACE}/output \
   -DCMAKE_TOOLCHAIN_FILE=armv6-lack_rpi-linux-gnueabi.cmake
-
-#-DCMAKE_C_COMPILER=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-gcc \
-#    -DCMAKE_LD=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-ld
 
 # run the actual build
 time make</command>

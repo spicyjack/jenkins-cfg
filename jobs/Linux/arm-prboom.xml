@@ -1,11 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>The intentions to the FTE QuakeWorld mod are to add some cool features to QuakeWorld,&lt;br&gt;&#xd;
-without loosing any (backwards) compatability.&lt;br&gt;&#xd;
+  <description>Chocolate Doom - A Doom source port that accurately reproduces&lt;br&gt;&#xd;
+the experience of Doom as it was played in the 1990s.&lt;br&gt;&#xd;
 Builds with: GNU make&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://prdownloads.sourceforge.net/ftequake&quot;&gt;&#xd;
-http://prdownloads.sourceforge.net/ftequake&lt;/a&gt;</description>
+Homepage: &lt;a href=&quot;http://prboom.sourceforge.net/&quot;&gt;http://prboom.sourceforge.net/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://sourceforge.net/projects/prboom/files/prboom%20stable&quot;&gt;&#xd;
+http://sourceforge.net/projects/prboom/files/prboom%20stable&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -20,14 +21,16 @@ http://prdownloads.sourceforge.net/ftequake&lt;/a&gt;</description>
         <hudson.model.StringParameterDefinition>
           <name>PKG_NAME</name>
           <description>Name of the download tarball and source directory</description>
-          <defaultValue>ftequake</defaultValue>
+          <defaultValue>prboom</defaultValue>
         </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
-          <description>Version of ftequake to build</description>
+          <description>Version of chocolate-doom to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>100</string>
+              <string>2.5.0</string>
+              <string>2.4.7</string>
+              <string>2.4.6</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -39,14 +42,14 @@ http://prdownloads.sourceforge.net/ftequake&lt;/a&gt;</description>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>78830958</diskUsageWithoutBuilds>
+      <diskUsageWithoutBuilds>107898995</diskUsageWithoutBuilds>
       <slaveWorkspacesUsage class="concurrent-hash-map">
         <entry>
           <string></string>
           <concurrent-hash-map>
             <entry>
-              <string>/home/jenkins/.jenkins/jobs/ftequake/workspace</string>
-              <long>78815600</long>
+              <string>/home/jenkins/.jenkins/jobs/arm-prboom/workspace</string>
+              <long>107881090</long>
             </entry>
           </concurrent-hash-map>
         </entry>
@@ -62,10 +65,6 @@ http://prdownloads.sourceforge.net/ftequake&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
-  --deps &quot;libogg0 libogg-dev&quot;</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
@@ -74,76 +73,124 @@ http://prdownloads.sourceforge.net/ftequake&lt;/a&gt;</description>
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libsdl</project>
+      <project>arm-libsdl</project>
       <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libsdl_image</project>
-      <filter>libsdl_image.artifact.tar.xz</filter>
+      <project>arm-dep-libmikmod</project>
+      <filter>libmikmod.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libsdl_mixer</project>
+      <project>arm-dep-libsndfile</project>
+      <filter>libsndfile.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-util-linux</project>
+      <filter>util-linux.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-alsa-lib</project>
+      <filter>alsa-lib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-libglib</project>
+      <filter>libglib.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-dbus</project>
+      <filter>dbus.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-flac</project>
+      <filter>flac.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-libogg</project>
+      <filter>libogg.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-libvorbis</project>
+      <filter>libvorbis.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-dep-smpeg</project>
+      <filter>smpeg.artifact.tar.xz</filter>
+      <target></target>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+    </hudson.plugins.copyartifact.CopyArtifact>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+      <project>arm-libsdl_mixer</project>
       <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libsdl_net</project>
+      <project>arm-libsdl_net</project>
       <filter>libsdl_net.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libsdl_ttf</project>
-      <filter>libsdl_ttf.artifact.tar.xz</filter>
-      <target></target>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
-      <project>libpango-dep-freetype</project>
-      <filter>freetype.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
- -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
-/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
+ -- libsdl libmikmod libsndfile util-linux alsa-lib libglib dbus \
+    flac libogg libvorbis smpeg libsdl_mixer libsdl_net
+
+# sdl-config
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file sdl-config --unmunge
+# libmikmod-config
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file libmikmod-config --unmunge
+
+# munge RPATH
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file ftesrc-v${PKG_VERSION}-all.tar.gz \
-  --url http://downloads.sourceforge.net/project/fteqw/Source/V1.00 \
-  --log $WORKSPACE/wget.${PKG_NAME}.log \
+  --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --url http://downloads.sourceforge.net/${PKG_NAME} \
+  --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># delete the old source directory
-if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
-  /bin/rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-fi
-
-# now unpack the archive again
-mkdir -p ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-tar -zxvf ${TARBALL_DIR}/ftesrc-v${PKG_VERSION}-all.tar.gz
-
-time make all</command>
+      <command>PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
+LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+CPPFLAGS=&quot;-I${CT_ROOT}/armv6-lack_rpi-linux-gnueabi/sysroot/usr/include/ -I/usr/include&quot; \
+SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
+/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  --prefix=${WORKSPACE}/output \
+  --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+  --cross-compile=armv6-lack_rpi-linux-gnueabi \
+  -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>mkdir -p ${WORKSPACE}/output/bin
-cd ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-cp release/fteqw.gl release/fteqw.mingl release/fteqw.sv \
-  ${WORKSPACE}/output/bin</command>
+      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+  --cross-compile \
+  --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=${PKG_NAME} \
+  --name=arm-${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>
@@ -151,7 +198,7 @@ cp release/fteqw.gl release/fteqw.mingl release/fteqw.sv \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>ftequake.artifact.tar.xz</artifacts>
+      <artifacts>arm-prboom.artifact.tar.xz</artifacts>
       <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>

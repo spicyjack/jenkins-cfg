@@ -11,20 +11,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>0</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-preflight/workspace</string>
-              <long>9754</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -89,7 +76,8 @@ EODF
 ls -l
 $ARM_COMPILER -o $WORKSPACE/test $WORKSPACE/test.c
 TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test)
-VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;ELF 32-bit LSB executable, ARM&quot;)
+EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
+VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
 if [ $VALID_BINARY -gt 0 ]; then
   echo &quot;==== Test binary compiled successfully! ====&quot;
   echo &quot;==== Test binary file is: ====&quot;
@@ -97,7 +85,8 @@ if [ $VALID_BINARY -gt 0 ]; then
   exit 0
 else
   echo &quot;ERROR: test binary file output did not match expected output&quot;
-  echo $TEST_BINARY_FILE_OUTPUT
+  echo &quot;Expected output: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
+  echo &quot;Output: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1
 fi </command>
     </hudson.tasks.Shell>

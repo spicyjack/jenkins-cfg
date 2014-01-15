@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Back up all of the 'config.xml' files in the Jenkins tree
 

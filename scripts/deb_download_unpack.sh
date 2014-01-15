@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Download and unpack a Debian package to be used to meet library dependencies
 # when cross-compiling

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Update the jenkins-config.git repo as needed
 

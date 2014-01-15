@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Download a file if it doesn't exist on the local filesystem
 

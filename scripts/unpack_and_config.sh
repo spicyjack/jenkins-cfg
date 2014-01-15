@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Unpack a source tarball and run ./configure on it
 

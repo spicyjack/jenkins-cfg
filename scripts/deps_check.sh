@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Check for package dependencies needed by a library prior to compiling that
 # library

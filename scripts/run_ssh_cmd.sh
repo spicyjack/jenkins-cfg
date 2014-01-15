@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Run a command on a remote host via SSH
 

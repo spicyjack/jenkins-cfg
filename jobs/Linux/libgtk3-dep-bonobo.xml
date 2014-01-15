@@ -62,11 +62,11 @@ http://ftp.gnome.org/pub/GNOME/sources/libbonobo/2.32/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -106,13 +106,13 @@ http://ftp.gnome.org/pub/GNOME/sources/libbonobo/2.32/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
   -- intltool libglib libffi libORBit2 libIDL libpopt
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/2.32/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -123,12 +123,12 @@ http://ftp.gnome.org/pub/GNOME/sources/libbonobo/2.32/&lt;/a&gt;</description>
 PATH=${WORKSPACE}/artifacts/bin:$PATH \
 CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
 LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION} \
   --test
 </command>

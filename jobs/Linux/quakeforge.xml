@@ -64,15 +64,15 @@ http://prdownloads.sourceforge.net/quake&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;libogg0 libogg-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -112,21 +112,21 @@ http://prdownloads.sourceforge.net/quake&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://downloads.sourceforge.net/quake \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --no-config
@@ -145,7 +145,7 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
 --with-tools=bsp2img,carne,pak,qfbsp,qfcc,qflight,qfmodelgen,qfvis,qwaq,wad,wav</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>

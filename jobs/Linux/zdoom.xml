@@ -84,16 +84,16 @@ http://zdoom.org/files/zdoom&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;cmake p7zip fluidsynth libfluidsynth-dev fluid-soundfont-gm 
     fluid-soundfont-gs&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -133,14 +133,14 @@ http://zdoom.org/files/zdoom&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}-src.7z \
   --url http://zdoom.org/files/${PKG_NAME}/${PKG_BRANCH_VER} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -149,7 +149,7 @@ http://zdoom.org/files/zdoom&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>#http://www.fmod.org/index.php/release/version/fmodapi44412linux.tar.gz
 # fmodapi44412linux/api/[inc|lib]
-/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file fmodapi${FMOD_VERSION}linux64.tar.gz \
   --url http://www.fmod.org/index.php/release/version \
   --log $WORKSPACE/wget.fmodapi.log \

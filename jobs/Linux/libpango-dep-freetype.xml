@@ -61,31 +61,31 @@ http://download.savannah.gnu.org/releases/freetype/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --url http://download.savannah.gnu.org/releases/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

@@ -65,15 +65,15 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://pkgconfig.freedesktop.org/releases/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -92,7 +92,7 @@ http://pkgconfig.freedesktop.org/releases/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libffi zlib
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
@@ -109,7 +109,7 @@ ac_cv_func_posix_getpwuid_r=yes
 ac_cv_func_posix_getgrgid_r=yes
 EO_CACHE_FILE
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
@@ -122,7 +122,7 @@ EO_CACHE_FILE
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>

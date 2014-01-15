@@ -62,20 +62,20 @@ http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command># I think python-gobject is needed to run the test suite
-/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;python-gobject&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/2.34/ \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
@@ -88,26 +88,26 @@ http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libffi
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/glib-${PKG_VERSION}.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION}
 #  --test
 # test suite wants pygobject 3.x, which is not available in squeeze :(
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

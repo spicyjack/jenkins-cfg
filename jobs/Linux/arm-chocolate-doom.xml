@@ -66,11 +66,11 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -152,7 +152,7 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libmikmod libsndfile util-linux alsa-lib libglib dbus \
     flac libogg libvorbis smpeg libsdl_mixer libsdl_net
 
@@ -167,7 +167,7 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://downloads.sourceforge.net/${PKG_NAME} \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
@@ -180,14 +180,14 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
 PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
 LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
 SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
   -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>

@@ -62,19 +62,19 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts $WORKSPACE/libpixman.artifact.tar.xz</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;libx11-dev&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --url http://www.cairographics.org/releases \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
@@ -87,14 +87,14 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- pixman
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --config-args=&quot;--enable-gobject=yes&quot;</command>
@@ -107,7 +107,7 @@ time make test TARGETS=xlib,xlib-render-0_0
 time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

@@ -66,36 +66,36 @@ ftp://ftp.alsa-project.org/pub/lib/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --url ftp://ftp.alsa-project.org/pub/lib \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
 # -- libogg libvorbis flac
 #/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
 LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
   -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>

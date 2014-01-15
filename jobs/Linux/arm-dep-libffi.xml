@@ -66,30 +66,30 @@ ftp://sourceware.org/pub/libffi&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>## DOWNLOAD LIBFFI
-/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url ftp://sourceware.org/pub/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
   -- </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>
@@ -104,7 +104,7 @@ rmdir lib/${PKG_NAME}-${PKG_VERSION}</command>
 sed -i &apos;s!^includedir.*$!includedir=${exec_prefix}/include!&apos; \
   ${WORKSPACE}/output/lib/pkgconfig/libffi.pc
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

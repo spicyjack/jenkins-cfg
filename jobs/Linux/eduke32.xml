@@ -64,11 +64,11 @@ http://dukeworld.duke4.net/eduke32&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -108,13 +108,13 @@ http://dukeworld.duke4.net/eduke32&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}_${PKG_VERSION}.zip \
   --url http://dukeworld.duke4.net/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -122,12 +122,12 @@ http://dukeworld.duke4.net/eduke32&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}_${PKG_VERSION}.zip</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>

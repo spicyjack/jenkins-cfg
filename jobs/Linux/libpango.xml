@@ -62,11 +62,11 @@ http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -100,14 +100,14 @@ http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libglib libffi freetype fontconfig harfbuzz
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh
     </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --url http://ftp.gnome.org/pub/GNOME/sources/${PKG_NAME}/1.32/ \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
@@ -115,19 +115,19 @@ http://ftp.gnome.org/pub/GNOME/sources/pango/1.32/&lt;/a&gt;</description>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz
 # for debugging:
 # --disable-silent-rules --enable-explicit-deps=yes</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION} \
   --test</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=lib${PKG_NAME} \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>

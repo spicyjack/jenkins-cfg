@@ -64,15 +64,15 @@ http://downloads.xiph.org/releases/vorbis/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --url http://downloads.xiph.org/releases/vorbis/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -85,7 +85,7 @@ http://downloads.xiph.org/releases/vorbis/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libogg
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
@@ -98,7 +98,7 @@ CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include&quot; \
 PATH=/usr/local/bin:$PATH \
 LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
-  /bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+  /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
@@ -109,7 +109,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 #set
 #echo &quot;==== END CURRENT ENVIRONMENT ====&quot;
 
-/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>

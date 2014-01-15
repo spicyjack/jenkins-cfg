@@ -57,13 +57,13 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git
-/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/lack/projects.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --url http://busybox.net/downloads/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \

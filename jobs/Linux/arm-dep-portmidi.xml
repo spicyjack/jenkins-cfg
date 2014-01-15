@@ -65,15 +65,15 @@ https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</descriptio
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-src-${PKG_VERSION}.zip \
   --url  http://downloads.sourceforge.net/portmedia \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
@@ -86,7 +86,7 @@ https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</descriptio
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- alsa-lib
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
@@ -96,7 +96,7 @@ https://sourceforge.net/projects/portmedia/files/portmidi/&lt;/a&gt;</descriptio
 fi
 
 # unpack, but don&apos;t config
-/bin/sh $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --no-config \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-src-${PKG_VERSION}.zip \
@@ -117,7 +117,7 @@ cmake \
 time make</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/sh $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>

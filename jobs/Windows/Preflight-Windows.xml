@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Test the setup/configuration of MinGW/MSYS/Jenkins on Windows</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>4</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo &quot;==== Displaying shell environment ====&quot;
+set
+echo &quot;==== Displaying the contents of &apos;/&apos; ====&quot;
+ls -l /
+echo &quot;==== Displaying current mounts ====&quot;
+mount
+
+echo &quot;==== JENKINS_HOME is ${JENKINS_HOME} ====&quot;</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### PREFLIGHT VARIABLES ###
+export MINGW_GCC=&quot;/mingw/bin/gcc.exe&quot;
+export JENKINS_SCRIPTS=&quot;/c/Users/manningb/src/jenkins-config.git/scripts&quot;
+# for common_jenkins_functions
+export QUIET=0
+# source environment variables and updated $PATH script
+#source ${HOME}/.bashrc.d/env_vars_path
+
+echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
+if [ -e ${JENKINS_SCRIPTS}/common_jenkins_functions.sh ]; then
+  # source jenkins common functions
+  source ${JENKINS_SCRIPTS}/common_jenkins_functions.sh
+else
+  echo &quot;ERROR: common_jenkins_functions.sh not found in ${JENKINS_SCRIPTS}&quot;
+  exit 1
+fi
+
+echo &quot;==== BEGIN JENKINS ENVIRONMENT ====&quot;
+set
+echo &quot;==== END JENKINS ENVIRONMENT ====&quot;
+
+echo &quot;Checking for binaries/scripts...&quot;
+EXISTS_GCC=$(which $MINGW_GCC)
+check_exit_status $? &quot;$MINGW_GCC&quot; &quot;$EXISTS_GCC&quot;
+
+echo &quot;Checking toolchain...&quot;
+if [ -e $WORKSPACE/test ]; then
+  rm $WORKSPACE/test
+fi
+cat &lt;&lt;EODF &gt; ${WORKSPACE}/test.c
+#include &lt;stdio.h&gt;
+int main() {
+  printf(&quot;Hello, world!\n&quot;); return 0;
+}
+EODF
+
+ls -l
+$MINGW_GCC -o $WORKSPACE/test $WORKSPACE/test.c
+TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test)
+EXPECTED_BINARY_FILE_OUTPUT=&quot;PE32 executable for MS Windows (console)&quot;
+VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
+if [ $VALID_BINARY -gt 0 ]; then
+  echo &quot;==== Test binary compiled successfully! ====&quot;
+  echo &quot;==== Test binary file is: ====&quot;
+  echo $TEST_BINARY_FILE_OUTPUT
+  exit 0
+else
+  echo &quot;ERROR: test binary file output did not match expected output&quot;
+  echo &quot;Expected output: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
+  echo &quot;Output: ${TEST_BINARY_FILE_OUTPUT}&quot;
+  exit 1
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

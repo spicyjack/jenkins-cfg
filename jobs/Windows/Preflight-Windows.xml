@@ -19,16 +19,6 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Displaying shell environment ====&quot;
-set
-echo &quot;==== Displaying the contents of &apos;/&apos; ====&quot;
-ls -l /
-echo &quot;==== Displaying current mounts ====&quot;
-mount
-
-echo &quot;==== JENKINS_HOME is ${JENKINS_HOME} ====&quot;</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>### PREFLIGHT VARIABLES ###
 export MINGW_GCC=&quot;/mingw/bin/gcc.exe&quot;
 export JENKINS_SCRIPTS=&quot;/c/Users/manningb/src/jenkins-config.git/scripts&quot;
@@ -50,13 +40,17 @@ echo &quot;==== BEGIN JENKINS ENVIRONMENT ====&quot;
 set
 echo &quot;==== END JENKINS ENVIRONMENT ====&quot;
 
+echo &quot;==== BEGIN CURRENT MOUNTS ====&quot;
+mount
+echo &quot;==== END CURRENT MOUNTS ====&quot;
+
 echo &quot;Checking for binaries/scripts...&quot;
 EXISTS_GCC=$(which $MINGW_GCC)
 check_exit_status $? &quot;$MINGW_GCC&quot; &quot;$EXISTS_GCC&quot;
 
 echo &quot;Checking toolchain...&quot;
-if [ -e $WORKSPACE/test ]; then
-  rm $WORKSPACE/test
+if [ -e $WORKSPACE/test.exe ]; then
+  rm $WORKSPACE/test.exe
 fi
 cat &lt;&lt;EODF &gt; ${WORKSPACE}/test.c
 #include &lt;stdio.h&gt;
@@ -80,7 +74,8 @@ else
   echo &quot;Expected output: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
   echo &quot;Output: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1
-fi</command>
+fi
+</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

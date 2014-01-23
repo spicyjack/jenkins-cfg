@@ -21,7 +21,7 @@
     <hudson.tasks.Shell>
       <command>### PREFLIGHT VARIABLES ###
 export MINGW_GCC=&quot;/mingw/bin/gcc.exe&quot;
-export JENKINS_SCRIPTS=&quot;/c/Users/manningb/src/jenkins-config.git/scripts&quot;
+export JENKINS_SCRIPTS=&quot;/c/Apps/Jenkins/src/jenkins-config.git/scripts&quot;
 # for common_jenkins_functions
 export QUIET=0
 # source environment variables and updated $PATH script

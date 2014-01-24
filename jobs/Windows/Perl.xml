@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Build Perl for Windows</description>
+  <description>Build Perl for Windows&lt;br&gt;&#xd;
+Downloads: http://www.cpan.org/src/README.html</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>5</numToKeep>
@@ -17,10 +18,15 @@
           <description>The version of Perl to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>5.18.2</string>
+              <string>5.18.1</string>
               <string>5.18.0</string>
               <string>5.16.3</string>
               <string>5.16.2</string>
               <string>5.19.0</string>
+              <string>5.19.1</string>
+              <string>5.14.4</string>
+              <string>5.12.5</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -46,15 +52,7 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
-echo &quot;==== Displaying shell environment ====&quot;
-set
-ls -l /
-echo &quot;JENKINS_HOME is $JENKINS_HOME&quot;</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
-echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
+      <command>echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
 cd $JENKINS_HOME/src/jenkins-config.git
 git pull
 echo &quot;==== Updating &apos;camelbox.git&apos; repo ====&quot;
@@ -62,20 +60,18 @@ cd $JENKINS_HOME/src/camelbox.git
 git pull</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins&apos;
-echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
+      <command>echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
 if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
   wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
     http://www.cpan.org/src/5.0/${PKG_NAME}-${PKG_VERSION}.tar.gz
 else
-  echo &quot;--  Perl ${PKG_VERSION} already downloaded successfully --&quot;
+  echo &quot;-- Perl ${PKG_VERSION} already downloaded --&quot;
 fi
 
 exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
-# always unpack fresh source
+      <command># always unpack fresh source
 echo &quot;==== Checking for existing Perl ${PKG_VERSION} ====&quot;
 if [ -d &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}&quot; ]; then
   echo &quot;-- Deleting existing source tree for &apos;${PKG_NAME}-${PKG_VERSION}&apos;; --&quot;
@@ -85,26 +81,38 @@ else
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
-echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
-/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xvf -</command>
+      <command>echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
+/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -
+
+echo &quot;==== Resetting file permissions in ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}/utils ====&quot;
+/bin/find.exe utils -type f -exec /bin/chmod.exe 644 &apos;{}&apos; \;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
+      <command>echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
 if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
   cd ${PKG_NAME}-${PKG_VERSION}/win32
   mv makefile.mk makefile.mk.orig
   cp $JENKINS_HOME/src/camelbox.git/build-extras/next_build/perl-5.18.0/win32/makefile.mk .
 else 
-  echo &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} not found :(&quot;
+  echo &quot;==== ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} not found :( ====&quot;
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#!C:\MinGW\msys\1.0\bin\bash.exe --rcfile /p/.bashrc.jenkins
+      <command>echo &quot;==== Resetting PATH environment variable ====&quot;
+export PATH=&quot;.:/bin:/usr/bin:$PATH&quot;
+echo &quot;PATH is now: $PATH&quot;
+
+echo &quot;==== Running &apos;dmake&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
 cd ${PKG_NAME}-${PKG_VERSION}/win32
-time dmake
-time dmake test
-time dmake install</command>
+time cmd.exe /k dmake
+sleep 15
+
+echo &quot;==== Running &apos;dmake test&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
+time cmd.exe /k dmake test
+sleep 15
+
+echo &quot;==== Running &apos;dmake install&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
+time cmd.exe /k dmake install</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

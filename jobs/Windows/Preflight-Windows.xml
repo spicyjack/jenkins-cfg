@@ -44,6 +44,10 @@ echo &quot;==== BEGIN CURRENT MOUNTS ====&quot;
 mount
 echo &quot;==== END CURRENT MOUNTS ====&quot;
 
+echo &quot;==== BEGIN GCC VERSION ====&quot;
+$MINGW_GCC --version
+echo &quot;==== END GCC VERSION ====&quot;
+
 echo &quot;Checking for binaries/scripts...&quot;
 EXISTS_GCC=$(which $MINGW_GCC)
 check_exit_status $? &quot;$MINGW_GCC&quot; &quot;$EXISTS_GCC&quot;

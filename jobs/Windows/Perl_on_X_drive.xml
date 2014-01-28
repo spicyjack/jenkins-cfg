@@ -1,0 +1,131 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Build Perl for Windows&lt;br&gt;&#xd;
+Downloads: http://www.cpan.org/src/README.html</description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>5</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description>The version of Perl to build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>5.18.2</string>
+              <string>5.18.1</string>
+              <string>5.18.0</string>
+              <string>5.16.3</string>
+              <string>5.16.2</string>
+              <string>5.19.0</string>
+              <string>5.19.1</string>
+              <string>5.14.4</string>
+              <string>5.12.5</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>PKG_NAME</name>
+          <description>Name of the download tarball and source directory</description>
+          <defaultValue>perl</defaultValue>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>TARBALL_DIR</name>
+          <description>Path to source code directory</description>
+          <defaultValue>$JENKINS_HOME/source</defaultValue>
+        </hudson.model.StringParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
+cd $JENKINS_HOME/src/jenkins-config.git
+git pull
+echo &quot;==== Updating &apos;camelbox.git&apos; repo ====&quot;
+cd $JENKINS_HOME/src/camelbox.git
+git pull</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
+if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
+  wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
+    http://www.cpan.org/src/5.0/${PKG_NAME}-${PKG_VERSION}.tar.gz
+else
+  echo &quot;-- Perl ${PKG_VERSION} already downloaded --&quot;
+fi
+
+exit 0</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;==== Resetting PATH environment variable ====&quot;
+export PATH=&quot;.:/mingw/bin:/bin:/usr/bin:/c/WINDOWS/system32&quot;
+echo &quot;PATH is now: $PATH&quot;
+
+echo &quot;==== Creating temporary build path on X: drive ====&quot;
+cd /x
+TEMP_BUILD_DIR=$(/bin/mktemp.exe --directory perl-build.XXXXXXXX)
+BUILD_DIR=&quot;/x/${TEMP_BUILD_DIR}&quot;
+
+cd $BUILD_DIR
+echo &quot;==== Current directory is: $PWD ====&quot;
+
+echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${BUILD_DIR} ====&quot;
+/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -
+
+echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
+if [ -d &quot;${BUILD_DIR}/${PKG_NAME}-${PKG_VERSION}&quot; ]; then
+  cd ${PKG_NAME}-${PKG_VERSION}/win32
+  mv makefile.mk makefile.mk.orig
+  cp $JENKINS_HOME\\src\\camelbox.git\\build-extras\\next_build\\perl-5.18.0\\win32\\makefile.mk .
+else 
+  echo &quot;==== ${BUILD_DIR}/${PKG_NAME}-${PKG_VERSION} not found :( ====&quot;
+fi
+
+
+BUILD_DIR_WIN32=&quot;${BUILD_DIR}/${PKG_NAME}-${PKG_VERSION}/win32&quot;
+
+echo &quot;==== Changing to build directory: ${BUILD_DIR_WIN32} ====&quot;
+cd ${BUILD_DIR_WIN32}
+
+echo &quot;PATH is: $PATH&quot;
+echo &quot;PWD is: $PWD&quot;
+
+echo &quot;-- Sleeping 5 seconds --&quot;
+sleep 5
+
+#echo &quot;==== Resetting file permissions in ../utils ====&quot;
+#/bin/find.exe ../utils -type f -exec /bin/chmod.exe 644 &apos;{}&apos; \;
+
+#echo &quot;==== Permissions of files in ../utils ====&quot;
+#/bin/ls.exe -l ../utils
+
+echo &quot;==== Running &apos;dmake&apos; in ${BUILD_DIR_WIN32} ====&quot;
+#time cmd.exe /k dmake
+time dmake
+
+echo &quot;==== Running &apos;dmake test&apos; in ${BUILD_DIR_WIN32} ====&quot;
+#time cmd.exe /k dmake test
+time dmake test
+
+echo &quot;==== Running &apos;dmake install&apos; in ${BUILD_DIR_WIN32} ====&quot;
+#time cmd.exe /k dmake install
+time dmake install</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

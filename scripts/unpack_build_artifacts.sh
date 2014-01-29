@@ -48,9 +48,10 @@ cat <<-EOF
     Example usage:
     ${SCRIPTNAME} -- foo bar
 
-    Note: artifact files should be named 'library.artifact.tar.xz', the
-    library name 'library' is the only part of the artifact file that should
-    be passed in to this script.
+    Note: artifact files should be named 'foo.artifact.tar.xz',
+    'bar.artifact.tar.gz', etc.  The part of the filename that is unique to
+    that archive, like 'foo' or 'bar', is the only part of the filename that
+    should be passed in to this script.
 
 EOF
 }

@@ -46,7 +46,7 @@ GETOPT_LONG="help,quiet,dry-run,examples,log:"
 # download-only options
 GETOPT_LONG="${GETOPT_LONG},download-only,download"
 # for --package-dir
-GETOPT_LONG="${GETOPT_LONG},package-dir:,pkg-dir:,pkgdir:,package:"
+GETOPT_LONG="${GETOPT_LONG},package-dir:,pkg-dir:,pkgdir:,package:,pkgs:"
 # for --output-dir
 GETOPT_LONG="${GETOPT_LONG},output-dir:,output:,outdir:"
 # for --host-arch
@@ -88,16 +88,16 @@ cat <<-EOE
     # download and unpack packages
     sh deb_download_unpack.sh --package-dir ~/pkgs \\
       --output-dir \$WORKSPACE/artifacts \\
-      --target-arch armhf -- perl bzip2 intltool libaudio2 libc6
+      --target-arch armhf -- perl libsdl1.2debian libsdl-net1.2
 
     # download and unpack packages, log to a file
     sh deb_download_unpack.sh --package-dir ~/pkgs \\
       --output-dir \$WORKSPACE/artifacts --log ~/download_unpack.log \\
-      --target-arch armhf -- perl bzip2 intltool libaudio2 libc6
+      --target-arch armhf -- perl libsdl1.2debian libsdl-net1.2
 
     # download only, don't unpack packages
     sh deb_download_unpack.sh --package-dir ~/pkgs --download-only \\
-      --target-arch armhf -- perl bzip2 intltool libaudio2 libc6
+      --target-arch armhf -- perl libsdl1.2debian libsdl-net1.2
 
     Use '${SCRIPTNAME} --help' to see all script options
 
@@ -151,8 +151,8 @@ set_package_filename_url () {
         | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")
     #PKG_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
     #PKG_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
-    echo "Package URL: ${PKG_URL}"
-    echo "Package filename: ${PKG_FILENAME}"
+    info "Package URL: ${PKG_URL}"
+    info "Package filename: ${PKG_FILENAME}"
     # package size and checksum are for the --host package, not --target
     # package
     #echo "Package size: ${PKG_SIZE}"
@@ -189,7 +189,7 @@ while true ; do
             DOWNLOAD_ONLY=1
             shift;;
         # debian package to download
-        -p|--package-dir|--pkgdir|--pkg-dir|--package)
+        -p|--package-dir|--pkgdir|--pkg-dir|--package|--pkgs)
             PKG_DIR=$2;
             shift 2;;
         # output directory
@@ -276,7 +276,8 @@ done
     while [ $# -gt 0 ];
     do
         PACKAGE_NAME=$1
-        info "Debian package(s) to download: ${PACKAGE_NAME}"
+        echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+        info "Now processing package: ${PACKAGE_NAME}"
         # Sets $PKG_DIR and $PKG_FILENAME
         set_package_filename_url
         # check to see if the tarball is in PKG_DIR before downloading
@@ -286,7 +287,7 @@ done
         else
             FILE_SIZE=$(/usr/bin/stat --printf="%s" \
                 ${PKG_DIR}/${PKG_FILENAME})
-            info "File already exists: ${PKG_DIR}/${PKG_FILENAME};"
+            info "File already exists: ${PKG_DIR}/${PKG_FILENAME}"
             if [ $FILE_SIZE -eq 0 ]; then
                 info "File is zero byes; removing and redownloading"
                 rm -f ${PKG_DIR}/${PKG_FILENAME}
@@ -303,6 +304,7 @@ done
                 info "--dry-run called on commandline; simulating unpacking"
             else
                 # unpack the debian package in the artifacts directory
+                info "Unpacking ${PACKAGE_NAME} to ${OUTPUT_DIR}"
                 /usr/bin/dpkg-deb --extract ${PKG_DIR}/${PKG_FILENAME} \
                     $OUTPUT_DIR
                 EXIT_STATUS=$?

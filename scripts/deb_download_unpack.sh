@@ -25,17 +25,20 @@ SCRIPTNAME=$(basename $0)
 # verbose script output by default
 QUIET=0
 
+# dry-run the request?
+# - 1 = yes, simulate script execution
+# - 0 = no, don't simulate script execution
+# - default = 0, 'no'
+DRY_RUN=0
+
+# download files only, don't unpack
+# - 1 = yes, download only
+# - 0 = no, download and unpack
+# - default = 0, download and unpack
+DOWNLOAD_ONLY=0
+
 # directory with *.deb files
 OUT_DIR="${HOME}/debs"
-
-### SCRIPT SETUP ###
-GETOPT_SHORT="hqo:p:l:s:t:"
-GETOPT_LONG="help,quiet,outdir:,package:,log:,source:,target:"
-# sets GETOPT_TEMP
-# # pass in $@ unquoted so it expands, and run_getopt() will then quote it
-# "$@"
-# # when it goes to re-parse script arguments
-run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
 
 show_help () {
 cat <<-EOF
@@ -43,13 +46,15 @@ cat <<-EOF
     ${SCRIPTNAME} [options]
 
     SCRIPT OPTIONS
-    -h|--help       Displays this help message
-    -q|--quiet      No script output (unless an error occurs)
-    -o|--outdir     Output directory to download the --package into
-    -p|--package    Name of the package to download
-    -l|--log        Logfile for wget to write to; default is STDERR
-    -s|--source     Source architecture, aka host architecture
-    -t|--target     Target architecture, what arch to download
+    -h|--help           Displays this help message
+    -q|--quiet          No script output (unless an error occurs)
+    -o|--outdir         Output directory to download the --package into
+    -p|--package        Name of the package to download
+    -l|--log            Logfile for wget to write to; default is STDERR
+    -a|--host-arch      Host architecture
+    -t|--target-arch    Target architecture, what arch to download
+    -n|--dry-run        Do everything but actually download/unpack the file
+    -d|--download-only  Just download the file, don't unpack it
     NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
 
     Example usage:
@@ -58,24 +63,44 @@ cat <<-EOF
 EOF
 }
 
+# getops options lists
+GETOPT_SHORT="hqno:p:l:s:a:t:d"
+GETOPT_LONG="help,quiet,dry-run,outdir:,package:,log:,download-only,download"
+# for --host-arch
+GETOPT_LONG="${GETOPT_LONG},host-arch:,arch:,host"
+# for --target-arch
+GETOPT_LONG="${GETOPT_LONG},target:,target-arch:,tgt-arch:"
+
+# from 'common_jenknis_functions.sh'; sets GETOPT_TEMP
+# pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
+# when it goes to re-parse script arguments
+run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@
+
 download_tarball () {
-    if [ "x$WGET_LOG" != "x" ]; then
-        OUTPUT=$(wget -o $WGET_LOG -O $OUT_DIR/$DEB_PKG \
-            $PKG_URL 2>&1)
-        SCRIPT_EXIT=$?
+    if [ $DRY_RUN -eq 1 ]; then
+        # simulate a download
+        info "--dry-run called on commandline; simulating download"
     else
-        wget -O $OUT_DIR/$DEB_PKG $PKG_URL 2>&1
-        SCRIPT_EXIT=$?
-    fi
-    # check the status of the last command
-    check_exit_status $SCRIPT_EXIT "wget for ${PKG_URL}" "$OUTPUT"
-    if [ $SCRIPT_EXIT -eq 0 ]; then
-        info "Download of ${DEB_PKG} successful!"
-    else
-        info "Download of ${DEB_PKG} failed!"
-        # clean up after ourselves
-        if [ -e $OUT_DIR/$DEB_PKG ]; then
-            /bin/rm -f $OUT_DIR/$DEB_PKG
+        # do the actual download
+        info "Calling 'wget -O $OUT_DIR/$PKG_FILENAME $PKG_URL'"
+        if [ "x$WGET_LOG" != "x" ]; then
+            OUTPUT=$(eval wget -q -o $WGET_LOG -O $OUT_DIR/$PKG_FILENAME \
+                $PKG_URL 2>&1)
+            SCRIPT_EXIT=$?
+        else
+            OUTPUT=$(eval wget -q -O $OUT_DIR/$PKG_FILENAME $PKG_URL 2>&1)
+            SCRIPT_EXIT=$?
+        fi
+        # check the status of the last command
+        check_exit_status $SCRIPT_EXIT "wget for ${PKG_URL}" "$OUTPUT"
+        if [ $SCRIPT_EXIT -eq 0 ]; then
+            info "Download of '${DEB_PKG}' successful!"
+        else
+            info "Download of '${DEB_PKG}' failed!"
+            # clean up after ourselves
+            if [ -e $OUT_DIR/$DEB_PKG ]; then
+                /bin/rm -f $OUT_DIR/$DEB_PKG
+            fi
         fi
     fi
 }
@@ -97,6 +122,14 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
+        # do everything but the actual download and unpack
+        -n|--dry-run)
+            DRY_RUN=1
+            shift;;
+        # download only, don't unpack
+        -d|--download|--download-only)
+            DOWNLOAD_ONLY=1
+            shift;;
         # debian package to download
         -p|--package)
             DEB_PKG=$2;
@@ -110,11 +143,11 @@ while true ; do
             WGET_LOG=$2;
             shift 2;;
         # source architecture, what arch are we running on?
-        -s|--source)
-            SOURCE_ARCH=$2;
+        -a|--host-arch|--arch|--host)
+            HOST_ARCH=$2;
             shift 2;;
         # target architecture, what arch we want to download and unpack
-        -t|--target)
+        -t|--target|--target-arch|--tgt-arch)
             TARGET_ARCH=$2;
             shift 2;;
         # separator between options and arguments
@@ -132,7 +165,21 @@ done
 
     ### SCRIPT MAIN LOOP ###
     show_script_header
-    info "Source architecture: ${SOURCE_ARCH}"
+
+    # do some checking here;
+    if [ "x$HOST_ARCH" = "x" ]; then
+        info "Set host architecture via 'dpkg --print-architecture'"
+        HOST_ARCH=$(dpkg --print-architecture)
+    fi
+    if [ "x$TARGET_ARCH" = "x" ]; then
+        warn "ERROR: Script requires '--target-arch' argument;"
+        warn "ERROR: '--target-arch' tells the script "
+        warn "ERROR: what architecture to download a package for"
+        exit 1
+    fi
+
+    # let the user what we've determined so far
+    info "Host architecture: ${HOST_ARCH}"
     info "Target architecture: ${TARGET_ARCH}"
     info "Debian package to download: ${DEB_PKG}"
     info "to directory: ${OUT_DIR}"
@@ -147,20 +194,21 @@ done
     # architecture
     APT_GET_OUT=$(/usr/bin/apt-get --dry-run --print-uris download ${DEB_PKG})
     PKG_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
-    PKG_URL=$(echo ${PKG_URL} | sed "s/_${SOURCE_ARCH}/_${TARGET_ARCH}/")
+    PKG_URL=$(echo ${PKG_URL} | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")
     PKG_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')
-    PKG_FILENAM=$(echo ${PKG_FILENAME} \
-        | sed "s/_${SOURCE_ARCH}/_${TARGET_ARCH}/")
-    PKG_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
-    PKG_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
+    PKG_FILENAME=$(echo ${PKG_FILENAME} \
+        | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")
+    #PKG_SIZE=$(echo ${APT_GET_OUT} | awk '{print $3}')
+    #PKG_CHECKSUM=$(echo ${APT_GET_OUT} | awk '{print $4}')
     echo "Package URL: ${PKG_URL}"
     echo "Package filename: ${PKG_FILENAME}"
-    echo "Package size: ${PKG_SIZE}"
-    echo "Package checksum: ${PKG_CHECKSUM}"
-    exit 0
+    # package size and checksum are for the --host package, not the --target
+    # package
+    #echo "Package size: ${PKG_SIZE}"
+    #echo "Package checksum: ${PKG_CHECKSUM}"
+
     # check to see if the tarball is in OUT_DIR before downloading
-    # FIXME check for zero-length files, warn if one is found
-    if [ ! -e $OUT_DIR/$PKG_FILENAME]; then
+    if [ ! -e $OUT_DIR/$PKG_FILENAME ]; then
         # log wget output, or send to STDERR?
         download_tarball
     else
@@ -176,23 +224,32 @@ done
         fi
     fi
 
-    info "Unpacking and configuring ${DEB_PKG} in $WORKSPACE/artifacts"
-    cd $WORKSPACE
-    # remove the old artifacts directory
-    if [ -d $WORKSPACE/artifacts ]; then
-        info "Deleting old artifacts directory..."
-        rm -rvf $WORKSPACE/artifacts
-    fi
-    # make a new directory
-    info "Creating new artifacts directory..."
-    mkdir $WORKSPACE/artifacts
-    cd $WORKSPACE/artifacts
+    if [ $DOWNLOAD_ONLY -eq 0 ]; then
+        if [ $DRY_RUN -eq 1 ]; then
+            # simulate unpacking
+            info "--dry-run called on commandline; simulating unpacking"
+        else
+            # unpack files
+            #info "Unpacking and configuring ${DEB_PKG} in $WORKSPACE/artifacts"
+            #cd $WORKSPACE
+            # remove the old artifacts directory
+            #if [ -d $WORKSPACE/artifacts ]; then
+            #    info "Deleting old artifacts directory..."
+            #    rm -rvf $WORKSPACE/artifacts
+            #fi
+            # make a new directory
+            #info "Creating new artifacts directory..."
+            #mkdir $WORKSPACE/artifacts
+            #cd $WORKSPACE/artifacts
 
-    # unpack the debian package in the artifacts directory
-    /usr/bin/dpkg --unpack ${OUT_DIR}/${DEB_PKG}
-    EXIT_STATUS=$?
-    if [ $EXIT_STATUS -gt 0 ]; then
-        warn "ERROR: Unpacking ${DEB_PKG} resulted in an error"
+            # unpack the debian package in the artifacts directory
+            /usr/bin/dpkg-deb --extract ${OUT_DIR}/${PKG_FILENAME} \
+                $WORKSPACE/artifacts
+            EXIT_STATUS=$?
+            if [ $EXIT_STATUS -gt 0 ]; then
+                warn "ERROR: Unpacking ${DEB_PKG} resulted in an error"
+            fi
+        fi
     fi
 
     exit $EXIT_STATUS

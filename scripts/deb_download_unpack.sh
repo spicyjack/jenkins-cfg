@@ -41,8 +41,8 @@ DOWNLOAD_ONLY=0
 PKG_DIR="${HOME}/debs"
 
 # getops options lists
-GETOPT_SHORT="hqno:p:o:l:s:a:t:d"
-GETOPT_LONG="help,quiet,dry-run,log:"
+GETOPT_SHORT="hqneo:p:o:l:s:a:t:d"
+GETOPT_LONG="help,quiet,dry-run,examples,log:"
 # download-only options
 GETOPT_LONG="${GETOPT_LONG},download-only,download"
 # for --package-dir
@@ -55,23 +55,36 @@ GETOPT_LONG="${GETOPT_LONG},host-arch:,arch:,host"
 GETOPT_LONG="${GETOPT_LONG},target:,target-arch:,tgt-arch:"
 
 show_help () {
-cat <<-EOF
+cat <<-EOH
 
     ${SCRIPTNAME} [options]
 
-    SCRIPT OPTIONS
+    GENERAL OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
+    -n|--dry-run        Do everything but actually download/unpack the file
+    -e|--examples       Show usage examples
+
+    SCRIPT OPTIONS
     -p|--package-dir    Output directory for downloaded packages
     -o|--output-dir     Output directory for unpacking packages
     -l|--log            Logfile for wget to write to; default is STDERR
     -a|--host-arch      Host architecture
     -t|--target-arch    Target architecture, what arch to download
-    -n|--dry-run        Do everything but actually download/unpack the file
     -d|--download-only  Just download the file, don't unpack it
+
     NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
 
-    Example usage:
+    Use '${SCRIPTNAME} --examples' to show usage examples
+
+EOH
+}
+
+show_examples () {
+cat <<-EOE
+
+    Examples of script usage:
+
     # download and unpack packages
     sh deb_download_unpack.sh --package-dir ~/pkgs \\
       --output-dir \$WORKSPACE/artifacts \\
@@ -86,7 +99,9 @@ cat <<-EOF
     sh deb_download_unpack.sh --package-dir ~/pkgs --download-only \\
       --target-arch armhf -- perl bzip2 intltool libaudio2 libc6
 
-EOF
+    Use '${SCRIPTNAME} --help' to see all script options
+
+EOE
 }
 
 
@@ -165,6 +180,10 @@ while true ; do
         -n|--dry-run)
             DRY_RUN=1
             shift;;
+        # show the script usage examples
+        -e|--examples)
+            show_examples
+            exit 0;;
         # download only, don't unpack
         -d|--download|--download-only)
             DOWNLOAD_ONLY=1

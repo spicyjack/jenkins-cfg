@@ -31,7 +31,7 @@ EXIT_STATUS=0
 
 GETOPT_SHORT="hq"
 GETOPT_LONG="help,quiet"
-# sets GETOPT_TEMP
+# from 'common_jenknis_functions.sh'; sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
 run_getopt "$GETOPT_SHORT" "$GETOPT_LONG" $@

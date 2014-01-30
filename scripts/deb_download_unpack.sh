@@ -305,7 +305,7 @@ done
             else
                 # unpack the debian package in the artifacts directory
                 info "Unpacking ${PACKAGE_NAME} to ${OUTPUT_DIR}"
-                /usr/bin/dpkg-deb --extract ${PKG_DIR}/${PKG_FILENAME} \
+                /usr/bin/dpkg-deb --vextract ${PKG_DIR}/${PKG_FILENAME} \
                     $OUTPUT_DIR
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS -gt 0 ]; then

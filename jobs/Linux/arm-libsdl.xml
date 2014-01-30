@@ -39,20 +39,7 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>0</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-libsdl/workspace</string>
-              <long>26430714</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -63,41 +50,68 @@ Downloads: http://www.libsdl.org/download-1.2.php</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>### UPDATE GIT
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  -- $WORKSPACE/output</command>
+      <command>### DELETE DIR
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts
+
+### CREATE ARTIFACTS DIR
+mkdir $WORKSPACE/artifacts
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>### DOWNLOAD/UNPACK DEBIAN PACKAGES
+/bin/bash $HOME/src/jenkins/config.git/scripts/deb_download_unpack.sh \
+  --pkgdir $HOME/pkgs \
+  --output $WORKSPACE/artifacts \
+  --target-arch armhf \
+  -- \
+  libx11-6 libx11-dev libasound2 libasound2-dev \
+  x11proto-core-dev x11proto-input-dev x11proto-kb-dev x11proto-xext-dev \
+  libxext6 libxext-dev</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### DOWNLOAD TARBALL
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --url http://www.libsdl.org/release \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
+      <command>### UNPACK AND CONFIG
+PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/arm-linux-gnueabihf/pkgconfig \
+LDFLAGS=&quot;-Wl,-rpath-link -Wl,${WORKSPACE}/artifacts/lib&quot; \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
   -- --disable-pulseaudio --disable-esd \
-     --disable-arts --disable-video-directfb</command>
+     --disable-arts --disable-video-directfb \
+     --enable-video-x11 \
+     --x-includes=$WORKSPACE/artifacts/usr/include \
+     --x-libraries=$WORKSPACE/artifacts/usr/lib/arm-linux-gnueabihf</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>### BUILD SOURCE
+/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+      <command>### MUNGE
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
   --file sdl-config --munge</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
-  --name=lib${PKG_NAME} \
+      <command>### CREATE BUILD ARTIFACTS
+/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+  --name=libsdl \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}
 </command>

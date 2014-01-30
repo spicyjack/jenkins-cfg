@@ -276,7 +276,7 @@ done
     while [ $# -gt 0 ];
     do
         PACKAGE_NAME=$1
-        echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+        echo "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~"
         info "Now processing package: ${PACKAGE_NAME}"
         # Sets $PKG_DIR and $PKG_FILENAME
         set_package_filename_url

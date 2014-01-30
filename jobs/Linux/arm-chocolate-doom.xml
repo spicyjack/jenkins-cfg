@@ -42,20 +42,7 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>123582547</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-chocolate-doom/workspace</string>
-              <long>123564575</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -174,7 +161,8 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#PATH=${WORKSPACE}/artifacts/bin:${PATH} \
+      <command>### UNPACK AND CONFIG
+#PATH=${WORKSPACE}/artifacts/bin:${PATH} \
 #CPPFLAGS=&quot;-I${WORKSPACE}/artifacts/include/smpeg&quot; \
 
 PKG_CONFIG_PATH=$WORKSPACE/artifacts/lib/pkgconfig \
@@ -187,7 +175,8 @@ SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>### BUILD SOURCE
+/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
   --path=${PKG_NAME}-${PKG_VERSION}</command>
     </hudson.tasks.Shell>

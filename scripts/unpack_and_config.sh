@@ -219,7 +219,8 @@ if [ $NO_CONFIGURE -eq 0 ]; then
             CONFIGURE_CMD="${CONFIGURE_CMD} --host=${CROSS_HOST_ARCH}"
         fi
         info "Running: ${CONFIGURE_CMD}"
-        eval $CONFIGURE_CMD 2>&1
+        info "Saving output of ${CONFIGURE_CMD} to file 'config.out' for tests"
+        eval $CONFIGURE_CMD 2>&1 | tee config.out
         check_exit_status $? "$CONFIGURE_CMD" " "
         EXIT_STATUS=$?
         info "Changing back to start directory ${START_DIR}"

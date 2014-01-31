@@ -39,20 +39,7 @@ Downloads: &lt;a href=&quot;http://zlib.net&quot;&gt;http://zlib.net&lt;/a&gt;</
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>4120894</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-dep-zlib/workspace</string>
-              <long>4108292</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -86,7 +73,7 @@ Downloads: &lt;a href=&quot;http://zlib.net&quot;&gt;http://zlib.net&lt;/a&gt;</
 cd ${PKG_NAME}-${PKG_VERSION}
 # got the below configure string from:
 # http://www.ailis.de/~k/archives/19-arm-cross-compiling-howto.html
-CC=/opt/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-cc \
+CC=/home/cross/armv6-lack_rpi-linux-gnueabi/bin/armv6-lack_rpi-linux-gnueabi-cc \
   ./configure --prefix ../output
 time make -j4
 make install</command>

@@ -41,20 +41,7 @@ http://dbus.freedesktop.org/releases/dbus/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>37280838</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-dep-dbus/workspace</string>
-              <long>37267242</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -91,7 +78,12 @@ http://dbus.freedesktop.org/releases/dbus/&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PATH=${WORKSPACE}/artifacts/bin:$PATH \
+      <command>### UNPACK AND CONFIG
+cat &lt;&lt;EO_CACHE_FILE &gt; ${WORKSPACE}/armv6-lack_rpi-linux-gnueabi.cache
+ac_cv_have_abstract_sockets=no
+EO_CACHE_FILE
+
+PATH=${WORKSPACE}/artifacts/bin:$PATH \
 LDFLAGS=-L${WORKSPACE}/artifacts/lib \
 CPPFLAGS=-I${WORKSPACE}/artifacts/include \
 PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
@@ -99,7 +91,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.gz \
   --cross-compile=armv6-lack_rpi-linux-gnueabi \
-  -- --without-x</command>
+  -- --without-x  --disable-tests</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \

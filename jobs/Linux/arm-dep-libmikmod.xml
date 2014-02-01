@@ -28,6 +28,11 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
           <description>Version of libmikmod to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>3.1.16</string>
+              <string>3.1.15</string>
+              <string>3.1.14</string>
+              <string>3.2.4</string>
+              <string>3.2.3</string>
               <string>3.2.0</string>
             </a>
           </choices>
@@ -39,20 +44,7 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>14239137</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-dep-libmikmod/workspace</string>
-              <long>14225938</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -73,7 +65,7 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.gz \
-  --url http://mikmod.shlomifish.org/files/ \
+  --url http://downloads.sourceforge.net/mikmod \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
@@ -95,7 +87,8 @@ http://mikmod.shlomifish.org/&lt;/a&gt;</description>
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --cross-compile \
-  --path=${PKG_NAME}-${PKG_VERSION}
+  --path=${PKG_NAME}-${PKG_VERSION} \
+  --jobs 1
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

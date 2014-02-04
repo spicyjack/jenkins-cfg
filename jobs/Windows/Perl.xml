@@ -73,11 +73,9 @@ exit 0</command>
     <hudson.tasks.Shell>
       <command># always unpack fresh source
 echo &quot;==== Checking for existing Perl ${PKG_VERSION} ====&quot;
-if [ -d &quot;${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}&quot; ]; then
+if [ -d &quot;${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}&quot; ]; then
   echo &quot;-- Deleting existing source tree for &apos;${PKG_NAME}-${PKG_VERSION}&apos;; --&quot;
   /bin/rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-  echo &quot;-- Sleeping 5 seconds --&quot;
-  sleep 5
 else
   echo &quot;-- No Perl tarball currently unpacked in ${WORKSPACE} --&quot;
 fi</command>
@@ -87,14 +85,20 @@ fi</command>
 #export PATH=&quot;.:/mingw/bin:/bin:/usr/bin&quot;
 #echo &quot;PATH is now: $PATH&quot;
 echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
-/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -</command>
+/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -
+
+#echo &quot;==== Changing permissions of files in ${PKG_NAME}-${PKG_VERSION}/pod ====&quot;
+#/bin/find.exe ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}\\pod -type f -exec chmod o+w &apos;{}&apos; \;
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
-if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
-  cd ${PKG_NAME}-${PKG_VERSION}/win32
+      <command>echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}\\win32 ====&quot;
+if [ -d ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION} ]; then
+  cd ${PKG_NAME}-${PKG_VERSION}\\win32
   mv makefile.mk makefile.mk.orig
-  cp $JENKINS_HOME/src/camelbox.git/build-extras/next_build/perl-5.18.0/win32/makefile.mk .
+  #MAKEFILE_LOC=&quot;$JENKINS_HOME/src/camelbox.git/build-extras/next_build/${PKG_VERSION}/win32/makefile.mk&quot;
+  MAKEFILE_LOC=&quot;/c/Apps/Jenkins/src/camelbox.git/build-extras/next_build/perl-5.18.2/win32/makefile.mk&quot;
+  cp $MAKEFILE_LOC $PWD
 else 
   echo &quot;==== ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} not found :( ====&quot;
 fi</command>
@@ -111,26 +115,25 @@ cd ${BUILD_DIR}
 echo &quot;PATH is: $PATH&quot;
 echo &quot;PWD is: $PWD&quot;
 
-echo &quot;-- Sleeping 5 seconds --&quot;
-sleep 5
+#echo &quot;-- Sleeping 5 seconds --&quot;
+#sleep 5
 
-echo &quot;==== Resetting file permissions in ../utils ====&quot;
-/bin/find.exe ../utils -type f -exec /bin/chmod.exe 644 &apos;{}&apos; \;
+#echo &quot;==== Resetting file permissions in ../utils ====&quot;
+#/bin/find.exe ../utils -type f -exec /bin/chmod.exe 644 &apos;{}&apos; \;
 
-echo &quot;==== Permissions of files in ../utils ====&quot;
-/bin/ls.exe -l ../utils
+#echo &quot;==== Permissions of files in ../utils ====&quot;
+#/bin/ls.exe -l ../utils
 
 echo &quot;==== Running &apos;dmake&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
-#time cmd.exe /k dmake
+#time dmake -v
 time dmake
 
 echo &quot;==== Running &apos;dmake test&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
-#time cmd.exe /k dmake test
-time dmake test
+#time dmake -v test
+$(time dmake test)
 
 echo &quot;==== Running &apos;dmake install&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
-#time cmd.exe /k dmake install
-time dmake install</command>
+time dmake -v install</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers/>

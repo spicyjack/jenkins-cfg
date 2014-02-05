@@ -52,7 +52,8 @@ Downloads: http://www.cpan.org/src/README.html</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
+      <command>### UPDATE GIT
+echo &quot;==== Updating &apos;jenkins-config.git&apos; repo ====&quot;
 cd $JENKINS_HOME/src/jenkins-config.git
 git pull
 echo &quot;==== Updating &apos;camelbox.git&apos; repo ====&quot;
@@ -60,7 +61,8 @@ cd $JENKINS_HOME/src/camelbox.git
 git pull</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
+      <command>### DOWNLOAD PERL
+echo &quot;==== Downloading Perl ${PKG_VERSION} ====&quot;
 if [ ! -f ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz ]; then
   wget -O ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz \
     http://www.cpan.org/src/5.0/${PKG_NAME}-${PKG_VERSION}.tar.gz
@@ -71,28 +73,38 @@ fi
 exit 0</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># always unpack fresh source
-echo &quot;==== Checking for existing Perl ${PKG_VERSION} ====&quot;
+      <command>### DELETE OUTPUT
+# always delete old output directory, if it exists
+echo &quot;==== Checking for previous build of Perl ====&quot;
+if [ -d &quot;${WORKSPACE}\\output&quot; ]; then
+  echo &quot;-- Deleting output directory from previous build --&quot;
+  /bin/rm -rf ${WORKSPACE}\\output
+else
+  echo &quot;-- No previous Perl builds found in ${WORKSPACE}/output --&quot;
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### UNPACK PERL
+# always unpack fresh source
+echo &quot;==== Checking for existing Perl source for ${PKG_VERSION} ====&quot;
 if [ -d &quot;${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}&quot; ]; then
   echo &quot;-- Deleting existing source tree for &apos;${PKG_NAME}-${PKG_VERSION}&apos;; --&quot;
-  /bin/rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
+  /bin/rm -rf ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}
 else
   echo &quot;-- No Perl tarball currently unpacked in ${WORKSPACE} --&quot;
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#echo &quot;==== Resetting PATH environment variable ====&quot;
+      <command>### UNPACK PERL
+#echo &quot;==== Resetting PATH environment variable ====&quot;
 #export PATH=&quot;.:/mingw/bin:/bin:/usr/bin&quot;
 #echo &quot;PATH is now: $PATH&quot;
 echo &quot;==== Gunzipping Perl ${PKG_VERSION} in ${WORKSPACE} ====&quot;
-/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -
-
-#echo &quot;==== Changing permissions of files in ${PKG_NAME}-${PKG_VERSION}/pod ====&quot;
-#/bin/find.exe ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION}\\pod -type f -exec chmod o+w &apos;{}&apos; \;
-</command>
+/bin/gunzip -c ${TARBALL_DIR}/${PKG_NAME}-${PKG_VERSION}.tar.gz | /bin/tar -xf -</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}\\win32 ====&quot;
+      <command>### COPY MAKEFILE
+echo &quot;==== Copying makefile.mk to ${PKG_NAME}-${PKG_VERSION}\\win32 ====&quot;
 if [ -d ${WORKSPACE}\\${PKG_NAME}-${PKG_VERSION} ]; then
   cd ${PKG_NAME}-${PKG_VERSION}\\win32
   mv makefile.mk makefile.mk.orig
@@ -104,7 +116,8 @@ else
 fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;==== Resetting PATH environment variable ====&quot;
+      <command>### BUILD/TEST/INSTALL PERL
+echo &quot;==== Resetting PATH environment variable ====&quot;
 export PATH=&quot;.:/mingw/bin:/bin:/usr/bin:/c/WINDOWS/system32&quot;
 
 BUILD_DIR=&quot;${PKG_NAME}-${PKG_VERSION}/win32&quot;
@@ -115,27 +128,32 @@ cd ${BUILD_DIR}
 echo &quot;PATH is: $PATH&quot;
 echo &quot;PWD is: $PWD&quot;
 
-#echo &quot;-- Sleeping 5 seconds --&quot;
-#sleep 5
-
-#echo &quot;==== Resetting file permissions in ../utils ====&quot;
-#/bin/find.exe ../utils -type f -exec /bin/chmod.exe 644 &apos;{}&apos; \;
-
-#echo &quot;==== Permissions of files in ../utils ====&quot;
-#/bin/ls.exe -l ../utils
-
 echo &quot;==== Running &apos;dmake&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
 #time dmake -v
 time dmake
 
 echo &quot;==== Running &apos;dmake test&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
 #time dmake -v test
-$(time dmake test)
+time cmd.exe /k dmake test
 
 echo &quot;==== Running &apos;dmake install&apos; in ${PKG_NAME}-${PKG_VERSION}/win32 ====&quot;
-time dmake -v install</command>
+#time cmd.exe /k dmake -v install
+time cmd.exe /k dmake install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### CREATE ARTIFACT
+echo &quot;==== Resetting PATH environment variable ====&quot;
+export PATH=&quot;.:/mingw/bin:/bin:/usr/bin:/c/WINDOWS/system32&quot;
+/bin/tar.exe -cvf - output | /bin/xz.exe --compress --stdout - \
+  &gt; ${WORKSPACE}/${PKG_NAME}.artifact.tar.xz</command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>perl.artifact.tar.xz</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers/>
 </project>

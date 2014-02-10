@@ -42,20 +42,7 @@ http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>34723110</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/doom-legacy/workspace</string>
-              <long>34707318</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>libpixman dependency for libcairo&lt;br&gt;&#xd;
+  <description>pixman dependency for libcairo&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://www.cairographics.org/releases&quot;&gt;&#xd;
 http://www.cairographics.org/releases&lt;/a&gt;</description>
   <logRotator class="hudson.tasks.LogRotator">
@@ -36,20 +36,7 @@ http://www.cairographics.org/releases&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>43561450</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/libcairo-dep-libpixman/workspace</string>
-              <long>43548905</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>

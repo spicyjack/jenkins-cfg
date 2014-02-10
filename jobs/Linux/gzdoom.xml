@@ -51,20 +51,7 @@ https://github.com/coelckers/gzdoom&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>122062314</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/gzdoom/workspace</string>
-              <long>122044602</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -75,16 +62,19 @@ https://github.com/coelckers/gzdoom&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+      <command>### DEPS CHECK
+/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
   --deps &quot;cmake p7zip fluidsynth libfluidsynth-dev fluid-soundfont-gm 
     fluid-soundfont-gs&quot;</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>### UPDATE GIT
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>### DELETE DIR
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -124,13 +114,15 @@ https://github.com/coelckers/gzdoom&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>### UNPACK BUILD ARTIFACTS
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#http://www.fmod.org/index.php/release/version/fmodapi44412linux.tar.gz
+      <command>### DOWNLOAD FMOD
+#http://www.fmod.org/index.php/release/version/fmodapi44412linux.tar.gz
 # fmodapi44412linux/api/[inc|lib]
 /bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file fmodapi${FMOD_VERSION}linux64.tar.gz \
@@ -139,7 +131,8 @@ https://github.com/coelckers/gzdoom&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;=-=-= custom tarball unpack =-=-=&quot;
+      <command>### UNPACK FMOD
+echo &quot;=-=-= custom tarball unpack =-=-=&quot;
 # unpack fmod, and copy files into $WORKSPACE/artifacts/lib
 cd ${WORKSPACE}/artifacts
 tar -zxvf $TARBALL_DIR/fmodapi${FMOD_VERSION}linux64.tar.gz
@@ -147,25 +140,26 @@ cp -av fmodapi${FMOD_VERSION}linux64/api/lib/* lib
 cp -av fmodapi${FMOD_VERSION}linux64/api/inc/* include</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># FIXME use a stamp file and/or symlink with a generic directory name
-# to indicate what version of source is currently downloaded
+      <command>### CLONE/CHECKOUT/UPDATE GIT
 # delete the existing source directory, if it exists
 if [ -d $WORKSPACE/${PKG_NAME}.git ]; then
   cd $WORKSPACE/${PKG_NAME}.git
   git checkout master
-  git pull --all
+  git pull origin master
 else
-  # then go snag fresh source
+  # no copy of the repo; go snag fresh source
   cd $WORKSPACE
   git clone https://github.com/coelckers/${PKG_NAME}.git ${PKG_NAME}.git
   cd ${PKG_NAME}.git
 fi
 
-# check out the specified tag
-git checkout -b $PKG_GIT_TAG</command>
+# check out the specified tag; this creates a &quot;deteatched head&quot; in git
+git checkout $PKG_GIT_TAG
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># do manual unpack and configure for zdoom
+      <command>### UNPACK/CONFIGURE GZDOOM SOURCE
+# do manual unpack and configure for zdoom
 MACHINE_NAME=$(uname -m)
 if [ $(echo $MACHINE_NAME | grep -c &quot;64&quot;) -gt 0 ]; then
   LIBFMOD=&quot;libfmodex64.so&quot;
@@ -200,7 +194,8 @@ time make
 #time make install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># Copy the different files to the $WORKSPACE/output directory
+      <command>### COPY FILES TO OUTPUT DIR
+# Copy the different files to the $WORKSPACE/output directory
 mkdir -p ${WORKSPACE}/output/bin ${WORKSPACE}/output/share/games/doom
 # copy the binaries
 cd ${WORKSPACE}/${PKG_NAME}.git/jenk-build
@@ -210,7 +205,8 @@ cp gzdoom.pk3 ${WORKSPACE}/output/share/games/doom
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>### CREATE BUILD ARTIFACT
+/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
   --source-version=${PKG_SVN_TAG} \
   --output=${WORKSPACE}

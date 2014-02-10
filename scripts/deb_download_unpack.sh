@@ -237,28 +237,28 @@ done
         exit 1
     fi
 
-    # check for target architecture
-    if [ "x$TARGET_ARCH" = "x" ]; then
-        warn "ERROR: Script requires '--target-arch' argument;"
-        warn "ERROR: (What architecture to download a package for)"
-        exit 1
-    fi
-
-    # last check, verify a list of packages was passed in
+    # verify a list of packages was passed in
     if [ $# -eq 0 ]; then
         warn "ERROR: need list of packages to download/unpack"
         warn "ERROR: use --help to see all script options"
         exit 1
     fi
 
-    # no more checks, we have the info we need to run
-    show_script_header
-
     # set a host architecture if the user didn't specify one
     if [ "x$HOST_ARCH" = "x" ]; then
         info "Set host architecture via 'dpkg --print-architecture'"
         HOST_ARCH=$(dpkg --print-architecture)
     fi
+
+    # check for target architecture;
+    # if the user doesn't pass anything in, assume the same arch as $HOST_ARCH
+    if [ "x$TARGET_ARCH" = "x" ]; then
+        warn "WARN: Setting target arch to ${HOST_ARCH}"
+        TARGET_ARCH=$HOST_ARCH
+    fi
+
+    # no more checks, we have the info we need to run
+    show_script_header
 
     # let the user see script settings before running
     info "Script options:"

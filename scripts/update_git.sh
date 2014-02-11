@@ -24,6 +24,13 @@ EXIT_STATUS=0
 # source jenkins functions
 . ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 
+# check for the 'git' binary
+GIT_BIN=$(which git)
+if [ "x$GIT_BIN" = "x" ];
+    warn "ERROR: Can't find 'git' binary file in \$PATH"
+    exit 1
+fi
+
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 

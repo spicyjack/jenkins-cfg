@@ -26,7 +26,7 @@ EXIT_STATUS=0
 
 # check for the 'git' binary
 GIT_BIN=$(which git)
-if [ "x$GIT_BIN" = "x" ];
+if [ "x$GIT_BIN" = "x" ]; then
     warn "ERROR: Can't find 'git' binary file in \$PATH"
     exit 1
 fi

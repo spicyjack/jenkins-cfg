@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Busybox cross-compiled to ARM</description>
+  <description>Busybox cross-compiled to:&#xd;
+&lt;ul&gt;&#xd;
+  &lt;li&gt;32-bit ARM for Raspberry Pi (armv6-lack_rpi-linux-gnueabi)&lt;/li&gt;&#xd;
+  &lt;li&gt;32-bit PowerPC (powerpc-lack-linux-gnu)&lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
@@ -27,22 +32,19 @@
           <description>Directory for downloaded source</description>
           <defaultValue>$HOME/source</defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BUILD_ARCH</name>
+          <description>Build architecture to use for compiling Busybox</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>arm</string>
+              <string>ppc</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>28457072</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-busybox/workspace</string>
-              <long>28436796</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -72,15 +74,38 @@
     <hudson.tasks.Shell>
       <command>### UNPACK, COPY CONFIG AND BUILD
 tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
+
+if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
+  export BUSYBOX_CONFIG=&quot;$HOME/src/lack/projects.git/armlack/configs/busybox.config.arm.cross-tools&quot;
+elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
+  export BUSYBOX_CONFIG=&quot;$HOME/src/lack/projects.git/ppclack/configs/busybox.config.powerpc-lack-linux-gnu&quot;
+else
+  echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
+  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
+  exit 1
+fi
+
 cd ${PKG_NAME}-${PKG_VERSION}
-cp $HOME/src/lack/projects.git/armlack/buildroot/busybox.config.arm.cross-tools \
-  .config
+cp $BUSYBOX_CONFIG .config
 time make</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME})
+      <command>### TEST OUTPUT BINARY
+TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME})
+
+if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
+  export EXPECTED_BINARY_STRING=&quot;ELF 32-bit LSB executable, ARM&quot;
+elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
+  export EXPECTED_BINARY_STRING=&quot;ELF 32-bit MSB executable, PowerPC&quot;
+else
+  echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
+  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
+  exit 1
+fi
+
 VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT \
-  | grep -c &quot;ELF 32-bit LSB executable, ARM, version 1 (SYSV), statically linked&quot;)
+  | grep -c &quot;${EXPECTED_BINARY_STRING}&quot;)
+
 if [ $VALID_BINARY -gt 0 ]; then
   echo &quot;==== Test binary compiled successfully! ====&quot;
   echo &quot;==== Test binary file is: ====&quot;
@@ -88,7 +113,8 @@ if [ $VALID_BINARY -gt 0 ]; then
   exit 0
 else
   echo &quot;ERROR: test binary file output did not match expected output&quot;
-  echo $TEST_BINARY_FILE_OUTPUT
+  echo &quot;Expected: ${EXPECTED_BINARY_STRING}&quot;
+  echo &quot;Received: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1
 fi </command>
     </hudson.tasks.Shell>

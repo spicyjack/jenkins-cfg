@@ -208,7 +208,7 @@ cp gzdoom.pk3 ${WORKSPACE}/output/share/games/doom
       <command>### CREATE BUILD ARTIFACT
 /bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=${PKG_NAME} \
-  --source-version=${PKG_SVN_TAG} \
+  --source-version=${PKG_GIT_TAG} \
   --output=${WORKSPACE}
 </command>
     </hudson.tasks.Shell>

@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>Shows the running environment for this Jenkins instance</description>
+  <description>Preflights the Jenkins environment for:&lt;br&gt;&#xd;
+&lt;ul&gt;&#xd;
+  &lt;li&gt;32-bit ARM for Raspberry Pi (armv6-lack_rpi-linux-gnueabi)&lt;/li&gt;&#xd;
+  &lt;li&gt;32-bit PowerPC (powerpc-lack-linux-gnu)&lt;/li&gt;&#xd;
+&lt;/ul&gt;&#xd;
+Checks things like scripts and compilers.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
     <numToKeep>4</numToKeep>
@@ -11,6 +16,20 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>BUILD_ARCH</name>
+          <description>Architecture to build with; determines which toolchain to use, and what strings to look for in the resulting test binary</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>arm</string>
+              <string>ppc</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
@@ -27,13 +46,27 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>export JENKINS_SCRIPTS=&quot;${HOME}/src/jenkins/config.git/scripts&quot;
-export ARM_COMPILER=&quot;armv6-lack_rpi-linux-gnueabi-gcc&quot;
+      <command>### EXPORTS AND SOURCING ###
+export JENKINS_SCRIPTS=&quot;${HOME}/src/jenkins/config.git/scripts&quot;
 # for common_jenkins_functions
 export QUIET=0
 # source environment variables and updated $PATH script
 source ${HOME}/.bashrc.d/env_vars_path
 
+### CHECK FOR BUILD_ARCH ###
+if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
+  export CROSS_COMPILER=&quot;armv6-lack_rpi-linux-gnueabi-gcc&quot;
+  export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
+elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
+  export CROSS_COMPILER=&quot;powerpc-lack-linux-gnu-gcc&quot;
+  export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit MSB executable, PowerPC&quot;
+else
+  echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
+  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
+  exit 1
+fi
+
+### COMMON_JENKINS_FUNCTIONS ###
 echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
 if [ -e ${JENKINS_SCRIPTS}/common_jenkins_functions.sh ]; then
   # source jenkins common functions
@@ -43,41 +76,47 @@ else
   exit 1
 fi
 
+### CROSSTOOL-NG ###
 echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng ]; then
-  # source crosstool-ng script
-  source ~/.bashrc.d/crosstool-ng
+if [ -e ~/.bashrc.d/crosstool-ng-env ]; then
+  source ~/.bashrc.d/crosstool-ng-env
 else
-  echo &quot;ERROR: crosstool-ng bashrc script not found&quot;
+  echo &quot;ERROR: crosstool-ng-env bashrc script not found&quot;
   exit 1
 fi
 
-echo &quot;==== BEGIN JENKINS ENVIRONMENT ====&quot;
+echo &quot;==== BEGIN JENKINS RUNTIME ENVIRONMENT ====&quot;
 set
-echo &quot;==== END JENKINS ENVIRONMENT ====&quot;
+echo &quot;==== END JENKINS RUNTIME ENVIRONMENT ====&quot;
 
 echo &quot;Checking for binaries/scripts...&quot;
 EXISTS_CT_NG=$(which ct-ng)
 check_exit_status $? &quot;ct-ng&quot; &quot;$EXISTSCT_NG&quot;
-EXISTS_GCC=$(which $ARM_COMPILER)
-check_exit_status $? &quot;$ARM_COMPILER&quot; &quot;$EXISTS_GCC&quot;
+EXISTS_GCC=$(which $CROSS_COMPILER)
+check_exit_status $? &quot;$CROSS_COMPILER&quot; &quot;$EXISTS_GCC&quot;
 
-echo &quot;Checking toolchain...&quot;
+echo &quot;Compiling test binary with &apos;${BUILD_ARCH}&apos; GCC...&quot;
 if [ -e $WORKSPACE/test ]; then
+  echo &quot;Removing old test binary &apos;test&apos;&quot;
   rm $WORKSPACE/test
 fi
-cat &lt;&lt;EODF &gt; ${WORKSPACE}/test.c
+cat &lt;&lt;EO_TEST_FILE &gt; ${WORKSPACE}/test.c
 #include &lt;stdio.h&gt;
 int main() {
   printf(&quot;Hello, world!\n&quot;); return 0;
 }
-EODF
+EO_TEST_FILE
 
+### PRINT WORKSPACE CONTENTS ###
 ls -l
-$ARM_COMPILER -o $WORKSPACE/test $WORKSPACE/test.c
+
+### CROSS-COMPILE THE TEST BINARY ###
+$CROSS_COMPILER -o $WORKSPACE/test $WORKSPACE/test.c
 TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test)
-EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
+
+### CHECK THE TEST BINARY ###
 VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
+
 if [ $VALID_BINARY -gt 0 ]; then
   echo &quot;==== Test binary compiled successfully! ====&quot;
   echo &quot;==== Test binary file is: ====&quot;
@@ -85,8 +124,8 @@ if [ $VALID_BINARY -gt 0 ]; then
   exit 0
 else
   echo &quot;ERROR: test binary file output did not match expected output&quot;
-  echo &quot;Expected output: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
-  echo &quot;Output: ${TEST_BINARY_FILE_OUTPUT}&quot;
+  echo &quot;Expected: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
+  echo &quot;Received: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1
 fi </command>
     </hudson.tasks.Shell>

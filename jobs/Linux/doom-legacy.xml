@@ -53,64 +53,84 @@ http://doomlegacy.sourceforge.net/releases&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>### UPDATE GIT
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>### DELETE DIR
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libsdl</project>
       <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libsdl_image</project>
       <filter>libsdl_image.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libsdl_mixer</project>
       <filter>libsdl_mixer.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libsdl_net</project>
       <filter>libsdl_net.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libsdl_ttf</project>
       <filter>libsdl_ttf.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libpango-dep-freetype</project>
       <filter>freetype.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>true</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>### UNPACK BUILD ARTIFACTS
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>### DOWNLOAD/UNPACK DEBIAN PACKAGES
+# this step needs to go after &apos;unpack build artifacts&apos;, because it creates
+# the &apos;artifacts/&apos; directory
+/bin/bash $HOME/src/jenkins/config.git/scripts/deb_download_unpack.sh \
+  --pkgdir $HOME/pkgs \
+  --output $WORKSPACE/artifacts \
+  -- mesa-common-dev</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### DOWNLOAD TARBALL
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}_${PKG_VERSION}.zip \
   --url http://downloads.sourceforge.net/${PKG_NAME} \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># custom source dir delete, since the names of things change in doomlegacy source
+      <command>### UNPACK AND BUILD
+# custom source dir delete, since the names of things change in doomlegacy source
 SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
 rm -rvf $WORKSPACE/${PKG_NAME}_${SHORT_PKG_VERSION}
 # clean up the output directory
@@ -127,20 +147,20 @@ mkdir bin
 cd src
 time SDL_CONFIG=${WORKSPACE}/artifacts/bin/sdl-config \
   LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
+  CPPFLAGS=-I${WORKSPACE}/artifacts/include \
   PATH=$PATH:${WORKSPACE}/artifacts/bin \
   make</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
+      <command>### CREATE BUILD ARTIFACT
+SHORT_PKG_VERSION=$(echo ${PKG_VERSION} | sed &apos;s/_src.*//&apos;)
 cd ${WORKSPACE}/${PKG_NAME}_${SHORT_PKG_VERSION}
-tar -Jcvf $WORKSPACE/${PKG_NAME}.artifact.tar.xz bin</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+tar -Jcvf $WORKSPACE/${PKG_NAME}.artifact.tar.xz bin
+
+#/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
 #  --name=${PKG_NAME} \
 #  --source-version=${PKG_VERSION} \
-#  --output=${WORKSPACE}
-</command>
+#  --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

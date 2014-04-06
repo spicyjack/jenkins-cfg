@@ -7,6 +7,12 @@
   &lt;li&gt;32-bit PowerPC (powerpc-lack-linux-gnu)&lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 </description>
+  <logRotator class="hudson.tasks.LogRotator">
+    <daysToKeep>10</daysToKeep>
+    <numToKeep>-1</numToKeep>
+    <artifactDaysToKeep>-1</artifactDaysToKeep>
+    <artifactNumToKeep>-1</artifactNumToKeep>
+  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
@@ -23,6 +29,7 @@
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
               <string>1.21.1</string>
+              <string>1.22.1</string>
               <string>1.20.3</string>
             </a>
           </choices>
@@ -53,7 +60,8 @@
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
   <triggers>
     <hudson.triggers.TimerTrigger>
-      <spec>@daily</spec>
+      <spec># how often to build?
+#@daily</spec>
     </hudson.triggers.TimerTrigger>
   </triggers>
   <concurrentBuild>false</concurrentBuild>
@@ -75,10 +83,12 @@
       <command>### UNPACK, COPY CONFIG AND BUILD
 tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
 
+LACK_PROJECTS=&quot;/home/jenkins/src/lack/projects.git&quot;
+
 if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
-  export BUSYBOX_CONFIG=&quot;$HOME/src/lack/projects.git/armlack/configs/busybox.config.arm.cross-tools&quot;
+  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/armlack/configs/busybox.config.arm.cross-tools&quot;
 elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
-  export BUSYBOX_CONFIG=&quot;$HOME/src/lack/projects.git/ppclack/configs/busybox.config.powerpc-lack-linux-gnu&quot;
+  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/ppclack/configs/busybox.config.powerpc-lack-linux-gnu&quot;
 else
   echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
   echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
@@ -116,9 +126,17 @@ else
   echo &quot;Expected: ${EXPECTED_BINARY_STRING}&quot;
   echo &quot;Received: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1
-fi </command>
+fi
+
+cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} $WORKSPACE</command>
     </hudson.tasks.Shell>
   </builders>
-  <publishers/>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>${PKG_NAME}-${PKG_VERSION}/${PKG_NAME}</artifacts>
+      <latestOnly>false</latestOnly>
+      <allowEmptyArchive>false</allowEmptyArchive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
   <buildWrappers/>
 </project>

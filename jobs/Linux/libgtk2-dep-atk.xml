@@ -36,20 +36,7 @@ http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>56889934</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/libgtk2-dep-atk/workspace</string>
-              <long>56876439</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -101,8 +88,7 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
-  --path=${PKG_NAME}-${PKG_VERSION} \
-  --test
+  --path=${PKG_NAME}-${PKG_VERSION}
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>

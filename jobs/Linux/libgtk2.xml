@@ -38,20 +38,7 @@ http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>425720879</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/libgtk2/workspace</string>
-              <long>425704631</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -62,11 +49,22 @@ http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/&lt;/a&gt;</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>### DEPS CHECK
+/bin/bash $HOME/src/jenkins/config.git/scripts/deps_check.sh \
+  --deps &quot;tightvncserver xvfb&quot;
+
+if [ ! -d $HOME/.local/share ]; then
+  mkdir -p $HOME/.local/share
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### UPDATE GIT
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+      <command>### DELETE DIR
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
     <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
@@ -130,34 +128,39 @@ http://ftp.gnome.org/pub/gnome/sources/gtk+/2.24/&lt;/a&gt;</description>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>### UNPACK AND MUNGE BUILD ARTIFACTS
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
  -- libglib libffi freetype fontconfig harfbuzz libpango libatk libgdk-pixbuf
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>### DOWNLOAD TARBALL
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.xz \
   --url http://ftp.gnome.org/pub/gnome/sources/${PKG_NAME}/2.24/ \
   --log $WORKSPACE/wget.lib${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
+      <command>### UNPACK AND CONFIG
+PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
 LD_LIBRARY_PATH=${WORKSPACE}/artifacts/lib \
 PATH=${WORKSPACE}/artifacts/bin:${PATH} \
   /bin/bash $HOME/src/jenkins/config.git/scripts/unpack_and_config.sh \
   --prefix=${WORKSPACE}/output \
   --tarball=$TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.xz \
-  --config-args=&quot;--disable-silent-rules&quot;</command>
+  -- --disable-silent-rules</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
+      <command>### BUILD SOURCE
+/bin/bash $HOME/src/jenkins/config.git/scripts/build_source.sh \
   --path=${PKG_NAME}-${PKG_VERSION} \
   --test</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
+      <command>### CREATE BUILD ARTIFACT
+/bin/bash $HOME/src/jenkins/config.git/scripts/create_build_artifact.sh \
   --name=libgtk2+ \
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>
@@ -172,7 +175,7 @@ PATH=${WORKSPACE}/artifacts/bin:${PATH} \
   </publishers>
   <buildWrappers>
     <hudson.plugins.xvnc.Xvnc plugin="xvnc@1.14">
-      <takeScreenshot>true</takeScreenshot>
+      <takeScreenshot>false</takeScreenshot>
     </hudson.plugins.xvnc.Xvnc>
   </buildWrappers>
 </project>

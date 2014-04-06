@@ -38,20 +38,7 @@ http://ftp.gnome.org/pub/GNOME/sources/glib/2.34/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>4952419</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/libglib/workspace</string>
-              <long>4939060</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>

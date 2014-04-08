@@ -9,7 +9,7 @@
 Checks things like scripts and compilers.</description>
   <logRotator class="hudson.tasks.LogRotator">
     <daysToKeep>-1</daysToKeep>
-    <numToKeep>4</numToKeep>
+    <numToKeep>10</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
     <artifactNumToKeep>-1</artifactNumToKeep>
   </logRotator>
@@ -37,12 +37,7 @@ Checks things like scripts and compilers.</description>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec># run preflight daily
-@daily</spec>
-    </hudson.triggers.TimerTrigger>
-  </triggers>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
@@ -96,9 +91,9 @@ EXISTS_GCC=$(which $CROSS_COMPILER)
 check_exit_status $? &quot;$CROSS_COMPILER&quot; &quot;$EXISTS_GCC&quot;
 
 echo &quot;Compiling test binary with &apos;${BUILD_ARCH}&apos; GCC...&quot;
-if [ -e $WORKSPACE/test ]; then
-  echo &quot;Removing old test binary &apos;test&apos;&quot;
-  rm $WORKSPACE/test
+if [ -e $WORKSPACE/test_${BUILD_ARCH} ]; then
+  echo &quot;Removing old test binary &apos;test_${BUILD_ARCH}&apos;&quot;
+  rm $WORKSPACE/test_${BUILD_ARCH}
 fi
 cat &lt;&lt;EO_TEST_FILE &gt; ${WORKSPACE}/test.c
 #include &lt;stdio.h&gt;
@@ -111,19 +106,19 @@ EO_TEST_FILE
 ls -l
 
 ### CROSS-COMPILE THE TEST BINARY ###
-$CROSS_COMPILER -o $WORKSPACE/test $WORKSPACE/test.c
-TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test)
+$CROSS_COMPILER -o $WORKSPACE/test_${BUILD_ARCH} $WORKSPACE/test.c
+TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test_${BUILD_ARCH})
 
 ### CHECK THE TEST BINARY ###
 VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
 
 if [ $VALID_BINARY -gt 0 ]; then
-  echo &quot;==== Test binary compiled successfully! ====&quot;
+  echo &quot;==== Test binary &apos;test_${BUILD_ARCH}&apos; compiled successfully! ====&quot;
   echo &quot;==== Test binary file is: ====&quot;
   echo $TEST_BINARY_FILE_OUTPUT
   exit 0
 else
-  echo &quot;ERROR: test binary file output did not match expected output&quot;
+  echo &quot;ERROR: test binary file &apos;test_${BUILD_ARCH}&apos; output did not match expected output&quot;
   echo &quot;Expected: ${EXPECTED_BINARY_FILE_OUTPUT}&quot;
   echo &quot;Received: ${TEST_BINARY_FILE_OUTPUT}&quot;
   exit 1

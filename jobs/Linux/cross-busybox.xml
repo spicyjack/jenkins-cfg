@@ -8,8 +8,8 @@
 &lt;/ul&gt;&#xd;
 </description>
   <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>10</daysToKeep>
-    <numToKeep>-1</numToKeep>
+    <daysToKeep>-1</daysToKeep>
+    <numToKeep>10</numToKeep>
     <artifactDaysToKeep>-1</artifactDaysToKeep>
     <artifactNumToKeep>-1</artifactNumToKeep>
   </logRotator>
@@ -28,8 +28,8 @@
           <description>Version of busybox to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>1.21.1</string>
               <string>1.22.1</string>
+              <string>1.21.1</string>
               <string>1.20.3</string>
             </a>
           </choices>
@@ -86,7 +86,7 @@ tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
 LACK_PROJECTS=&quot;/home/jenkins/src/lack/projects.git&quot;
 
 if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
-  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/armlack/configs/busybox.config.arm.cross-tools&quot;
+  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/armlack/configs/busybox.config.armv6-lack_rpi-linux-gnueabi&quot;
 elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
   export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/ppclack/configs/busybox.config.powerpc-lack-linux-gnu&quot;
 else

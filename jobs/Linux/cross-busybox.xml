@@ -81,6 +81,10 @@
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>### UNPACK, COPY CONFIG AND BUILD
+if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
+  rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
+fi
+
 tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
 
 LACK_PROJECTS=&quot;/home/jenkins/src/lack/projects.git&quot;
@@ -120,7 +124,6 @@ if [ $VALID_BINARY -gt 0 ]; then
   echo &quot;==== Test binary compiled successfully! ====&quot;
   echo &quot;==== Test binary file is: ====&quot;
   echo $TEST_BINARY_FILE_OUTPUT
-  exit 0
 else
   echo &quot;ERROR: test binary file output did not match expected output&quot;
   echo &quot;Expected: ${EXPECTED_BINARY_STRING}&quot;
@@ -128,13 +131,14 @@ else
   exit 1
 fi
 
-cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} $WORKSPACE</command>
+cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} \
+  $WORKSPACE/${PKG_NAME}-${PKG_VERSION}-${BUILD_ARCH}</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>${PKG_NAME}-${PKG_VERSION}/${PKG_NAME}</artifacts>
-      <latestOnly>false</latestOnly>
+      <artifacts>busybox-*-*</artifacts>
+      <latestOnly>true</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

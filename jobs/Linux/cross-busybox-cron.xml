@@ -42,31 +42,96 @@ using the list of &lt;code&gt;BUILD_ARCH&lt;/code&gt; parameters:&#xd;
   <builders>
     <hudson.tasks.Shell>
       <command>### CURL BUSYBOX -&gt; BUILD_ARCH = ARM ###
-# build the URL from back to front
-URL=&apos;TARBALL_DIR=&amp;#36;HOME&amp;#47;source&apos;
-URL=&quot;BUILD_ARCH=arm&amp;PKG_VERSION=${BUSYBOX_VERSION}&amp;PKG_NAME=busybox&amp;${URL}&quot;
-URL=&quot;https://shell.xaoc.org/jenkins/job/cross-busybox/buildWithParameters?${URL}&quot;
-/usr/bin/wget \
-  --spider \
-  --no-check-certificate \
-  --http-user=&quot;jenkcron&quot; \
-  --http-password=&quot;TrawlWp7000&quot; \
-  $URL
-#  &quot;https://shell.xaoc.org/jenkins/job/cross-busybox/buildWithParameters?BUILD_ARCH=arm&amp;PKG_VERSION=${BUSYBOX_VERSION}&amp;PKG_NAME=busybox&amp;TARBALL_DIR=&amp;#36;HOME&amp;\#47;source&quot;</command>
+#URL=&quot;https://shell.xaoc.org/jenkins/job/cross-busybox/buildWithParameters&quot;
+#URL=&quot;${URL}?BUILD_ARCH=${BUILD_ARCH}&quot;
+#URL=&quot;${URL}&amp;PKG_VERSION=${PKG_VERSION}&quot;
+
+#for ARCH in arm ppc; do
+  # run the CURL request
+#  /usr/bin/curl \
+#    --request POST \
+#    --insecure \
+#    --user jenkcron:TrawlWp7000 \
+#    &quot;$URL&quot;
+
+  # sleep for a bit to let the request process
+#  if [ $ARCH != &quot;ppc&quot; ]; then
+#    sleep 15
+#  fi
+#done</command>
     </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>### CURL PREFLIGHT -&gt; BUILD_ARCH = ARM ###
-URL=&apos;TARBALL_DIR=&amp;#36;HOME&amp;#47;source&apos;
-URL=&quot;BUILD_ARCH=arm&amp;PKG_VERSION=${BUSYBOX_VERSION}&amp;PKG_NAME=busybox&amp;${URL}&quot;
-URL=&quot;https://shell.xaoc.org/jenkins/job/cross-busybox/buildWithParameters?${URL}&quot;
-/usr/bin/wget \
-  --spider \
-  --no-check-certificate \
-  --http-user=&quot;jenkcron&quot; \
-  --http-password=&quot;TrawlWp7000&quot; \
-  $URL
-# &quot;https://shell.xaoc.org/jenkins/job/cross-busybox/buildWithParameters?BUILD_ARCH=ppc&amp;PKG_VERSION=${BUSYBOX_VERSION}&amp;PKG_NAME=busybox&amp;TARBALL_DIR=&amp;\#36;HOME&amp;\#47;source&quot;</command>
-    </hudson.tasks.Shell>
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.22">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+              <properties>BUILD_ARCH=arm
+PKG_VERSION=${BUSYBOX_VERSION}</properties>
+            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+          </configs>
+          <projects>cross-busybox</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+          <block>
+            <buildStepFailureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+              <completeBuild>true</completeBuild>
+            </buildStepFailureThreshold>
+            <unstableThreshold>
+              <name>UNSTABLE</name>
+              <ordinal>1</ordinal>
+              <color>YELLOW</color>
+              <completeBuild>true</completeBuild>
+            </unstableThreshold>
+            <failureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+              <completeBuild>true</completeBuild>
+            </failureThreshold>
+          </block>
+          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.22">
+      <configs>
+        <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+          <configs>
+            <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+              <properties>BUILD_ARCH=ppc
+PKG_VERSION=${BUSYBOX_VERSION}</properties>
+            </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
+          </configs>
+          <projects>cross-busybox</projects>
+          <condition>ALWAYS</condition>
+          <triggerWithNoParameters>false</triggerWithNoParameters>
+          <block>
+            <buildStepFailureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+              <completeBuild>true</completeBuild>
+            </buildStepFailureThreshold>
+            <unstableThreshold>
+              <name>UNSTABLE</name>
+              <ordinal>1</ordinal>
+              <color>YELLOW</color>
+              <completeBuild>true</completeBuild>
+            </unstableThreshold>
+            <failureThreshold>
+              <name>FAILURE</name>
+              <ordinal>2</ordinal>
+              <color>RED</color>
+              <completeBuild>true</completeBuild>
+            </failureThreshold>
+          </block>
+          <buildAllNodesWithLabel>false</buildAllNodesWithLabel>
+        </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
+      </configs>
+    </hudson.plugins.parameterizedtrigger.TriggerBuilder>
   </builders>
   <publishers/>
   <buildWrappers/>

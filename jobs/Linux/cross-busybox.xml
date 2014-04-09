@@ -137,8 +137,8 @@ cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>busybox-*-*</artifacts>
-      <latestOnly>true</latestOnly>
+      <artifacts>busybox-*/busybox</artifacts>
+      <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>

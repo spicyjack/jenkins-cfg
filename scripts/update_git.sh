@@ -104,8 +104,8 @@ info "Running 'git pull' in path: ${GIT_REPO_PATH}"
 START_DIR=$PWD
 cd $GIT_REPO_PATH
 OUTPUT=$(git pull 2>&1)
-say "git: ${OUTPUT}"
 EXIT_STATUS=$?
+say "git: ${OUTPUT}"
 cd $START_DIR
 
 if [ $EXIT_STATUS -gt 0 ]; then

@@ -54,17 +54,19 @@ http://ftp.gnome.org/pub/gnome/sources/atk/2.6/&lt;/a&gt;</description>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libglib-dep-libffi</project>
       <filter>libffi.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.28">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
       <project>libglib</project>
       <filter>libglib.artifact.tar.xz</filter>
       <target></target>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
@@ -98,12 +100,23 @@ PKG_CONFIG_PATH=${WORKSPACE}/artifacts/lib/pkgconfig \
   --output=${WORKSPACE}
 </command>
     </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### CLEAN SOURCE DIRECTORY
+cd ${PKG_NAME}-${PKG_VERSION}
+make clean
+
+### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>libatk.artifact.tar.xz</artifacts>
-      <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>

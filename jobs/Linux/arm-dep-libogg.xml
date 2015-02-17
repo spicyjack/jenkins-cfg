@@ -40,20 +40,7 @@ http://downloads.xiph.org/releases/ogg/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>3974221</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/arm-dep-libogg/workspace</string>
-              <long>3961117</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -106,12 +93,23 @@ http://downloads.xiph.org/releases/ogg/&lt;/a&gt;</description>
   --output=${WORKSPACE}
 </command>
     </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### CLEAN SOURCE DIRECTORY
+cd ${PKG_NAME}-${PKG_VERSION}
+make clean
+
+### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>libogg.artifact.tar.xz</artifacts>
-      <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>

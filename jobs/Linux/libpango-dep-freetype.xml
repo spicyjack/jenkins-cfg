@@ -37,20 +37,7 @@ http://download.savannah.gnu.org/releases/freetype/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.22">
-      <diskUsageWithoutBuilds>37191963</diskUsageWithoutBuilds>
-      <slaveWorkspacesUsage class="concurrent-hash-map">
-        <entry>
-          <string></string>
-          <concurrent-hash-map>
-            <entry>
-              <string>/home/jenkins/.jenkins/jobs/libpango-dep-freetype/workspace</string>
-              <long>37179577</long>
-            </entry>
-          </concurrent-hash-map>
-        </entry>
-      </slaveWorkspacesUsage>
-    </hudson.plugins.disk__usage.DiskUsageProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -90,12 +77,23 @@ http://download.savannah.gnu.org/releases/freetype/&lt;/a&gt;</description>
   --source-version=${PKG_VERSION} \
   --output=${WORKSPACE}</command>
     </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### CLEAN SOURCE DIRECTORY
+cd ${PKG_NAME}-${PKG_VERSION}
+make clean
+
+### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
+/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
+  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
+    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
       <artifacts>freetype.artifact.tar.xz</artifacts>
-      <latestOnly>false</latestOnly>
       <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers/>

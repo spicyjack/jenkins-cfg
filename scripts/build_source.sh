@@ -27,6 +27,9 @@ QUIET=0
 # default exit status
 EXIT_STATUS=0
 
+# The name of the crosstool environment setup bashrc script
+CROSSTOOL_ENV_FILE="crosstool-ng-env"
+
 ### SCRIPT SETUP ###
 # source jenkins functions
 . ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
@@ -118,11 +121,11 @@ fi
 show_script_header
 if [ $CROSS_COMPILE -eq 1 ]; then
     info "Cross-compile of ${SOURCE_PATH} requested"
-    info "Reading in 'crosstool-ng' bashrc.d script"
-    if [ -e ~/.bashrc.d/crosstool-ng ]; then
-      source ~/.bashrc.d/crosstool-ng
+    info "Reading in '${CROSSTOOL_ENV_FILE}' bashrc.d script"
+    if [ -e ~/.bashrc.d/${CROSSTOOL_ENV_FILE} ]; then
+      source ~/.bashrc.d/${CROSSTOOL_ENV_FILE}
     else
-      warn "ERROR: crosstool-ng bashrc script not found"
+      warn "ERROR: ${CROSSTOOL_ENV_FILE} bashrc script not found"
       exit 1
     fi
 fi

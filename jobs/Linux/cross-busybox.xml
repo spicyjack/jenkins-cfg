@@ -51,7 +51,7 @@
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -133,15 +133,6 @@ fi
 
 cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} \
   $WORKSPACE/${PKG_NAME}-${PKG_VERSION}-${BUILD_ARCH}</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>### CLEAN SOURCE DIRECTORY
-cd ${PKG_NAME}-${PKG_VERSION}
-make clean
-
-### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
-/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>

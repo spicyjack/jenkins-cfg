@@ -30,7 +30,7 @@ Checks things like scripts and compilers.</description>
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -124,15 +124,6 @@ else
   exit 1
 fi </command>
     </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>### CLEAN SOURCE DIRECTORY
-cd ${PKG_NAME}-${PKG_VERSION}
-make clean
-
-### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
-/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
-    </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
@@ -144,7 +135,7 @@ make clean
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
   </buildWrappers>

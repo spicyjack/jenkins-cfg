@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# environment variables
+ADDITIONAL_PATHS="/usr/games /usr/local/games /usr/local/sbin /usr/local/bin"
+ADDITIONAL_PATHS="${ADDITIONAL_PATHS} /sbin /usr/sbin"
+
+for ADDPATH in $(echo ${ADDITIONAL_PATHS});
+do
+    if [ $(echo ${PATH} | grep -c "${ADDPATH}") -eq 0 ]; then
+        PATH=${PATH}:${ADDPATH}
+    #else
+    #    echo "Path: $ADDPATH already exists in \$PATH"
+    fi
+done
+
+export PATH
+
+# vi: set ft=sh sw=4 ts=4
+# fin!

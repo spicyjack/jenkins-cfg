@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# run the Jenkins CLI jar file
+function jenkcli {
+    JAVA_BIN=$(which java)
+    # for use with proxying
+    $JAVA_BIN -jar ~/bin/jenkins-cli.jar -s http://localhost:8080/jenkins "$@"
+}
+
+# vi: set ft=sh sw=4 ts=4
+# fin!

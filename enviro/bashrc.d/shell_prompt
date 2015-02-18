@@ -1,34 +1,117 @@
 #!/bin/bash
 
-# environment variables
-H_GREEN="\[\e[0;32;40m\]"
-H_BLUE="\[\e[1;34;40m\]"
-HOSTNAMES="[xaoc\.local|lagrange|observer|yabloko]"
 set_ps1 () {
-    if [ "x$JENKINS_HOME" == "x" ]; then
-        LAST_CMD=$?
-        if [ $(echo ${HOSTNAME} | egrep -c "${HOSTNAMES}") -gt 0 ]; then
-            HOST_COLOR=${H_GREEN}
-        else
-            HOST_COLOR=${H_BLUE}
-        fi
-        if [ ${LAST_CMD} -eq 0 ]; then
-            PS1_HOST="[${HOST_COLOR}\h\[\e[0m\]]"
-        else
-            PS1_HOST="[\[\e[0;31;40m\]\h\[\e[0m\]]"
-        fi
-        PS1_USER="[\[\e[0;36;40m\]\u\[\e[0m\]"
-        PS1_PATH=" \[\e[0;35;40m\]\W\[\e[0m\]]\\$ "
-        PS1="${PS1_HOST}${PS1_USER}${PS1_PATH}"
-    else
-        PS1="[${BUILD_TAG}]"
-    fi
-}
-unset PS3 PS1_HOST PS1_USER PS1_PATH
-PROMPT_COMMAND=set_ps1
-PS2="\[\e[0;1m\]>\[\e[0m\] "
-PS4="\[\e[1;32m\]+\[\e[0m\] "
-export PS1 PS2 PS4 
+    LAST_CMD=$?
 
-# vi: set ft=sh sw=4 ts=4
+    # list of hostnames that receive special colors
+    HOSTNAMES="hostname"
+    # list of usernames that receive special colors
+    SERVICE_USERS="jenkins|icinga|icinga-cmd"
+
+    # ANSI tail, sets color to normal
+    C_END="\[\e[0m\]"
+
+    C_BLUE="\[\e[1;34;40m\]"
+    C_GREEN="\[\e[0;32;40m\]"
+    C_RED="\[\e[0;31;40m\]"
+    C_CYAN="\[\e[0;36;40m\]"
+    C_MAGENTA="\[\e[0;35;40m\]"
+    C_YELLOW="\[\e[0;33;40m\]"
+
+    # ANSI escape codes: http://en.wikipedia.org/wiki/ANSI_escape_code
+    # host colors
+    # - blue = generic host
+    # - green = known host, last command exited with zero status
+    # - red = known host, last command exited with non-zero status
+    # git dirty status
+    # - green - current branch is not dirty
+    # - red - current branch is dirty
+
+    ### Set up PS1_HOST
+    if [ $(echo ${HOSTNAME} | egrep -c "${HOSTNAMES}") -gt 0 ]; then
+        HOST_COLOR=${C_GREEN}
+    else
+        HOST_COLOR=${C_BLUE}
+    fi
+    # speshul case for grom
+    if [ $(echo ${HOSTNAME} | egrep -c "grom") -gt 0 ]; then
+        HOST_STRING="гром"
+    else
+        HOST_STRING="\h"
+    fi
+    ### Set up PS1_HOST
+    # HOST_COLOR + HOST_STRING = PS1_HOST
+    if [ ${LAST_CMD} -eq 0 ]; then
+        PS1_HOST="[${HOST_COLOR}${HOST_STRING}${C_END}]"
+    else
+        PS1_HOST="[${C_RED}${HOST_STRING}${C_END}]"
+    fi
+    ### Set up PS1_USER
+    if [ $(echo ${USER} | egrep -c "${SERVICE_USERS}") -gt 0 ]; then
+        # service users get yellow
+        PS1_USER="[${C_YELLOW}\u\[\e[0m\]"
+    else
+        # normal users get cyan
+        PS1_USER="[${C_CYAN}\u\[\e[0m\]"
+    fi
+    ### Show Git status
+    PS1_GIT_STATUS=$(__git_ps1 "%s")
+    if [ "x${PS1_GIT_STATUS}" != "x" ]; then
+        # default status; no changes, green color
+        GIT_STATUS=$C_GREEN
+        # check for a dirty tree
+        $(git diff --no-ext-diff --quiet --exit-code)
+        if [ $? -gt 0 ]; then
+            # dirty tree; git status is red (unstaged symbol = +)
+            GIT_STATUS=$C_RED
+        else
+            # dirty tree; git status is yellow (staged symbol = *)
+            $(git diff-index --cached --quiet HEAD)
+            if [ $? -gt 0 ]; then
+                # dirty tree; git status is red
+                GIT_STATUS=$C_YELLOW
+            else
+                # check for untracked files (original symbol: %)
+                # show blue for untracked files
+                if [ "x$(git ls-files --others --exclude-standard)" != "x" ];
+                then
+                    GIT_STATUS=$C_BLUE
+                fi
+                # FIXME no check for stashed files (original symbol: $)
+            fi
+        fi
+        PS1_GIT_STATUS="${GIT_STATUS}[${PS1_GIT_STATUS}]${C_END}"
+    fi
+    ### Set up PS1_PATH
+    PS1_PATH=" \[\e[0;35;40m\]\W\[\e[0m\]]"
+    PS1="${PS1_HOST}${PS1_USER}${PS1_PATH}${PS1_GIT_STATUS}\$ "
+
+    # unset things so they don't pollute the environment
+    unset PS3 PS1_HOST PS1_USER PS1_PATH PS1_GIT_STATUS
+    unset SERVICE_USERS HOSTNAMES HOST_STRING HOST_COLOR
+    unset C_END C_BLUE C_GREEN C_RED C_CYAN C_MAGENTA C_YELLOW
+}
+
+# if the current file descriptor is associated with a terminal...
+if [ -t ]; then
+    if [ "x${BASH_VERSION}" = "x" ]; then
+        # not bash, probably /bin/sh (dash)
+        PS1="$ "
+        PS2="> "
+        PS4="+ "
+    else
+        # bash
+        PROMPT_COMMAND=set_ps1
+        PS2="\[\e[0;1m\]>\[\e[0m\] "
+        PS4="\[\e[1;32m\]+\[\e[0m\] "
+    fi
+else
+    PS1="[\h][\u \W] "
+    PS2="> "
+    PS4="+ "
+fi
+
+export PS1 PS2 PS4
+
+# vi: set filetype=sh shiftwidth=4 tabstop=4
 # fin!

@@ -19,6 +19,9 @@ SCRIPTNAME=$(basename $0)
 # verbose script output by default
 QUIET=0
 
+# don't delete artifact files by default after unpacking
+DELETE_AFTER_UNPACK=0
+
 # default exit status
 EXIT_STATUS=0
 
@@ -29,8 +32,8 @@ EXIT_STATUS=0
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hq"
-GETOPT_LONG="help,quiet"
+GETOPT_SHORT="hqd"
+GETOPT_LONG="help,quiet,delete"
 # from 'common_jenknis_functions.sh'; sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -44,9 +47,15 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
+    -d|--delete         Delete artifact files after successfully unpacking
 
     Example usage:
+
+    # unpack artifact files, do not delete
     ${SCRIPTNAME} -- foo bar
+
+    # unpack artifact files, delete after successful unpack
+    ${SCRIPTNAME} --delete -- foo bar
 
     Note: artifact files should be named 'foo.artifact.tar.xz',
     'bar.artifact.tar.gz', etc.  The part of the filename that is unique to
@@ -70,6 +79,10 @@ while true ; do
         # don't output anything (unless there's an error)
         -q|--quiet)
             QUIET=1
+            shift;;
+        # delete artifact files after successfully unpacking them
+        -d|--delete)
+            DELETE_AFTER_UNPACK=1
             shift;;
         --) shift;
             break;;
@@ -104,6 +117,16 @@ if [ $# -gt 0 ]; then
         if [ -r "${WORKSPACE}/${ARTIFACT}.artifact.tar.xz" ]; then
             info "Unpacking artifact '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz)"
             tar -Jxvf ../${ARTIFACT}.artifact.tar.xz
+            check_exit_status $? "tar -Jxvf ${ARTIFACT}.artifact.tar.xz"
+            # $? is now the result of check_exit_status
+            if [ $? -eq 0 ]; then
+                info "Artifact unpacked successfully"
+                if [ $DELETE_AFTER_UNPACK -gt 0 ]; then
+                    info "Removing '$ARTIFACT' (${ARTIFACT}.artifact.tar.xz)"
+                fi
+            else
+                warn "Error unpacking artifact!"
+            fi
         else
             warn "ERROR: ${WORKSPACE}/${ARTIFACT}.artifact.tar.xz not found"
             EXIT_STATUS=1
@@ -128,7 +151,7 @@ if [ $# -gt 0 ]; then
             info "Munging libtool file: ${SHORT_MUNGE_FILE}"
             info "'sed' expression is: ${SED_EXPR}"
             sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-            # FIXME check_exit_status here
+            check_exit_status $? "sed -i ${SED_EXPR} ${MUNGE_FILE}"
     done
 fi
 

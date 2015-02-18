@@ -9,6 +9,8 @@
 # Clone:    https://github.com/spicyjack/jenkins-config.git
 # Issues:   https://github.com/spicyjack/jenkins-config/issues
 
+### Jenkins text display shell functions ###
+
 ## FUNC: say()
 ## ARG:  MESSAGE to be written on STDOUT
 ## ENV:  QUIET - the quietness level of the script
@@ -39,6 +41,49 @@ function warn {
     echo $MESSAGE >&2
 }
 
+### Other Jenkins shell functions ###
+
+## FUNC: add_additional_paths()
+## ARG:  ADDITIONAL_PATHS, paths to check for and add to $PATH
+## DESC: Adds any additional paths specified in front of all other paths in the
+## DESC: user's $PATH environment variable
+add_additional_paths () {
+    local ADDITIONAL_PATHS="$1"
+
+    for ADDPATH in $(echo ${ADDITIONAL_PATHS});
+    do
+        if [ $(echo ${PATH} | grep -c ${ADDPATH}) -eq 0 ]; then
+            PATH=${ADDPATH}:$PATH
+        #else
+        #    echo "Path: $ADDPATH already exists in \$PATH"
+        fi
+    done
+    unset ADDITONAL_PATHS ADDPATH
+    # XXX to export or not to export, that is the question
+    export PATH
+}
+
+## FUNC: add_usr_local_paths()
+## DESC: Adds paths in /usr/local (/usr/local/bin, /usr/local/sbin) via the
+## DESC: add_additonal_paths shell function
+add_usr_local_paths () {
+    add_additional_paths "/usr/local/bin /usr/local/sbin"
+}
+
+## FUNC: check_env_variable()
+## ARG:  ENV_VAR_NAME, display name of the environment variable
+## ARG:  ENV_VAR, the environment variable to check
+## DESC: Checks to see if a variable is set in the environment
+check_env_variable () {
+    local ENV_VAR_NAME="$1"
+    local ENV_VAR="$2"
+
+    if [ -z $ENV_VAR ]; then
+        warn "ERROR: environment variable ${ENV_VAR_NAME} unset"
+        exit 1
+    fi
+}
+
 ## FUNC: check_exit_status()
 ## ARG:  EXIT_STATUS - Returned exit status code of that function
 ## ARG:  STATUS_MSG - Status message, usually the command that was run
@@ -63,6 +108,16 @@ check_exit_status () {
     fi
     return $EXIT_STATUS
 } # check_exit_status
+
+## FUNC: generate_artifact_timestamp()
+## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
+## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
+## DESC: output directory, so when the artifact is used at a later point in
+## DESC: time, you can tell when it was built, and with what version of the
+## DESC: source code it was built
+function generate_artifact_timestamp {
+    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
+}
 
 ## FUNC: run_getopt status()
 ## ARG:  GETOPT_SHORT - 'short' values to be used with 'getopt'
@@ -113,20 +168,6 @@ run_getopt() {
     fi
 }
 
-## FUNC: check_env_variable()
-## ARG:  ENV_VAR_NAME, display name of the environment variable
-## ARG:  ENV_VAR, the environment variable to check
-## DESC: Checks to see if a variable isset in the environment
-check_env_variable () {
-    local ENV_VAR_NAME="$1"
-    local ENV_VAR="$2"
-
-    if [ -z $ENV_VAR ]; then
-        warn "ERROR: environment variable ${ENV_VAR_NAME} unset"
-        exit 1
-    fi
-}
-
 ## FUNC: show_script_header()
 ## ENV:  QUIET - the quietness level of the script
 ## DESC: Prints out a nicely formatted script header, if $QUIET is not set
@@ -136,16 +177,6 @@ show_script_header () {
         say "=-=-= ${SCRIPTNAME} =-=-="
         info "Run date: ${RUN_DATE}"
     fi
-}
-
-## FUNC: generate_artifact_timestamp()
-## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
-## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
-## DESC: output directory, so when the artifact is used at a later point in
-## DESC: time, you can tell when it was built, and with what version of the
-## DESC: source code it was built
-function generate_artifact_timestamp {
-    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
 }
 
 #   This program is free software; you can redistribute it and/or modify

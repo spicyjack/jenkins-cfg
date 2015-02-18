@@ -25,7 +25,19 @@ EXIT_STATUS=0
 
 ### SCRIPT SETUP ###
 # source jenkins functions
-source ~/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+SCRIPT_FULL_PATH=$(dirname ${0})
+if [ -r "${SCRIPT_FULL_PATH}/common_jenkins_functions.sh" ]; then
+    # I think the 'source' function only works in bash
+    #. ${MY_FULL_PATH}/common_jenkins_functions.sh
+    echo "Sourcing ${SCRIPT_FULL_PATH}/common_jenkins_functions.sh"
+    source ${SCRIPT_FULL_PATH}/common_jenkins_functions.sh
+    # add paths under /usr/local
+    add_usr_local_paths
+else
+    echo "ERROR: Can't find common_jenkins_functions.sh script!"
+    echo "ERROR: Checked path: ${SCRIPT_FULL_PATH}"
+fi
+unset SCRIPT_FULL_PATH
 
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"

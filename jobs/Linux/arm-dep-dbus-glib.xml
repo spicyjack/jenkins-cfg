@@ -77,7 +77,7 @@ http://dbus.freedesktop.org/releases/dbus-glib/&lt;/a&gt;</description>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>### UNPACK BUILD ARTIFACTS
-/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
  -- expat libglib
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>

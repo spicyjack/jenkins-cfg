@@ -102,7 +102,7 @@ https://sourceforge.net/projects/prboom-plus/files/prboom-plus/&lt;/a&gt;</descr
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
  -- libsdl libsdl_image libsdl_mixer libsdl_net libsdl_ttf freetype
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh --file sdl-config --unmunge

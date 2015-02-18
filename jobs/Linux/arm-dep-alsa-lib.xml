@@ -68,7 +68,7 @@ ftp://ftp.alsa-project.org/pub/lib/&lt;/a&gt;</description>
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
 # -- libogg libvorbis flac
 #/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>

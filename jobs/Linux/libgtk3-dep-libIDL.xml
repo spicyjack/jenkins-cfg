@@ -79,7 +79,7 @@ http://ftp.gnome.org/pub/GNOME/sources/libIDL/0.8/&lt;/a&gt;</description>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
   -- intltool libglib libffi
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>

@@ -139,7 +139,7 @@ fi</command>
     </hudson.plugins.copyartifact.CopyArtifact>
     <hudson.tasks.Shell>
       <command>### UNPACK AND MUNGE BUILD ARTIFACTS
-/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh \
+/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
  -- libglib libffi freetype fontconfig harfbuzz libpango libatk libgdk-pixbuf
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>

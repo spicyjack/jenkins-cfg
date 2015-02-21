@@ -236,9 +236,11 @@ if [ $NO_CONFIGURE -eq 0 ]; then
         fi
         info "Running: ${CONFIGURE_CMD}"
         info "Saving output of ${CONFIGURE_CMD} to file 'config.out' for tests"
-        eval $CONFIGURE_CMD 2>&1 | tee config.out
+        eval $CONFIGURE_CMD > config.out 2>&1
         check_exit_status $? "$CONFIGURE_CMD" " "
         EXIT_STATUS=$?
+        info "Output of ./configure script:"
+        cat config.out
         info "Changing back to start directory ${START_DIR}"
         cd $START_DIR
     else

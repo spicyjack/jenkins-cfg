@@ -25,7 +25,7 @@ using the list of &lt;code&gt;BUILD_ARCH&lt;/code&gt; parameters:&#xd;
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -60,7 +60,7 @@ using the list of &lt;code&gt;BUILD_ARCH&lt;/code&gt; parameters:&#xd;
 #  fi
 #done</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.22">
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.25">
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
           <configs>
@@ -96,7 +96,7 @@ PKG_VERSION=${BUSYBOX_VERSION}</properties>
         </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
       </configs>
     </hudson.plugins.parameterizedtrigger.TriggerBuilder>
-    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.22">
+    <hudson.plugins.parameterizedtrigger.TriggerBuilder plugin="parameterized-trigger@2.25">
       <configs>
         <hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
           <configs>
@@ -132,16 +132,11 @@ PKG_VERSION=${BUSYBOX_VERSION}</properties>
         </hudson.plugins.parameterizedtrigger.BlockableBuildTriggerConfig>
       </configs>
     </hudson.plugins.parameterizedtrigger.TriggerBuilder>
-    <hudson.tasks.Shell>
-      <command>### CLEAN SOURCE DIRECTORY
-cd ${PKG_NAME}-${PKG_VERSION}
-make clean
-
-### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
-/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
-  -- $WORKSPACE/output $WORKSPACE/artifacts</command>
-    </hudson.tasks.Shell>
   </builders>
   <publishers/>
-  <buildWrappers/>
+  <buildWrappers>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+  </buildWrappers>
 </project>

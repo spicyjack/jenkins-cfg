@@ -38,7 +38,7 @@ http://ftp.gnome.org/pub/gnome/sources/gtk+/3.6/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -56,87 +56,99 @@ http://ftp.gnome.org/pub/gnome/sources/gtk+/3.6/&lt;/a&gt;</description>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libglib</project>
       <filter>libglib.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libglib-dep-libffi</project>
       <filter>libffi.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libcairo-dep-libpixman</project>
       <filter>pixman.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libcairo</project>
       <filter>libcairo.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libpango-dep-fontconfig</project>
       <filter>fontconfig.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libpango-dep-harfbuzz</project>
       <filter>harfbuzz.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libpango-dep-freetype</project>
       <filter>freetype.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libpango</project>
       <filter>libpango.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libgtk2-dep-atk</project>
       <filter>libatk.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libgtk2-dep-gdk-pixbuf</project>
       <filter>libgdk-pixbuf.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libgtk3-dep-at-spi</project>
       <filter>libat-spi.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.34">
       <project>libgtk3-dep-intltool</project>
       <filter>intltool.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -194,8 +206,12 @@ make clean
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.xvnc.Xvnc plugin="xvnc@1.14">
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <hudson.plugins.xvnc.Xvnc plugin="xvnc@1.21">
       <takeScreenshot>true</takeScreenshot>
+      <useXauthority>true</useXauthority>
     </hudson.plugins.xvnc.Xvnc>
   </buildWrappers>
 </project>

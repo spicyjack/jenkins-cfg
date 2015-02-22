@@ -44,8 +44,26 @@ unset SCRIPT_FULL_PATH
 #check_env_variable "$PRIVATE_STAMP_DIR" "PRIVATE_STAMP_DIR"
 #check_env_variable "$PUBLIC_STAMP_DIR" "PUBLIC_STAMP_DIR"
 
-GETOPT_SHORT="hqp"
-GETOPT_LONG="help,quiet,path,munge-path"
+# munge the 'prefix=' parameter found in files that are passed in
+munge_prefix () {
+    local MUNGE_FILE="$1"
+    # '^prefix=' is in pkgconfig '*.pc' files and files like 'sdl-config',
+    # 'libmikmod-config', etc.
+    SED_EXPR="s!^prefix=/usr!prefix=${WORKSPACE}/artifacts/usr!g"
+    info "Munging file: '${MUNGE_FILE}'"
+    info "('sed' expression: ${SED_EXPR})"
+    sed -i "${SED_EXPR}" "${MUNGE_FILE}"
+    check_exit_status $? "sed -i ${SED_EXPR} ${munge_prefix}"
+    # $? is now the result of check_exit_status
+    if [ $? -eq 0 ]; then
+        info "Munge successful"
+    else
+        warn "Munge unsuccessful!"
+    fi
+}
+
+GETOPT_SHORT="hq"
+GETOPT_LONG="help,quiet"
 # from 'common_jenknis_functions.sh'; sets GETOPT_TEMP
 # pass in $@ unquoted so it expands, and run_getopt() will then quote it "$@"
 # when it goes to re-parse script arguments
@@ -59,32 +77,13 @@ cat <<-EOF
     SCRIPT OPTIONS
     -h|--help           Displays this help message
     -q|--quiet          No script output (unless an error occurs)
-    -p|--path           Change 'prefix=' to \$WORKSPACE/<path>
 
     Example usage:
 
     # Munge files passed in as arguments
-    ${SCRIPTNAME} --path /path/to/libs -- /path/to/dir /path/to/file.pc
+    ${SCRIPTNAME} -- /path/to/dir /path/to/file.pc
 
 EOF
-}
-
-# munge the 'prefix=' parameter found in files that are passed in
-munge_prefix () {
-    local MUNGE_FILЕ=$1
-    #SHORT_MUNGE_FILE=$(echo ${MUNGE_FILE} | sed "{s!${WORKSPACE}!!;s!^/!!}")
-    # '^prefix=' is in pkgconfig '*.pc' files
-    SED_EXPR="s!^prefix=/usr!prefix=${WORKSPACE}/artifacts/${MUNGE_DEST_PATH}!g"
-    info "Munging file: ${MUNGE_FILE}"
-    info "('sed' expression: ${SED_EXPR})"
-    #sed -i "${SED_EXPR}" "${MUNGE_FILE}"
-    #check_exit_status $? "sed -i ${SED_EXPR} ${MUNGE_FILE}"
-    # $? is now the result of check_exit_status
-    #if [ $? -eq 0 ]; then
-    #    info "Munge successful"
-    #else
-    #    warn "Munge unsuccessful!"
-    #fi
 }
 
 # Note the quotes around `$GETOPT_TEMP': they are essential!
@@ -129,11 +128,11 @@ if [ $# -gt 0 ]; then
             find "${MUNGE_ARG}" -print0 | egrep --null-data --null '.la$|.pc$' \
                     | sort -z | while IFS= read -d $'\0' MUNGE_FILE;
             do
-                munge_file $MUNGE_FILE
+                munge_prefix $MUNGE_FILE
             done
 
         elif [ -f "${MUNGE_ARG}" ]; then
-            info "Munging file '${MUNGE_ARG}'"
+            munge_prefix $MUNGE_ARG
         else
             warn "${MUNGE_ARG} is not a file or directory"
             EXIT_STATUS=1
@@ -141,6 +140,10 @@ if [ $# -gt 0 ]; then
         # pop the file off of the arg stack
         shift
     done
+else
+    warn "ERROR: no files passed in to script"
+    warn "ERROR: use --help to see all script options"
+    exit 1
 fi
 
 if [ $EXIT_STATUS -gt 0 ]; then

@@ -235,8 +235,12 @@ if [ $NO_CONFIGURE -eq 0 ]; then
             CONFIGURE_CMD="${CONFIGURE_CMD} --host=${CROSS_HOST_ARCH}"
         fi
         info "Running: ${CONFIGURE_CMD}"
+        echo "======= CONFIGURE COMMAND ========" > config.out 2>&1
+        echo $CONFIGURE_COMMAND >> config.out 2>&1
+        echo >> config.out 2>&1
         info "Saving output of ${CONFIGURE_CMD} to file 'config.out' for tests"
-        eval $CONFIGURE_CMD > config.out 2>&1
+        echo "======= CONFIGURE OUTPUT ========" > config.out 2>&1
+        eval $CONFIGURE_CMD >> config.out 2>&1
         check_exit_status $? "$CONFIGURE_CMD" " "
         EXIT_STATUS=$?
         info "Output of ./configure script:"

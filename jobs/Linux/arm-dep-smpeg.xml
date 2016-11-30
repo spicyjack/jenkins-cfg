@@ -6,15 +6,18 @@ Builds with: GNU make&lt;br&gt;&#xd;
 Homepage: &lt;a href=&quot;http://icculus.org/smpeg/&quot;&gt;http://icculus.org/smpeg/&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://svn.icculus.org/smpeg/&quot;&gt;&#xd;
 http://svn.icculus.org/smpeg/&lt;/a&gt;</description>
-  <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>-1</daysToKeep>
-    <numToKeep>5</numToKeep>
-    <artifactDaysToKeep>-1</artifactDaysToKeep>
-    <artifactNumToKeep>-1</artifactNumToKeep>
-  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -40,7 +43,6 @@ http://svn.icculus.org/smpeg/&lt;/a&gt;</description>
         </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.23"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -63,10 +65,11 @@ http://svn.icculus.org/smpeg/&lt;/a&gt;</description>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/delete_dir.sh \
   -- $WORKSPACE/output $WORKSPACE/artifacts</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.29">
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.38.1">
       <project>arm-libsdl</project>
       <filter>libsdl.artifact.tar.xz</filter>
       <target></target>
+      <excludes></excludes>
       <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
       <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
     </hudson.plugins.copyartifact.CopyArtifact>
@@ -99,7 +102,7 @@ fi</command>
     <hudson.tasks.Shell>
       <command># Source the crosstool-ng shell script; 
 # this adds the cross toolchain to $PATH
-source ~/.bashrc.d/crosstool-ng
+source ~/.bashrc.d/crosstool-ng-env
 
 # change into the source tree
 cd ${WORKSPACE}/${PKG_NAME}-${PKG_SVN_TAG}.svn
@@ -139,7 +142,7 @@ time make install
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>### CLEAN SOURCE DIRECTORY
-cd ${PKG_NAME}-${PKG_VERSION}
+cd ${PKG_NAME}-${PKG_SVN_TAG}.svn
 make clean
 
 ### DELETE OUTPUT AND ARTIFACTS DIRECTORIES
@@ -154,10 +157,11 @@ make clean
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.3.1">
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
   </buildWrappers>

@@ -84,11 +84,13 @@ fi
   --pkgdir $HOME/pkgs \
   --output $WORKSPACE/artifacts \
   --target-arch $BUILD_ARCH \
-  --  libasound2-dev libdbus-1-dev libflac-dev libglib2.0-dev \
-    libmikmod2-dev libogg-dev \
-    libsdl1.2-dev libsdl_mixer1.2-dev libsdl_net1.2-dev \
-    libsmpeg-dev libsndfile1-dev libvorbis-dev util-linux
-    </command>
+  --  libasound2 libasound2-dev libdbus-1-3 libdbus-1-dev \
+    libflac8 libflac-dev libglib2.0-0 libglib2.0-dev \
+    libmikmod2 libmikmod2-dev libogg0 libogg-dev \
+    libsdl1.2debian libsdl1.2-dev libsdl-mixer1.2 libsdl_mixer1.2-dev \
+    libsdl-net1.2 libsdl_net1.2-dev \
+    libsmpeg0 libsmpeg-dev libsndfile1 libsndfile1-dev \
+    libvorbis0a libvorbis-dev util-linux</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#/bin/bash $HOME/src/jenkins/config.git/scripts/unpack_build_artifacts.sh --delete \
@@ -104,6 +106,14 @@ fi
 
 # munge RPATH
 #/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>### MUNGE PACKAGE FILES
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_pkg_contents.sh \
+  -- artifacts/usr/bin/sdl-config \
+  artifacts/usr/bin/libmikmod-config \
+  artifacts/usr/bin/smpeg-config \
+  artifacts/usr/lib/powerpc-linux-gnu/pkgconfig</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \

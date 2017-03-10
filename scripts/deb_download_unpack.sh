@@ -158,6 +158,9 @@ set_package_filename_url () {
         download ${PACKAGE_NAME})
     SCRIPT_EXIT=$?
     check_exit_status $SCRIPT_EXIT "apt-get --print-uris" "$APT_GET_OUT"
+    if [ $SCRIPT_EXIT -gt 0 ]; then
+       exit $SCRIPT_EXIT
+    fi
 
     PKG_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
     PKG_URL=$(echo ${PKG_URL} | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")

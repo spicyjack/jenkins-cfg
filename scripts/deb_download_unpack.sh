@@ -156,7 +156,9 @@ set_package_filename_url () {
     # architecture
     APT_GET_OUT=$(/usr/bin/apt-get --dry-run --print-uris \
         download ${PACKAGE_NAME})
-    info "'apt-get' command output: ${APT_GET_OUT}"
+    SCRIPT_EXIT=$?
+    check_exit_status $SCRIPT_EXIT "apt-get --print-uris" "$APT_GET_OUT"
+
     PKG_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
     PKG_URL=$(echo ${PKG_URL} | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")
     PKG_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')

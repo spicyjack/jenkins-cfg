@@ -156,6 +156,7 @@ set_package_filename_url () {
     # architecture
     APT_GET_OUT=$(/usr/bin/apt-get --dry-run --print-uris \
         download ${PACKAGE_NAME})
+    info "'apt-get' command output: ${APT_GET_OUT}"
     PKG_URL=$(echo ${APT_GET_OUT} | awk '{print $1}')
     PKG_URL=$(echo ${PKG_URL} | sed "s/_${HOST_ARCH}/_${TARGET_ARCH}/")
     PKG_FILENAME=$(echo ${APT_GET_OUT} | awk '{print $2}')
@@ -274,10 +275,10 @@ done
 
     # let the user see script settings before running
     info "Script options:"
-    info "Host architecture: ${HOST_ARCH}"
-    info "Target architecture: ${TARGET_ARCH}"
-    info "Package directory: ${PKG_DIR}"
-    info "Output directory: ${OUTPUT_DIR}"
+    info "- Host architecture: ${HOST_ARCH}"
+    info "- Target architecture: ${TARGET_ARCH}"
+    info "- Package directory: ${PKG_DIR}"
+    info "- Output directory: ${OUTPUT_DIR}"
 
     # check to see if PKG_DIR exists; if not create it
     if [ ! -d $PKG_DIR ]; then

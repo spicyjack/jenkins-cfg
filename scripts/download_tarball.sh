@@ -29,14 +29,13 @@ unset SCRIPT_FULL_PATH
 ### MAIN SCRIPT ###
 # what's my name?
 SCRIPTNAME=$(basename $0)
-# path to the perl binary
 
 # verbose script output by default
 QUIET=0
 
 ### SCRIPT SETUP ###
-GETOPT_SHORT="f:hl:o:qu:"
-GETOPT_LONG="file:,help,log:,outdir:,quiet,url:"
+GETOPT_SHORT="c:f:hl:o:qu:"
+GETOPT_LONG="compare:,file:,help,log:,outdir:,quiet,url:"
 # sets GETOPT_TEMP
 # # pass in $@ unquoted so it expands, and run_getopt() will then quote it
 # "$@"
@@ -53,9 +52,14 @@ cat <<-EOF
     -q|--quiet      No script output (unless an error occurs)
     -o|--outdir     Output directory to download the --file into
     -f|--file       Name of tarball file to download
+    -c|--compare    Compare checksums, overwrite this file if different
     -l|--log        Logfile for wget to write to; default is STDERR
     -u|--url        Base URL where --file can be found and downloaded from
-    NOTE: Long switches (a GNU extension) do not work on BSD systems (OS X)
+
+    NOTES:
+    - Long switches (a GNU extension) do not work on BSD systems (OS X)
+    - The '--compare' switch will cause the downloaded file to overwrite the
+      file given by the '--compare' switch if the checksums differ
 
     Example usage:
     sh download.sh -o ~/tmp -f perl-5.16.2.tar.gz \\
@@ -103,6 +107,10 @@ while true ; do
         -q|--quiet)
             QUIET=1
             shift;;
+        # compare (checksum) the downloaded file with this file
+        -c|--compare)
+            COMPARE_FILE=$2;
+            shift 2;;
         # tarball file that needs to be downloaded
         -f|--file)
             TARBALL=$2;

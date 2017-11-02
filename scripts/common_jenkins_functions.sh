@@ -179,6 +179,23 @@ show_script_header () {
    fi
 }
 
+## FUNC: job_step_header()
+## ENV:  QUIET - the quietness level of the script
+## DESC: Prints out a nicely formatted job step header, if $QUIET is not set
+job_step_header () {
+   local HEADER_TEXT=$1
+   if [ $QUIET -ne 1 ]; then
+      # get a count of how many characters the header is
+      HEADER_COUNT=$(echo ${HEADER_TEXT} | wc -c)
+      # add '8' to that countl for adding hashmarks at both ends
+      HEADER_COUNT=$(( $HEADER_COUNT + 8 ))
+      # print the header; convert spaces to equals signs
+      printf "=%${HEADER_COUNT}s\n" | tr " " "="
+      echo "==== ${HEADER_TEXT} ===="
+      printf "=%${HEADER_COUNT}s\n" | tr " " "="
+   fi
+}
+
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation; version 2 dated June, 1991.

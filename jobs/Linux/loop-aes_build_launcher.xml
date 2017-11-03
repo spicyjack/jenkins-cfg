@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>&lt;p&gt;Launch jobs required to build the full stack of utilities (Linux kernel, util-linux utilities, gnupg1) to build the entire loop-AES stack&lt;/p&gt;&#xd;
+&#xd;
+&lt;p&gt;loop-AES kernel module, compiled for the VIA C7 processor family&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://loop-aes.sourceforge.net/&quot;&gt;&#xd;
+http://loop-aes.sourceforge.net/&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://loop-aes.sourceforge.net/loop-AES/&quot;&gt;&#xd;
+http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>KERNEL_VERSION</name>
+          <description>Linux kernel version</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>3.19.8</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;==========================================&quot;
+echo &quot;==== UPDATING JENKINS CONFIG GIT REPO ====&quot;
+echo &quot;==========================================&quot;
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;======================================&quot;
+echo &quot;==== DOWNLOADING LOOP-AES TARBALL ====&quot;
+echo &quot;======================================&quot;
+
+# old script
+#/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+#  --file loop-AES-latest.tar.bz2 \
+#  --url http://loop-aes.sourceforge.net \
+#  --log $WORKSPACE/wget.loop-AES.log \
+#  --outdir $TARBALL_DIR
+
+DATE_STAMP=$(date +%Y-%m-%d.%H%M)
+LOOP_AES_DL_FILE=&quot;loop-aes.${DATE_STAMP}.tar.bz2&quot;
+# download the tarball with a new name
+
+wget -O ${TARBALL_DIR}/${LOOP_AES_DL_FILE} \
+  http://loop-aes.sourceforge.net/loop-AES-latest.tar.bz2
+
+echo &quot;Checking to see if &apos;${TARBALL_DIR}/loop-AES-latest.tar.bz2&apos; exists&quot;
+if [ -f &quot;${TARBALL_DIR}/loop-AES-latest.tar.bz2&quot; ]; then
+  # checksum it with the old tarball
+  # (if any); if the new tarball has a different checksum, use it
+  NEW_DOWNLOAD_MD5SUM=$(md5sum \
+    ${TARBALL_DIR}/loop-aes.${DATE_STAMP}.tar.bz2 | awk &apos;{print $1}&apos;)
+  EXISTING_DOWNLOAD_MD5SUM=$(md5sum \
+    ${TARBALL_DIR}/loop-AES-latest.tar.bz2 | awk &apos;{print $1}&apos;)
+
+  echo &quot;- Checksums:&quot;
+  echo &quot;  Existing tarball: $EXISTING_DOWNLOAD_MD5SUM&quot;
+  echo &quot;       New tarball: $NEW_DOWNLOAD_MD5SUM&quot;
+  
+  if [ $NEW_DOWNLOAD_MD5SUM = $EXISTING_DOWNLOAD_MD5SUM ]; then
+    echo &quot;- Newly downloaded loop-AES tarball ${LOOP_AES_DL_FILE}&quot;
+    echo &quot;  checksum matches existing &apos;loop-AES-latest&apos; tarball&quot;
+    echo &quot;- Deleting newly downloaded tarball ${LOOP_AES_DL_FILE}&quot;
+    rm -f ${TARBALL_DIR}/${LOOP_AES_DL_FILE}
+  else
+    echo &quot;- Newly downloaded loop-AES tarball ${LOOP_AES_DL_FILE}&quot;
+    echo &quot;  checksum does not match existing &apos;loop-AES-latest&apos; tarball&quot;
+    echo &quot;- Overwriting existing file with new file&quot;
+    mv -vf ${TARBALL_DIR}/${LOOP_AES_DL_FILE} \
+      ${TARBALL_DIR}/loop-AES-latest.tar.bz2
+  fi
+fi
+echo
+
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;==================================================&quot;
+echo &quot;==== UNPACKING AND SETTING UP LOOP-AES SOURCE ====&quot;
+echo &quot;==================================================&quot;
+
+tar -jxvf ${WORKSPACE}/loop-AES-latest.tar.bz2
+LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
+  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
+echo &quot;loop-AES directory is: ${LOOP_AES_DIR}&quot;
+cd ${WORKSPACE}/${LOOP_AES_DIR}
+make clean
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>echo &quot;========================================================&quot;
+echo &quot;==== UNPACKING AND SETTING UP LINUX KERNEL ARTIFACT ====&quot;
+echo &quot;========================================================&quot;
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;======================================&quot;
+echo &quot;==== CREATING &apos;output/&apos; DIRECTORY ====&quot;
+echo &quot;======================================&quot;
+mkdir ${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;===========================&quot;
+echo &quot;==== BUILDING LOOP-AES ====&quot;
+echo &quot;===========================&quot;
+
+LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
+  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
+echo &quot;loop-AES directory is: ${LOOP_AES_DIR}&quot;
+
+cd ${WORKSPACE}/${LOOP_AES_DIR}
+time make -j4 INSTALL_MOD_PATH=${WORKSPACE}/output \
+  LINUX_SOURCE=${WORKSPACE}/linux-${KERNEL_VERSION} \
+  KEYSCRUB=y PADLOCK=y INTELAES=y EXTRA_CIPHERS=y</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+echo &quot;=================================&quot;
+echo &quot;==== CREATING BUILD ARTIFACT ====&quot;
+echo &quot;=================================&quot;
+
+cd output; tar -cJvf ${WORKSPACE}/linux_kernel-${KERNEL_VERSION}.loop-aes.artifact.tar.xz .</command>
+    </hudson.tasks.Shell>
+    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.38.1">
+      <project>linux_kernel_viac7</project>
+      <filter></filter>
+      <target></target>
+      <excludes></excludes>
+      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
+      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
+    </hudson.plugins.copyartifact.CopyArtifact>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>linux_kernel-*.loop-aes.artifact.tar.xz</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
+      <script># set up the path to downloaded files
+echo TARBALL_DIR=${HOME}/source</script>
+      <scriptType>unixScript</scriptType>
+      <runOnlyOnParent>false</runOnlyOnParent>
+      <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>
+    </com.lookout.jenkins.EnvironmentScript>
+  </buildWrappers>
+</project>

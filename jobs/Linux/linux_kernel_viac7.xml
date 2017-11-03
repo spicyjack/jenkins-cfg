@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Linux kernel&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://www.kernel.org/&quot;&gt;&#xd;
+http://www.kernel.org&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.kernel.org&quot;&gt;&#xd;
+http://www.kernel.org&lt;/a&gt;&lt;br&gt;</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>KERNEL_VERSION</name>
+          <description>Version of the kernel source to download and build</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>3.19.8</string>
+              <string>3.9.4</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### UPDATE JENKINS CONFIGS GIT REPO
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git
+# Get the current git commit in the repo
+cd $HOME/src/jenkins/config.git
+git log -1</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### UPDATE HOSTCFGS GIT REPO
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/hostcfgs.git
+# Get the current git commit in the repo
+cd $HOME/src/hostcfgs.git
+git log -1</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### DOWNLOAD KERNEL TARBALL
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file linux-${KERNEL_VERSION}.tar.xz \
+  --url https://www.kernel.org/pub/linux/kernel/v3.x \
+  --log $WORKSPACE/wget.linux-${KERNEL_VERSION}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### UNPACK KERNEL SOURCE &amp; SET UP
+tar -Jxvf $TARBALL_DIR/linux-${KERNEL_VERSION}.tar.xz
+cd ${WORKSPACE}/linux-${KERNEL_VERSION}
+make distclean
+cp ~/src/hostcfgs.git/combi/kernel_configs/config-${KERNEL_VERSION}-viac7 \
+  .config
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### CREATE OUTPUT DIRECTORY
+mkdir ${WORKSPACE}/output</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### BUILD LINUX KERNEL
+cd ${WORKSPACE}/linux-${KERNEL_VERSION}
+time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output
+time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output modules
+time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output modules_install</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### ARCHIVE THE BUILD OUTPUT
+cd output
+tar -cJvf ${WORKSPACE}/linux_kernel-${KERNEL_VERSION}.artifact.tar.xz .</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.tasks.ArtifactArchiver>
+      <artifacts>linux_kernel-*.artifact.tar.xz</artifacts>
+      <allowEmptyArchive>false</allowEmptyArchive>
+      <onlyIfSuccessful>false</onlyIfSuccessful>
+      <fingerprint>false</fingerprint>
+      <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
+    </hudson.tasks.ArtifactArchiver>
+  </publishers>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
+      <script># set up the path to downloaded files
+echo TARBALL_DIR=${HOME}/source
+# set up path to an installed copy of GCC on `lagrange`
+echo BUILD_CC=gcc-4.9</script>
+      <scriptType>unixScript</scriptType>
+      <runOnlyOnParent>false</runOnlyOnParent>
+      <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>
+    </com.lookout.jenkins.EnvironmentScript>
+  </buildWrappers>
+</project>

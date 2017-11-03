@@ -8,15 +8,18 @@ Homepage: &lt;a href=&quot;http://www.chocolate-doom.org/wiki/index.php/Chocolat
 http://www.chocolate-doom.org/wiki/index.php/Chocolate_Doom&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://tinyurl.com/cpt69pd&quot;&gt;&#xd;
 http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</description>
-  <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>-1</daysToKeep>
-    <numToKeep>5</numToKeep>
-    <artifactDaysToKeep>-1</artifactDaysToKeep>
-    <artifactNumToKeep>-1</artifactNumToKeep>
-  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>5</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
         <hudson.model.StringParameterDefinition>
@@ -29,6 +32,9 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
           <description>Version of chocolate-doom to build</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
+              <string>2.3.0</string>
+              <string>2.2.1</string>
+              <string>2.2.0</string>
               <string>2.1.0</string>
               <string>2.0.0</string>
               <string>1.7.0</string>
@@ -56,7 +62,6 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -79,7 +84,7 @@ http://sourceforge.net/projects/chocolate-doom/files/chocolate-doom&lt;/a&gt;</d
 if [ ! -d $WORKSPACE/artifacts ]; then
   mkdir $WORKSPACE/artifacts
 fi
-
+echo &quot;downloading debian archive files&quot;
 /bin/bash $HOME/src/jenkins/config.git/scripts/deb_download_unpack.sh \
   --pkgdir $HOME/pkgs \
   --output $WORKSPACE/artifacts \
@@ -87,8 +92,8 @@ fi
   --  libasound2 libasound2-dev libdbus-1-3 libdbus-1-dev \
     libflac8 libflac-dev libglib2.0-0 libglib2.0-dev \
     libmikmod2 libmikmod2-dev libogg0 libogg-dev \
-    libsdl1.2debian libsdl1.2-dev libsdl-mixer1.2 libsdl_mixer1.2-dev \
-    libsdl-net1.2 libsdl_net1.2-dev \
+    libsdl1.2debian libsdl1.2-dev libsdl-mixer1.2 libsdl-mixer1.2-dev \
+    libsdl-net1.2 libsdl-net1.2-dev \
     libsmpeg0 libsmpeg-dev libsndfile1 libsndfile1-dev \
     libvorbis0a libvorbis-dev util-linux</command>
     </hudson.tasks.Shell>
@@ -98,14 +103,14 @@ fi
 #    flac libogg libvorbis smpeg libsdl_mixer libsdl_net
 
 # sdl-config
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
-#  --file sdl-config --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file sdl-config --unmunge
 # libmikmod-config
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
-#  --file libmikmod-config --unmunge
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_lib_config.sh \
+  --file libmikmod-config --unmunge
 
 # munge RPATH
-#/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
+/bin/bash $HOME/src/jenkins/config.git/scripts/munge_rpath.sh</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>### MUNGE PACKAGE FILES
@@ -166,10 +171,11 @@ make clean
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.3">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
   </buildWrappers>

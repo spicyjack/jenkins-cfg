@@ -11,39 +11,39 @@
 
 ### Jenkins text display shell functions ###
 
-## FUNC: say()
+## FUNC: say
 ## ARG:  MESSAGE to be written on STDOUT
 ## ENV:  QUIET - the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
-function say {
+say () {
    local MESSAGE="$1"
    if [ $QUIET -ne 1 ]; then
       echo "$MESSAGE"
    fi
 }
 
-## FUNC: info()
+## FUNC: info
 ## ARG:  MESSAGE to be written on STDOUT, with an arrow '->'
 ## ENV:  QUIET - the quietness level of the script
 ## DESC: Check if $QUIET is set, and if not, write MESSAGE to STDOUT
-function info {
+info () {
    local MESSAGE="$1"
    if [ $QUIET -ne 1 ]; then
       echo "-> $MESSAGE"
    fi
 }
 
-## FUNC: warn()
+## FUNC: warn
 ## ARG:  MESSAGE - the message to be written to STDERR
 ## DESC: Always writes MESSAGE to STDERR (ignores $QUIET)
-function warn {
+warn () {
    local MESSAGE="$1"
    echo $MESSAGE >&2
 }
 
 ### Other Jenkins shell functions ###
 
-## FUNC: add_additional_paths()
+## FUNC: add_additional_paths
 ## ARG:  ADDITIONAL_PATHS, paths to check for and add to $PATH
 ## DESC: Adds any additional paths specified in front of all other paths in the
 ## DESC: user's $PATH environment variable
@@ -63,14 +63,14 @@ add_additional_paths () {
    export PATH
 }
 
-## FUNC: add_usr_local_paths()
+## FUNC: add_usr_local_paths
 ## DESC: Adds paths in /usr/local (/usr/local/bin, /usr/local/sbin) via the
 ## DESC: add_additonal_paths shell function
 add_usr_local_paths () {
    add_additional_paths "/usr/local/bin /usr/local/sbin"
 }
 
-## FUNC: check_env_variable()
+## FUNC: check_env_variable
 ## ARG:  ENV_VAR_NAME, display name of the environment variable
 ## ARG:  ENV_VAR, the environment variable to check
 ## DESC: Checks to see if a variable is set in the environment
@@ -84,7 +84,7 @@ check_env_variable () {
    fi
 }
 
-## FUNC: check_exit_status()
+## FUNC: check_exit_status
 ## ARG:  EXIT_STATUS - Returned exit status code of that function
 ## ARG:  STATUS_MSG - Status message, usually the command that was run
 ## RET:  Returns the value of EXIT_STATUS
@@ -109,24 +109,24 @@ check_exit_status () {
    return $EXIT_STATUS
 } # check_exit_status
 
-## FUNC: generate_artifact_timestamp()
+## FUNC: generate_artifact_timestamp
 ## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
 ## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
 ## DESC: output directory, so when the artifact is used at a later point in
 ## DESC: time, you can tell when it was built, and with what version of the
 ## DESC: source code it was built
-function generate_artifact_timestamp {
+generate_artifact_timestamp () {
    ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
 }
 
-## FUNC: run_getopt status()
+## FUNC: run_getopt
 ## ARG:  GETOPT_SHORT - 'short' values to be used with 'getopt'
 ## ARG:  GETOPT_LONG - 'long' values to be used with 'getopt'
 ## ARG:  $@ - The rest of the command-line arguments
 ## SETS: Sets $GETOPT_TEMP, a formatted list of command line options
 ## DESC: Sets up command line arguments for processing in the main script;
 ## DESC: Detects which OS and what versions of 'getopt' are available
-run_getopt() {
+run_getopt () {
    # use 'shift' to remove the first two arguments, prior to running getopt
    # with the value of "$@"
    local GETOPT_SHORT="$1"
@@ -168,7 +168,7 @@ run_getopt() {
    fi
 }
 
-## FUNC: show_script_header()
+## FUNC: show_script_header
 ## ENV:  QUIET - the quietness level of the script
 ## DESC: Prints out a nicely formatted script header, if $QUIET is not set
 show_script_header () {
@@ -179,7 +179,7 @@ show_script_header () {
    fi
 }
 
-## FUNC: job_step_header()
+## FUNC: job_step_header
 ## ENV:  QUIET - the quietness level of the script
 ## DESC: Prints out a nicely formatted job step header, if $QUIET is not set
 job_step_header () {

@@ -9,7 +9,9 @@
 # Clone:   https://github.com/spicyjack/jenkins-config.git
 # Issues:   https://github.com/spicyjack/jenkins-config/issues
 
+############################################
 ### Jenkins text display shell functions ###
+############################################
 
 ## FUNC: say
 ## ARG:  MESSAGE to be written on STDOUT
@@ -22,6 +24,7 @@ say () {
    fi
 }
 
+
 ## FUNC: info
 ## ARG:  MESSAGE to be written on STDOUT, with an arrow '->'
 ## ENV:  QUIET - the quietness level of the script
@@ -33,6 +36,7 @@ info () {
    fi
 }
 
+
 ## FUNC: warn
 ## ARG:  MESSAGE - the message to be written to STDERR
 ## DESC: Always writes MESSAGE to STDERR (ignores $QUIET)
@@ -41,7 +45,40 @@ warn () {
    echo $MESSAGE >&2
 }
 
-### Other Jenkins shell functions ###
+
+## FUNC: show_script_header
+## ENV:  QUIET - the quietness level of the script
+## DESC: Prints out a nicely formatted script header, if $QUIET is not set
+show_script_header () {
+   if [ $QUIET -ne 1 ]; then
+      RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
+      say "=-=-= ${SCRIPTNAME} =-=-="
+      info "Run date: ${RUN_DATE}"
+   fi
+}
+
+
+## FUNC: job_step_header
+## ENV:  QUIET - the quietness level of the script
+## DESC: Prints out a nicely formatted job step header, if $QUIET is not set
+job_step_header () {
+   local HEADER_TEXT=$1
+
+   # get a count of how many characters the header is
+   HEADER_COUNT=$(echo ${HEADER_TEXT} | wc -c)
+   # add '8' to that countl for adding hashmarks at both ends
+   HEADER_COUNT=$(( $HEADER_COUNT + 8 ))
+   # print the header; convert spaces to equals signs
+   printf "=%${HEADER_COUNT}s\n" | tr " " "="
+   echo "==== ${HEADER_TEXT} ===="
+   printf "=%${HEADER_COUNT}s\n" | tr " " "="
+}
+
+
+####################################
+### Jenkins path shell functions ###
+####################################
+
 
 ## FUNC: add_additional_paths
 ## ARG:  ADDITIONAL_PATHS, paths to check for and add to $PATH
@@ -63,12 +100,19 @@ add_additional_paths () {
    export PATH
 }
 
+
 ## FUNC: add_usr_local_paths
 ## DESC: Adds paths in /usr/local (/usr/local/bin, /usr/local/sbin) via the
 ## DESC: add_additonal_paths shell function
 add_usr_local_paths () {
    add_additional_paths "/usr/local/bin /usr/local/sbin"
 }
+
+
+#####################################
+### Jenkins check shell functions ###
+#####################################
+
 
 ## FUNC: check_env_variable
 ## ARG:  ENV_VAR_NAME, display name of the environment variable
@@ -83,6 +127,7 @@ check_env_variable () {
       exit 1
    fi
 }
+
 
 ## FUNC: check_exit_status
 ## ARG:  EXIT_STATUS - Returned exit status code of that function
@@ -109,15 +154,11 @@ check_exit_status () {
    return $EXIT_STATUS
 } # check_exit_status
 
-## FUNC: generate_artifact_timestamp
-## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
-## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
-## DESC: output directory, so when the artifact is used at a later point in
-## DESC: time, you can tell when it was built, and with what version of the
-## DESC: source code it was built
-generate_artifact_timestamp () {
-   ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
-}
+
+#####################
+### GetOpt runner ###
+#####################
+
 
 ## FUNC: run_getopt
 ## ARG:  GETOPT_SHORT - 'short' values to be used with 'getopt'
@@ -168,32 +209,17 @@ run_getopt () {
    fi
 }
 
-## FUNC: show_script_header
-## ENV:  QUIET - the quietness level of the script
-## DESC: Prints out a nicely formatted script header, if $QUIET is not set
-show_script_header () {
-   if [ $QUIET -ne 1 ]; then
-      RUN_DATE=$(date +"%a %b %d %T %Z %Y (%Y.%j)")
-      say "=-=-= ${SCRIPTNAME} =-=-="
-      info "Run date: ${RUN_DATE}"
-   fi
+
+## FUNC: generate_artifact_timestamp
+## SETS: ARTIFACT_TIMESTAMP, a timestamp showing when the artifact was built
+## DESC: The ARTITFACT_TIMESTAMP is a simple file that is 'touch'ed in the
+## DESC: output directory, so when the artifact is used at a later point in
+## DESC: time, you can tell when it was built, and with what version of the
+## DESC: source code it was built
+generate_artifact_timestamp () {
+   ARTIFACT_TIMESTAMP=$(date +%Y.%j-%H.%m)
 }
 
-## FUNC: job_step_header
-## ENV:  QUIET - the quietness level of the script
-## DESC: Prints out a nicely formatted job step header, if $QUIET is not set
-job_step_header () {
-   local HEADER_TEXT=$1
-
-   # get a count of how many characters the header is
-   HEADER_COUNT=$(echo ${HEADER_TEXT} | wc -c)
-   # add '8' to that countl for adding hashmarks at both ends
-   HEADER_COUNT=$(( $HEADER_COUNT + 8 ))
-   # print the header; convert spaces to equals signs
-   printf "=%${HEADER_COUNT}s\n" | tr " " "="
-   echo "==== ${HEADER_TEXT} ===="
-   printf "=%${HEADER_COUNT}s\n" | tr " " "="
-}
 
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by

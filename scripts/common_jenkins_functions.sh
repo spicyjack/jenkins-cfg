@@ -75,9 +75,9 @@ job_step_header () {
 }
 
 
-####################################
-### Jenkins path shell functions ###
-####################################
+###############################################
+### Jenkins job environment shell functions ###
+###############################################
 
 
 ## FUNC: add_additional_paths
@@ -106,6 +106,31 @@ add_additional_paths () {
 ## DESC: add_additonal_paths shell function
 add_usr_local_paths () {
    add_additional_paths "/usr/local/bin /usr/local/sbin"
+}
+
+
+## FUNC: get_loop_aes_dir
+## DESC: Gets the path to the 'loop-AES' source directory in the $WORKSPACE
+set_loop_aes_dir () {
+   LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
+     | grep 'loop-AES' | egrep -v 'latest|log$')
+   export LOOP_AES_DIR
+   info "loop-AES directory: ${LOOP_AES_DIR}"
+}
+
+
+## FUNC: get_loop_aes_version_from_dir
+## DESC: Gets the 'loop-AES' version from the directory name in $WORKSPACE
+set_loop_aes_version () {
+   if [ ! -d $LOOP_AES_DIR ]; then
+      echo "ERROR: Missing LOOP_AES_DIR variable/directory"
+      echo "ERROR: Did you run the 'set_loop_aes_dir()' function first?"
+      echo "ERROR: Searched: '${LOOP_AES_DIR}'"
+      exit 1
+   fi
+   LOOP_AES_VERSION=$(echo ${LOOP_AES_DIR} | sed 's/^loop-AES-//')
+   export LOOP_AES_VERSION
+   info "loop-AES version: ${LOOP_AES_VERSION}"
 }
 
 

@@ -27,7 +27,7 @@ SCRIPT_FULL_PATH=$(dirname ${0})
 if [ -r "${SCRIPT_FULL_PATH}/common_jenkins_functions.sh" ]; then
     # I think the 'source' function only works in bash
     #. ${MY_FULL_PATH}/common_jenkins_functions.sh
-    echo "Sourcing ${SCRIPT_FULL_PATH}/common_jenkins_functions.sh"
+    #echo "Sourcing ${SCRIPT_FULL_PATH}/common_jenkins_functions.sh"
     source ${SCRIPT_FULL_PATH}/common_jenkins_functions.sh
     # add paths under /usr/local
     add_usr_local_paths
@@ -112,7 +112,7 @@ if [ ! -d "$GIT_REPO_PATH" ]; then
 fi
 
 ### SCRIPT MAIN LOOP ###
-show_script_header
+#show_script_header
 info "Running 'git pull' in path: ${GIT_REPO_PATH}"
 START_DIR=$PWD
 cd $GIT_REPO_PATH

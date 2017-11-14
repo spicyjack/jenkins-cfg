@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <project>
   <actions/>
-  <description>&lt;p&gt;Launch jobs required to build the full stack of utilities (Linux kernel, util-linux utilities, gnupg1) to build the entire loop-AES stack&lt;/p&gt;&#xd;
+  <description>&lt;p&gt;Launch jobs required to build the full loop-AES stack (Linux kernel + loop-AES module, util-linux utilities, gnupg1)&lt;/p&gt;&#xd;
 &#xd;
 &lt;p&gt;loop-AES kernel module, compiled for the VIA C7 processor family&lt;br&gt;&#xd;
 Homepage: &lt;a href=&quot;http://loop-aes.sourceforge.net/&quot;&gt;&#xd;
@@ -20,19 +20,6 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
-    <hudson.model.ParametersDefinitionProperty>
-      <parameterDefinitions>
-        <hudson.model.ChoiceParameterDefinition>
-          <name>KERNEL_VERSION</name>
-          <description>Linux kernel version</description>
-          <choices class="java.util.Arrays$ArrayList">
-            <a class="string-array">
-              <string>3.19.8</string>
-            </a>
-          </choices>
-        </hudson.model.ChoiceParameterDefinition>
-      </parameterDefinitions>
-    </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -44,17 +31,20 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
   <builders>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-echo &quot;==========================================&quot;
-echo &quot;==== UPDATING JENKINS CONFIG GIT REPO ====&quot;
-echo &quot;==========================================&quot;
+### UPDATE JENKINS GIT REPO
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;UPDATING JENKINS CONFIG GIT REPO&quot;
+
 /bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-echo &quot;======================================&quot;
-echo &quot;==== DOWNLOADING LOOP-AES TARBALL ====&quot;
-echo &quot;======================================&quot;
+### DOWNLOAD LOOP-AES SOURCE AND COMPARE CHECKSUMS
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;DOWNLOADING LOOP-AES TARBALL&quot;
 
 # old script
 #/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
@@ -67,7 +57,8 @@ DATE_STAMP=$(date +%Y-%m-%d.%H%M)
 LOOP_AES_DL_FILE=&quot;loop-aes.${DATE_STAMP}.tar.bz2&quot;
 # download the tarball with a new name
 
-wget -O ${TARBALL_DIR}/${LOOP_AES_DL_FILE} \
+wget --no-verbose \
+  --output-document  ${TARBALL_DIR}/${LOOP_AES_DL_FILE} \
   http://loop-aes.sourceforge.net/loop-AES-latest.tar.bz2
 
 echo &quot;Checking to see if &apos;${TARBALL_DIR}/loop-AES-latest.tar.bz2&apos; exists&quot;
@@ -102,72 +93,151 @@ echo
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-echo &quot;==================================================&quot;
-echo &quot;==== UNPACKING AND SETTING UP LOOP-AES SOURCE ====&quot;
-echo &quot;==================================================&quot;
+### UNPACK SOURCE
 
-tar -jxvf ${WORKSPACE}/loop-AES-latest.tar.bz2
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-echo &quot;loop-AES directory is: ${LOOP_AES_DIR}&quot;
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;UNPACKING LOOP-AES SOURCE AND RUNNING &apos;MAKE CLEAN&apos;&quot;
+
+cd $WORKSPACE
+tar -jxf ${TARBALL_DIR}/loop-AES-latest.tar.bz2
+
+# Set some environment variables after unpacking loop-AES
+set_loop_aes_dir
+set_loop_aes_version
+
+# create the version file
+echo $LOOP_AES_VERSION &gt; $WORKSPACE/${LOOP_AES_DIR}/loop-aes.version
+
 cd ${WORKSPACE}/${LOOP_AES_DIR}
 make clean
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>echo &quot;========================================================&quot;
-echo &quot;==== UNPACKING AND SETTING UP LINUX KERNEL ARTIFACT ====&quot;
-echo &quot;========================================================&quot;
-</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
       <command>#!/bin/bash
-echo &quot;======================================&quot;
-echo &quot;==== CREATING &apos;output/&apos; DIRECTORY ====&quot;
-echo &quot;======================================&quot;
-mkdir ${WORKSPACE}/output</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#!/bin/bash
-echo &quot;===========================&quot;
-echo &quot;==== BUILDING LOOP-AES ====&quot;
-echo &quot;===========================&quot;
+### PARSE VERSION NUMBERS, CREATE &apos;version&apos; FILES
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-echo &quot;loop-AES directory is: ${LOOP_AES_DIR}&quot;
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;PARSING VERSION NUMBERS FROM LOOP-AES SOURCE&quot;
+
+# Set some environment variables after unpacking loop-AES
+set_loop_aes_dir
+set_loop_aes_version
+
+# start in the loop-AES directory
+cd ${WORKSPACE}/${LOOP_AES_DIR}
+
+
+FOUND_GNUPG1_PATCH=0
+FOUND_LINUX_KERNEL_PATCH=0
+FOUND_UTIL_LINUX_PATCH=0
+
+GREP_MATCH_STRING=&apos;gnupg-|kernel-|util-linux-&apos;
+GREP_MATCHES=$(ls -1 | egrep &quot;${GREP_MATCH_STRING}&quot;)
+#echo &quot;grep matched: ${GREP_MATCHES}&quot;
+
+for MATCH in $GREP_MATCHES;
+do
+  if [ $(echo ${MATCH} | egrep -c &quot;gnupg-&quot;) -gt 0 ]; then
+    if [ &quot;gnupg-${GNUPG1_VERSION}.diff&quot; = ${MATCH} ]; then
+      echo &quot;-&gt; GnuPG version: ${GNUPG1_VERSION}&quot;
+      echo $GNUPG1_VERSION &gt; gnupg1.version
+    fi
+  fi
+  if [ $(echo ${MATCH} | egrep -c &quot;kernel-&quot;) -gt 0 ]; then
+    if [ &quot;kernel-${LINUX_KERNEL_VERSION}.diff&quot; = ${MATCH} ]; then
+      echo &quot;-&gt; Linux kernel version: ${LINUX_KERNEL_VERSION}&quot;
+      echo $LINUX_KERNEL_VERSION &gt; linux-kernel.version
+    fi
+  fi
+  if [ $(echo ${MATCH} | egrep -c &quot;util-linux-&quot;) -gt 0 ]; then
+    if [ &quot;util-linux-${UTIL_LINUX_VERSION}.diff&quot; = ${MATCH} ]; then
+      echo &quot;-&gt; util-linux version: ${UTIL_LINUX_VERSION}&quot;
+      echo $UTIL_LINUX_VERSION &gt; util-linux.version
+    fi
+  fi
+done</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### CHECK FOR &apos;version&apos; FILES
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;CHECKING FOR &apos;version&apos; FILES&quot;
+
+# Set some environment variables after unpacking loop-AES
+set_loop_aes_dir
+set_loop_aes_version
 
 cd ${WORKSPACE}/${LOOP_AES_DIR}
-time make -j4 INSTALL_MOD_PATH=${WORKSPACE}/output \
-  LINUX_SOURCE=${WORKSPACE}/linux-${KERNEL_VERSION} \
-  KEYSCRUB=y PADLOCK=y INTELAES=y EXTRA_CIPHERS=y</command>
+
+# &quot;fail job&quot; flag
+FAIL_JOB=0
+
+if [ ! -f loop-aes.version ]; then
+  job_step_header &quot;ERROR: Missing &apos;loop-aes.version&apos; file&quot;
+  FAIL_JOB=1
+fi
+
+if [ ! -f gnupg1.version ]; then
+  job_step_header &quot;ERROR: Missing &apos;gnupg1.version&apos; file&quot;
+  FAIL_JOB=1
+fi
+
+if [ ! -f linux-kernel.version ]; then
+  job_step_header &quot;ERROR: Missing &apos;linux-kernel.version&apos; file&quot;
+  FAIL_JOB=1
+fi
+
+if [ ! -f util-linux.version ]; then
+  job_step_header &quot;ERROR: Missing &apos;util-linux.version&apos; file&quot;
+  FAIL_JOB=1
+fi
+
+if [ $FAIL_JOB -eq 1 ]; then
+  exit 1
+else
+  job_step_header &quot;ALL &apos;version&apos; FILES FOUND&quot;
+fi</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-echo &quot;=================================&quot;
-echo &quot;==== CREATING BUILD ARTIFACT ====&quot;
-echo &quot;=================================&quot;
+### CREATE TARBALL
 
-cd output; tar -cJvf ${WORKSPACE}/linux_kernel-${KERNEL_VERSION}.loop-aes.artifact.tar.xz .</command>
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;CREATING &apos;loop-AES&apos; TARBALL&quot;
+
+# Set some environment variables after unpacking loop-AES
+set_loop_aes_dir
+set_loop_aes_version
+
+# Add some more info to the loop-AES artifact
+ARTIFACT_DATE=$(date +%c)
+echo &quot;loop-AES artifact created: $(date +%c)&quot; \
+  &gt; $LOOP_AES_DIR/artifact.info.txt
+echo &quot;Jenkins build number: ${BUILD_NUMBER}&quot; \
+  &gt;&gt; $LOOP_AES_DIR/artifact.info.txt
+ 
+tar -cJvf loop-aes.artifact.tar.xz $LOOP_AES_DIR</command>
     </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.38.1">
-      <project>linux_kernel_viac7</project>
-      <filter></filter>
-      <target></target>
-      <excludes></excludes>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
-    </hudson.plugins.copyartifact.CopyArtifact>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>linux_kernel-*.loop-aes.artifact.tar.xz</artifacts>
+      <artifacts>loop-aes.artifact.tar.xz</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
       <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
+    <hudson.tasks.BuildTrigger>
+      <childProjects>linux_kernel_viac7_from_loop-aes_artifact</childProjects>
+      <threshold>
+        <name>UNSTABLE</name>
+        <ordinal>1</ordinal>
+        <color>YELLOW</color>
+        <completeBuild>true</completeBuild>
+      </threshold>
+    </hudson.tasks.BuildTrigger>
   </publishers>
   <buildWrappers>
     <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
@@ -180,7 +250,13 @@ cd output; tar -cJvf ${WORKSPACE}/linux_kernel-${KERNEL_VERSION}.loop-aes.artifa
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
     <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
       <script># set up the path to downloaded files
-echo TARBALL_DIR=${HOME}/source</script>
+echo TARBALL_DIR=${HOME}/source
+echo JENKINS_CLI=${HOME}/.jenkins/war/WEB-INF/jenkins-cli.jar
+echo GNUPG1_VERSION=1.4.22
+echo LINUX_KERNEL_VERSION=4.13
+echo UTIL_LINUX_VERSION=2.30.1
+echo QUIET=0
+</script>
       <scriptType>unixScript</scriptType>
       <runOnlyOnParent>false</runOnlyOnParent>
       <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>

@@ -115,7 +115,6 @@ set_loop_aes_dir () {
    LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
      | grep 'loop-AES' | egrep -v 'latest|log$')
    export LOOP_AES_DIR
-   info "loop-AES directory: ${LOOP_AES_DIR}"
 }
 
 
@@ -130,7 +129,6 @@ set_loop_aes_version () {
    fi
    LOOP_AES_VERSION=$(echo ${LOOP_AES_DIR} | sed 's/^loop-AES-//')
    export LOOP_AES_VERSION
-   info "loop-AES version: ${LOOP_AES_VERSION}"
 }
 
 

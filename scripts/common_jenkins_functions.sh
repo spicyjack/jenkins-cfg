@@ -166,12 +166,11 @@ check_exit_status () {
    if [ $QUIET -ne 1 ]; then
       # check for errors from the script
       if [ $EXIT_STATUS -ne 0 ] ; then
-         warn "${SCRIPTNAME}: ${DESC}"
-         warn "${SCRIPTNAME}: error exit status: ${EXIT_STATUS}"
+         warn "${DESC}: command exited with non-zero status: ${EXIT_STATUS}"
+         warn "Command output: ${OUTPUT}"
       fi
       if [ "x$OUTPUT" != "x" ]; then
-         echo "${SCRIPTNAME}: ${DESC} output:"
-         echo $OUTPUT
+         echo "${DESC} output: ${OUTPUT}"
       fi
    fi
    return $EXIT_STATUS

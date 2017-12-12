@@ -3,8 +3,9 @@
   <actions/>
   <description>Preflights the Jenkins environment for:&lt;br&gt;&#xd;
 &lt;ul&gt;&#xd;
-  &lt;li&gt;32-bit ARM for Raspberry Pi (armv6-lack_rpi-linux-gnueabi)&lt;/li&gt;&#xd;
-  &lt;li&gt;32-bit PowerPC (powerpc-lack-linux-gnu)&lt;/li&gt;&#xd;
+  &lt;li&gt;armv6-rpi-linux-gnueabi (Raspberry Pi B ver. 1)&lt;/li&gt;&#xd;
+  &lt;li&gt;armv7-rpi2-linux-gnueabihf (Raspberry Pi B ver. 2)&lt;/li&gt;&#xd;
+  &lt;li&gt;armv8-rpi3-linux-gnueabihf (Raspberry Pi B ver. 3)&lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 Checks things like scripts and compilers.</description>
   <keepDependencies>false</keepDependencies>
@@ -26,8 +27,9 @@ Checks things like scripts and compilers.</description>
           <description>Architecture to build with; determines which toolchain to use, and what strings to look for in the resulting test binary</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>arm</string>
-              <string>ppc</string>
+              <string>armv6-rpi-linux-gnueabi</string>
+              <string>armv7-rpi2-linux-gnueabihf</string>
+              <string>armv8-rpi3-linux-gnueabihf</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
@@ -43,30 +45,22 @@ Checks things like scripts and compilers.</description>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>if [ -t 1 ]; then
-  echo &quot;terminal is connected to fh #1&quot;
-else
-  echo &quot;terminal is not connected to fh #1&quot;
-fi
+      <command>#!/bin/bash
+### RUN A TEST COMPILE GIVEN THE TOOLCHAIN IN ${BUILD_ARCH}
+
+# Not sure why this is here...
+#if [ -t 1 ]; then
+#  echo &quot;terminal is connected to fh #1&quot;
+#else
+#  echo &quot;terminal is not connected to fh #1&quot;
+#fi
+
 ### EXPORTS AND SOURCING ###
 export JENKINS_SCRIPTS=&quot;${HOME}/src/jenkins/config.git/scripts&quot;
 # for common_jenkins_functions
 export QUIET=0
 # source environment variables and updated $PATH script
 source ${HOME}/.bashrc.d/env_vars_path
-
-### CHECK FOR BUILD_ARCH ###
-if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
-  export CROSS_COMPILER=&quot;armv6-lack_rpi-linux-gnueabi-gcc&quot;
-  export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
-elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
-  export CROSS_COMPILER=&quot;powerpc-lack-linux-gnu-gcc&quot;
-  export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit MSB executable, PowerPC&quot;
-else
-  echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
-  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
-  exit 1
-fi
 
 ### COMMON_JENKINS_FUNCTIONS ###
 echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
@@ -78,6 +72,31 @@ else
   exit 1
 fi
 
+job_step_header &quot;Setting up script exports and sourcing&quot;
+
+
+### CHECK FOR BUILD_ARCH ###
+if [ -d &quot;/home/cross/${BUILD_ARCH}&quot; ]; then
+  export CROSS_COMPILER=&quot;${BUILD_ARCH}-gcc&quot;
+else
+  echo &quot;ERROR: can&apos;t find compiler that matches BUILD_ARCH!&quot;
+  echo &quot;BUILD_ARCH: ${BUILD_ARCH}&quot;
+  exit 1
+fi
+
+# FIXME if we ever try to compile multiple architectures, we
+# would need code to handle more expected outputs here
+export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
+#elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
+#  export CROSS_COMPILER=&quot;powerpc-lack-linux-gnu-gcc&quot;
+#  export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit MSB executable, PowerPC&quot;
+#else
+#  echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
+#  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
+#  exit 1
+#fi
+
+
 ### CROSSTOOL-NG ###
 echo  &quot;Checking for crosstool-ng bashrc script&quot;
 if [ -e ~/.bashrc.d/crosstool-ng-env ]; then
@@ -87,17 +106,19 @@ else
   exit 1
 fi
 
-echo &quot;==== BEGIN JENKINS RUNTIME ENVIRONMENT ====&quot;
-set
-echo &quot;==== END JENKINS RUNTIME ENVIRONMENT ====&quot;
 
-echo &quot;Checking for binaries/scripts...&quot;
+#echo &quot;==== BEGIN JENKINS RUNTIME ENVIRONMENT ====&quot;
+# output environment to a log file instead of displaying it
+set &gt; ${BUILD_TAG}.log
+#echo &quot;==== END JENKINS RUNTIME ENVIRONMENT ====&quot;
+
+job_step_header &quot;Checking for cross-compile binaries/scripts&quot;
 EXISTS_CT_NG=$(which ct-ng)
-check_exit_status $? &quot;ct-ng&quot; &quot;$EXISTSCT_NG&quot;
+check_exit_status $? &quot;Checking for &apos;ct-ng&apos;&quot; &quot;$EXISTS_CT_NG&quot;
 EXISTS_GCC=$(which $CROSS_COMPILER)
-check_exit_status $? &quot;$CROSS_COMPILER&quot; &quot;$EXISTS_GCC&quot;
+check_exit_status $? &quot;Checking for &apos;$CROSS_COMPILER&apos;&quot; &quot;$EXISTS_GCC&quot;
 
-echo &quot;Compiling test binary with &apos;${BUILD_ARCH}&apos; GCC...&quot;
+job_step_header &quot;Compiling test binary with &apos;${CROSS_COMPILER}&apos;&quot;
 if [ -e $WORKSPACE/test_${BUILD_ARCH} ]; then
   echo &quot;Removing old test binary &apos;test_${BUILD_ARCH}&apos;&quot;
   rm $WORKSPACE/test_${BUILD_ARCH}
@@ -109,14 +130,15 @@ int main() {
 }
 EO_TEST_FILE
 
-### PRINT WORKSPACE CONTENTS ###
+job_step_header &quot;WORKSPACE CONTENTS&quot;
 ls -l
 
-### CROSS-COMPILE THE TEST BINARY ###
+job_step_header &quot;CROSS-COMPILE THE TEST BINARY&quot;
 $CROSS_COMPILER -o $WORKSPACE/test_${BUILD_ARCH} $WORKSPACE/test.c
 TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test_${BUILD_ARCH})
 
-### CHECK THE TEST BINARY ###
+
+job_step_header &quot;CHECKING TEST BINARY&quot;
 VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
 
 if [ $VALID_BINARY -gt 0 ]; then
@@ -134,7 +156,7 @@ fi </command>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>test*</artifacts>
+      <artifacts>test_*, *.log</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
@@ -143,7 +165,12 @@ fi </command>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.2">
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
   </buildWrappers>

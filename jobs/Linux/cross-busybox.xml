@@ -3,26 +3,26 @@
   <actions/>
   <description>Busybox cross-compiled to:&#xd;
 &lt;ul&gt;&#xd;
-  &lt;li&gt;32-bit ARM for Raspberry Pi (armv6-lack_rpi-linux-gnueabi)&lt;/li&gt;&#xd;
+  &lt;li&gt;Raspberry Pi 1 (armv6-rpi-linux-gnueabi)&lt;/li&gt;&#xd;
+  &lt;li&gt;Raspberry Pi 2 (armv7-rpi2-linux-gnueabihf)&lt;/li&gt;&#xd;
+  &lt;li&gt;Raspberry Pi 3 (armv8-rpi3-linux-gnueabihf)&lt;/li&gt;&#xd;
   &lt;li&gt;32-bit PowerPC (powerpc-lack-linux-gnu)&lt;/li&gt;&#xd;
 &lt;/ul&gt;&#xd;
 </description>
-  <logRotator class="hudson.tasks.LogRotator">
-    <daysToKeep>-1</daysToKeep>
-    <numToKeep>10</numToKeep>
-    <artifactDaysToKeep>-1</artifactDaysToKeep>
-    <artifactNumToKeep>-1</artifactNumToKeep>
-  </logRotator>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>10</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
     <hudson.model.ParametersDefinitionProperty>
       <parameterDefinitions>
-        <hudson.model.StringParameterDefinition>
-          <name>PKG_NAME</name>
-          <description>Name of the download tarball and source directory</description>
-          <defaultValue>busybox</defaultValue>
-        </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>PKG_VERSION</name>
           <description>Version of busybox to build</description>
@@ -34,86 +34,139 @@
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
-        <hudson.model.StringParameterDefinition>
-          <name>TARBALL_DIR</name>
-          <description>Directory for downloaded source</description>
-          <defaultValue>$HOME/source</defaultValue>
-        </hudson.model.StringParameterDefinition>
         <hudson.model.ChoiceParameterDefinition>
           <name>BUILD_ARCH</name>
           <description>Build architecture to use for compiling Busybox</description>
           <choices class="java.util.Arrays$ArrayList">
             <a class="string-array">
-              <string>arm</string>
-              <string>ppc</string>
+              <string>armv6-rpi-linux-gnueabi</string>
+              <string>armv7-rpi2-linux-gnueabihf</string>
+              <string>armv8-rpi3-linux-gnueabihf</string>
             </a>
           </choices>
         </hudson.model.ChoiceParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
-    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.25"/>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
   <disabled>false</disabled>
   <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
   <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
-  <triggers>
-    <hudson.triggers.TimerTrigger>
-      <spec># how often to build?
-#@daily</spec>
-    </hudson.triggers.TimerTrigger>
-  </triggers>
+  <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+      <command>#!/bin/bash
+
+if [ ! -d $HOME/src/jenkins/config.git ]; then
+  echo &quot;ERROR: missing &apos;jenkins/config.git&apos; repo&quot;
+  exit 1
+fi
+
+# We know the config.git repo exists, so we can source it now
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;Checking for &apos;config.git&apos; and &apos;projects.git&apos; Repos&quot;
+
+if [ ! -d $HOME/src/lack/projects.git ]; then
+  echo &quot;ERROR: missing &apos;src/lack/projects.git&apos; repo&quot;
+  exit 1
+fi</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;UPDATING &apos;config.git&apos; AND &apos;projects.git&apos; REPOS&quot;
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git
 /bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/lack/projects.git</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+      <command>#!/bin/bash
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;DOWNLOADING ${PKG_NAME} version ${PKG_VERSION}&quot;
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file ${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
   --url http://busybox.net/downloads/ \
   --log $WORKSPACE/wget.${PKG_NAME}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>### UNPACK, COPY CONFIG AND BUILD
-if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
-  rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
-fi
+      <command>#!/bin/bash
 
-tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2
+### UNPACK, COPY CONFIG AND BUILD
+#if [ -d ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION} ]; then
+#  rm -rf ${WORKSPACE}/${PKG_NAME}-${PKG_VERSION}
+#fi
 
-LACK_PROJECTS=&quot;/home/jenkins/src/lack/projects.git&quot;
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;SETTING UP BUILD OF ${PKG_NAME}-${PKG_VERSION}&quot;
 
-if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
-  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/armlack/configs/busybox.config.armv6-lack_rpi-linux-gnueabi&quot;
+### EXPORTS AND SOURCING ###
+# source environment variables and updated $PATH script
+source ${HOME}/.bashrc.d/env_vars_path
+
+info &quot;Unpacking ${PKG_NAME}-${PKG_VERSION}.tar.bz2&quot;
+info &quot;(Logfile: ${WORKSPACE}/tar.${PKG_NAME}.log&quot;
+tar -jxvf $TARBALL_DIR/${PKG_NAME}-${PKG_VERSION}.tar.bz2 \
+  &gt; ${WORKSPACE}/tar.${PKG_NAME}.log
+
+LACK_PROJECTS=&quot;${HOME}/src/lack/projects.git&quot;
+
+if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarmv6-rpi-linux-gnueabi&quot; \
+  -o &quot;x${BUILD_ARCH}&quot; = &quot;xarmv7-rpi2-linux-gnueabihf&quot; \
+  -o &quot;x${BUILD_ARCH}&quot; = &quot;xarmv8-rpi3-linux-gnueabihf&quot; ]; then
+  export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/armlack/configs/busybox.config-${PKG_VERSION}&quot;
 elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
   export BUSYBOX_CONFIG=&quot;${LACK_PROJECTS}/ppclack/configs/busybox.config.powerpc-lack-linux-gnu&quot;
 else
   echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
-  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
+  echo &quot;BUILD_ARCH choices:&quot;
+  echo &quot;- armv6-rpi-linux-gnueabi&quot;
+  echo &quot;- armv7-rpi2-linux-gnueabihf&quot;
+  echo &quot;- armv8-rpi3-linux-gnueabihf&quot;
   exit 1
 fi
 
+# do some substitution in the busybox config
+info &quot;Replacing strings in &apos;${BUSYBOX_CONFIG}&apos;&quot;
+info &quot;Replacement string: &apos;${BUILD_ARCH}&apos;&quot;
+
 cd ${PKG_NAME}-${PKG_VERSION}
-cp $BUSYBOX_CONFIG .config
-time make</command>
+cat $BUSYBOX_CONFIG | sed &quot;s/:BUILD_ARCH:/${BUILD_ARCH}/g&quot; &gt; .config
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command>### TEST OUTPUT BINARY
+      <command>#!/bin/bash
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;BUILDING &apos;${PKG_NAME}-${PKG_VERSION}&apos;&quot;
+
+# run the build
+cd ${PKG_NAME}-${PKG_VERSION}
+time make </command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### TEST OUTPUT BINARY
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;TESTING OUTPUT BINARY FOR &apos;${PKG_NAME}-${PKG_VERSION}&apos;&quot;
+
+
 TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME})
 
-if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarm&quot; ]; then
+if [ &quot;x${BUILD_ARCH}&quot; = &quot;xarmv6-rpi-linux-gnueabi&quot; ]; then
   export EXPECTED_BINARY_STRING=&quot;ELF 32-bit LSB executable, ARM&quot;
 elif [ &quot;x${BUILD_ARCH}&quot; = &quot;xppc&quot; ]; then
   export EXPECTED_BINARY_STRING=&quot;ELF 32-bit MSB executable, PowerPC&quot;
 else
   echo &quot;ERROR: missing/incorrect BUILD_ARCH specified!&quot;
-  echo &quot;BUILD_ARCH choices: &apos;arm&apos; or &apos;ppc&apos;&quot;
   exit 1
 fi
 
@@ -137,16 +190,33 @@ cp $WORKSPACE/${PKG_NAME}-${PKG_VERSION}/${PKG_NAME} \
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>busybox-*/busybox</artifacts>
+      <artifacts>busybox-*-*</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
+      <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.4.1">
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
+      <script># set up the path to downloaded files
+echo TARBALL_DIR=${HOME}/source
+# name of what we&apos;re building here
+echo PKG_NAME=busybox
+# clear the &quot;quiet build&quot; flag
+echo QUIET=0</script>
+      <scriptType>unixScript</scriptType>
+      <runOnlyOnParent>false</runOnlyOnParent>
+      <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>
+    </com.lookout.jenkins.EnvironmentScript>
   </buildWrappers>
 </project>

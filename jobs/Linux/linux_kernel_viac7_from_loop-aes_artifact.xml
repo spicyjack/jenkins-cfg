@@ -17,7 +17,7 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
     <jenkins.model.BuildDiscarderProperty>
       <strategy class="hudson.tasks.LogRotator">
         <daysToKeep>-1</daysToKeep>
-        <numToKeep>5</numToKeep>
+        <numToKeep>2</numToKeep>
         <artifactDaysToKeep>-1</artifactDaysToKeep>
         <artifactNumToKeep>-1</artifactNumToKeep>
       </strategy>
@@ -36,7 +36,7 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
       <command>#!/bin/bash
 
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;UPDATING &apos;config.git/hostcfgs.git&apos; REPOS&quot;
+job_step_header &quot;UPDATING &apos;config.git&apos; REPO&quot;
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git
@@ -60,10 +60,20 @@ job_step_header &quot;UPDATING &apos;config.git/hostcfgs.git&apos; REPOS&quot;
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 job_step_header &quot;UNPACKING LOOP-AES ARTIFACT&quot;
 
-tar -Jxvf loop-aes.artifact.tar.xz
+# capture the output, count how many files were unpacked
+TAR_LINECOUNT=$(tar -Jxvf ${WORKSPACE}/loop-aes.artifact.tar.xz \
+  | tee ${WORKSPACE}/loop-aes.artifact.tar.xz.log \
+  | wc -l)
+  
+TAR_MSG=&quot;loop-AES artifact file &apos;loop-aes.artifact.tar.xz&apos;&quot;
+TAR_MSG=&quot;${TAR_MSG} contained ${TAR_LINECOUNT} files&quot;
+echo $TAR_MSG
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
+set_loop_aes_dir
+set_loop_aes_version
+job_step_header &quot;UNPACKED LOOP-AES VERSION ${LOOP_AES_VERSION}&quot;
+info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
+info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 
 cd ${WORKSPACE}/${LOOP_AES_DIR}
 make clean
@@ -73,12 +83,13 @@ make clean
       <command>#!/bin/bash
 ### DOWNLOAD KERNEL SOURCE, IF NEEDED
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+set_loop_aes_dir
+set_loop_aes_version
+LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
 job_step_header &quot;DOWNLOADING KERNEL SOURCE - ${LINUX_KERNEL_VERSION}&quot;
+info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
+info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
   --file linux-${LINUX_KERNEL_VERSION}.tar.xz \
@@ -90,14 +101,23 @@ job_step_header &quot;DOWNLOADING KERNEL SOURCE - ${LINUX_KERNEL_VERSION}&quot;
       <command>#!/bin/bash
 ### UNPACK KERNEL SOURCE &amp; SET UP
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+set_loop_aes_dir
+set_loop_aes_version
+LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
 job_step_header &quot;UNPACK AND SET UP KERNEL SOURCE - ${LINUX_KERNEL_VERSION}&quot;
+info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
+info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 
-tar -Jxvf $TARBALL_DIR/linux-${LINUX_KERNEL_VERSION}.tar.xz
+# capture the output, count how many files were unpacked
+TAR_LINECOUNT=$(tar -Jxvf ${TARBALL_DIR}/linux-${LINUX_KERNEL_VERSION}.tar.xz \
+  | tee ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}.tar.xz.log \
+  | wc -l)
+
+TAR_MSG=&quot;Linux kernel version ${LINUX_KERNEL_VERSION}&quot;
+TAR_MSG=&quot;${TAR_MSG} contained ${TAR_LINECOUNT} files&quot;
+echo $TAR_MSG
+
 cd ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}
 make distclean
 
@@ -120,37 +140,57 @@ cp $LINUX_KERNEL_CONFIG .config
 ### CREATE OUTPUT DIRECTORY
 
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;CREATING OUTPUT DIRECTORY: ${WORKSPACE}/output&quot;
+job_step_header &quot;CREATING OUTPUT DIRECTORIES&quot;
 
-mkdir ${WORKSPACE}/output</command>
+mkdir -p ${WORKSPACE}/output/boot
+
+echo &quot;Created directories in ${WORKSPACE}/output&quot;
+</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 ### BUILD LINUX KERNEL
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+set_loop_aes_dir
+set_loop_aes_version
 LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
 
-. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 job_step_header &quot;BUILDING LINUX KERNEL - ${LINUX_KERNEL_VERSION}&quot;
+info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
+info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 
 cd ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}
-time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output
-time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output modules
-time make -j4 CC=${BUILD_CC} INSTALL_MOD_PATH=${WORKSPACE}/output modules_install</command>
+time make -j4 CC=${BUILD_CC} \
+  INSTALL_PATH=${WORKSPACE}/output/boot \
+  INSTALL_MOD_PATH=${WORKSPACE}/output
+  
+time make -j4 CC=${BUILD_CC} \
+  INSTALL_PATH=${WORKSPACE}/output/boot \
+  INSTALL_MOD_PATH=${WORKSPACE}/output install
+
+job_step_header &quot;RUNNING &apos;make modules&apos;&quot;
+
+time make -j4 CC=${BUILD_CC} \
+  INSTALL_PATH=${WORKSPACE}/output/boot \
+  INSTALL_MOD_PATH=${WORKSPACE}/output modules
+  
+time make -j4 CC=${BUILD_CC} \
+  INSTALL_PATH=${WORKSPACE}/output/boot \
+  INSTALL_MOD_PATH=${WORKSPACE}/output modules_install</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 ### BUILD LOOP-AES
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-LOOP_AES_VERSION=$(cat ${LOOP_AES_DIR} | sed &apos;s/^loop-AES-//&apos;)
-
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+set_loop_aes_dir
+set_loop_aes_version
+LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
+
 job_step_header &quot;BUILDING LOOP-AES KERNEL MODULE - ${LOOP_AES_VERSION}&quot;
+info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
+info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 
 cd ${WORKSPACE}/${LOOP_AES_DIR}
 
@@ -163,16 +203,19 @@ time make -j4 CC=${BUILD_CC} \
       <command>#!/bin/bash
 ### ARCHIVE THE BUILD OUTPUT
 
-LOOP_AES_DIR=$(ls -1 ${WORKSPACE} \
-  | grep &apos;loop-AES&apos; | egrep -v &apos;latest|log$&apos;)
-LINUX_KERNEL_VERSION=$(echo ${LOOP_AES_DIR}/linux-kernel.version)
-LOOP_AES_VERSION=$(cat ${LOOP_AES_DIR} | sed &apos;s/^loop-AES-//&apos;)
-
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
 job_step_header &quot;CREATING BUILD ARTIFACT&quot;
 
 cd ${WORKSPACE}/output
-tar -cJvf ${WORKSPACE}/linux_loop-aes_artifact.tar.xz .</command>
+
+# capture the output, count how many files were archived
+TAR_LINECOUNT=$(tar -cJvf ${WORKSPACE}/linux_loop-aes_artifact.tar.xz . \
+  | tee ${WORKSPACE}/linux_loop-aes_artifact.tar.xz.log \
+  | wc -l)
+
+TAR_MSG=&quot;Artifact file &apos;linux_loop-aes_artifact.tar.xz&apos;&quot;
+TAR_MSG=&quot;${TAR_MSG} contains ${TAR_LINECOUNT} files&quot;
+echo $TAR_MSG</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
@@ -198,7 +241,9 @@ tar -cJvf ${WORKSPACE}/linux_loop-aes_artifact.tar.xz .</command>
       <script># set up the path to downloaded files
 echo TARBALL_DIR=${HOME}/source
 # set up path to an installed copy of GCC on `lagrange`
-echo BUILD_CC=gcc-4.9</script>
+echo BUILD_CC=gcc-4.9
+# clear the &quot;quiet build&quot; flag
+echo QUIET=0</script>
       <scriptType>unixScript</scriptType>
       <runOnlyOnParent>false</runOnlyOnParent>
       <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>

@@ -56,23 +56,32 @@ Checks things like scripts and compilers.</description>
 #fi
 
 ### EXPORTS AND SOURCING ###
-export JENKINS_SCRIPTS=&quot;${HOME}/src/jenkins/config.git/scripts&quot;
-# for common_jenkins_functions
-export QUIET=0
-# source environment variables and updated $PATH script
-source ${HOME}/.bashrc.d/env_vars_path
-
-### COMMON_JENKINS_FUNCTIONS ###
-echo &quot;Checking for &apos;common_jenkins_functions.sh&apos; script&quot;
-if [ -e ${JENKINS_SCRIPTS}/common_jenkins_functions.sh ]; then
-  # source jenkins common functions
-  source ${JENKINS_SCRIPTS}/common_jenkins_functions.sh
-else
-  echo &quot;ERROR: common_jenkins_functions.sh not found in ${JENKINS_SCRIPTS}&quot;
+if [ ! -d $HOME/src/jenkins/config.git ]; then
+  echo &quot;ERROR: missing &apos;jenkins/config.git&apos; repo&quot;
   exit 1
 fi
 
+# We know the config.git repo exists, so we can source it now
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+
+### SET UP ENVIRONMENT, CHECK FOR TOOLS
 job_step_header &quot;Setting up script exports and sourcing&quot;
+
+# source environment variables and updated $PATH script
+if [ -f ${HOME}/.bashrc.d/env_vars_path ]; then
+  . ${HOME}/.bashrc.d/env_vars_path
+else
+  echo &quot;ERROR: &apos;env_vars_path&apos; bashrc.d script not found&quot;
+  exit 1
+fi
+# source crosstool-ng-env script
+echo  &quot;Checking for crosstool-ng bashrc script&quot;
+if [ -e ~/.bashrc.d/crosstool-ng-env ]; then
+  source ~/.bashrc.d/crosstool-ng-env
+else
+  echo &quot;ERROR: &apos;crosstool-ng-env&apos; bashrc.d script not found&quot;
+  exit 1
+fi
 
 
 ### CHECK FOR BUILD_ARCH ###
@@ -96,33 +105,19 @@ export EXPECTED_BINARY_FILE_OUTPUT=&quot;ELF 32-bit LSB executable, ARM&quot;
 #  exit 1
 #fi
 
-
-### CROSSTOOL-NG ###
-echo  &quot;Checking for crosstool-ng bashrc script&quot;
-if [ -e ~/.bashrc.d/crosstool-ng-env ]; then
-  source ~/.bashrc.d/crosstool-ng-env
-else
-  echo &quot;ERROR: crosstool-ng-env bashrc script not found&quot;
-  exit 1
-fi
-
-
-#echo &quot;==== BEGIN JENKINS RUNTIME ENVIRONMENT ====&quot;
 # output environment to a log file instead of displaying it
-set &gt; ${BUILD_TAG}.log
-#echo &quot;==== END JENKINS RUNTIME ENVIRONMENT ====&quot;
+info &quot;Saving build environment to &apos;environment.${BUILD_TAG}.txt&apos;&quot;
+set &gt; environment.${BUILD_TAG}.txt
 
+### CHECKING FOR CROSS-COMPILE TOOLS
 job_step_header &quot;Checking for cross-compile binaries/scripts&quot;
 EXISTS_CT_NG=$(which ct-ng)
 check_exit_status $? &quot;Checking for &apos;ct-ng&apos;&quot; &quot;$EXISTS_CT_NG&quot;
 EXISTS_GCC=$(which $CROSS_COMPILER)
 check_exit_status $? &quot;Checking for &apos;$CROSS_COMPILER&apos;&quot; &quot;$EXISTS_GCC&quot;
 
-job_step_header &quot;Compiling test binary with &apos;${CROSS_COMPILER}&apos;&quot;
-if [ -e $WORKSPACE/test_${BUILD_ARCH} ]; then
-  echo &quot;Removing old test binary &apos;test_${BUILD_ARCH}&apos;&quot;
-  rm $WORKSPACE/test_${BUILD_ARCH}
-fi
+### SET UP TEST SOURCE FILE
+job_step_header &quot;Set up &apos;test.c&apos; to be cross-compiled&quot;
 cat &lt;&lt;EO_TEST_FILE &gt; ${WORKSPACE}/test.c
 #include &lt;stdio.h&gt;
 int main() {
@@ -130,15 +125,16 @@ int main() {
 }
 EO_TEST_FILE
 
-job_step_header &quot;WORKSPACE CONTENTS&quot;
+job_step_header &quot;Output of &apos;ls -l&apos; in WORKSPACE&quot;
 ls -l
 
-job_step_header &quot;CROSS-COMPILE THE TEST BINARY&quot;
+### CROSS COMPILE TEST SOURCE FILE
+job_step_header &quot;Compiling test binary with &apos;${CROSS_COMPILER}&apos;&quot;
 $CROSS_COMPILER -o $WORKSPACE/test_${BUILD_ARCH} $WORKSPACE/test.c
 TEST_BINARY_FILE_OUTPUT=$(file $WORKSPACE/test_${BUILD_ARCH})
 
-
-job_step_header &quot;CHECKING TEST BINARY&quot;
+### CHECK THE COMPILED BINARY
+job_step_header &quot;Check the test binary&quot;
 VALID_BINARY=$(echo $TEST_BINARY_FILE_OUTPUT | grep -c &quot;${EXPECTED_BINARY_FILE_OUTPUT}&quot;)
 
 if [ $VALID_BINARY -gt 0 ]; then
@@ -156,7 +152,7 @@ fi </command>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>test_*, *.log</artifacts>
+      <artifacts>test_*, *.txt</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
@@ -173,5 +169,14 @@ fi </command>
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
+      <script># set up the path to downloaded files
+echo TARBALL_DIR=${HOME}/source
+# clear the &quot;quiet build&quot; flag
+echo QUIET=0</script>
+      <scriptType>unixScript</scriptType>
+      <runOnlyOnParent>false</runOnlyOnParent>
+      <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>
+    </com.lookout.jenkins.EnvironmentScript>
   </buildWrappers>
 </project>

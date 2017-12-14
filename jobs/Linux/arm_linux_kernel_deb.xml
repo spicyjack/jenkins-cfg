@@ -8,11 +8,7 @@ Homepage: &lt;a href=&quot;http://www.kernel.org/&quot;&gt;&#xd;
 http://www.kernel.org&lt;/a&gt;&lt;br&gt;&#xd;
 Downloads: &lt;a href=&quot;http://www.kernel.org&quot;&gt;&#xd;
 http://www.kernel.org&lt;/a&gt;&lt;br&gt;&#xd;
-loop-AES kernel module, compiled for the VIA C7 processor family&lt;br&gt;&#xd;
-Homepage: &lt;a href=&quot;http://loop-aes.sourceforge.net/&quot;&gt;&#xd;
-http://loop-aes.sourceforge.net/&lt;/a&gt;&lt;br&gt;&#xd;
-Downloads: &lt;a href=&quot;http://loop-aes.sourceforge.net/loop-AES/&quot;&gt;&#xd;
-http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
+</description>
   <keepDependencies>false</keepDependencies>
   <properties>
     <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
@@ -25,6 +21,19 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
       </strategy>
     </jenkins.model.BuildDiscarderProperty>
     <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>4.9.59:1.20171029-1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
   </properties>
   <scm class="hudson.scm.NullSCM"/>
   <canRoam>true</canRoam>
@@ -37,66 +46,38 @@ http://loop-aes.sourceforge.net/loop-AES/&lt;/a&gt;</description>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
 
+if [ ! -d $HOME/src/jenkins/config.git ]; then
+  echo &quot;ERROR: missing &apos;jenkins/config.git&apos; repo&quot;
+  exit 1
+fi
+
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;UPDATING &apos;config.git&apos; REPO&quot;
+job_step_header &quot;Updating &apos;config.git&apos; and &apos;lack/projects.git&apos; repos&quot;
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
   --path $HOME/src/jenkins/config.git
   
 /bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
-  --path $HOME/src/hostcfgs.git
-</command>
-    </hudson.tasks.Shell>
-    <hudson.plugins.copyartifact.CopyArtifact plugin="copyartifact@1.39">
-      <project>loop-aes_build_launcher</project>
-      <filter>loop-aes.artifact.tar.xz</filter>
-      <target></target>
-      <excludes></excludes>
-      <selector class="hudson.plugins.copyartifact.StatusBuildSelector"/>
-      <doNotFingerprintArtifacts>false</doNotFingerprintArtifacts>
-    </hudson.plugins.copyartifact.CopyArtifact>
-    <hudson.tasks.Shell>
-      <command>#!/bin/bash
-### UNPACK LOOP-AES SOURCE &amp; SET UP
-
-. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;UNPACKING LOOP-AES ARTIFACT&quot;
-
-# capture the output, count how many files were unpacked
-TAR_LINECOUNT=$(tar -Jxvf ${WORKSPACE}/loop-aes.artifact.tar.xz \
-  | tee ${WORKSPACE}/loop-aes.artifact.tar.xz.log \
-  | wc -l)
-  
-TAR_MSG=&quot;loop-AES artifact file &apos;loop-aes.artifact.tar.xz&apos;&quot;
-TAR_MSG=&quot;${TAR_MSG} contained ${TAR_LINECOUNT} files&quot;
-echo $TAR_MSG
-
-set_loop_aes_dir
-set_loop_aes_version
-job_step_header &quot;UNPACKED LOOP-AES VERSION ${LOOP_AES_VERSION}&quot;
-info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
-info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
-
-cd ${WORKSPACE}/${LOOP_AES_DIR}
-make clean
+  --path $HOME/src/lack/projects.git
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
       <command>#!/bin/bash
-### DOWNLOAD KERNEL SOURCE, IF NEEDED
+### DOWNLOAD RPI KERNEL SOURCE, IF NEEDED
 
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-set_loop_aes_dir
-set_loop_aes_version
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-job_step_header &quot;DOWNLOADING KERNEL SOURCE - ${LINUX_KERNEL_VERSION}&quot;
-info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
-info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
+
+RPI_KERNEL_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $1;}&apos;)
+RPI_RELEASE_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $2;}&apos;)
+
+
+job_step_header &quot;Downloading Raspberry Pi kernel source - ${RPI_KERNEL_VER}&quot;
+info &quot;Release version: ${RPI_RELEASE_VER}&quot;
 
 /bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
-  --file linux-${LINUX_KERNEL_VERSION}.tar.xz \
-  --url https://www.kernel.org/pub/linux/kernel/v4.x \
-  --log $WORKSPACE/wget.linux-${LINUX_KERNEL_VERSION}.log \
+  --file raspberrypi-kernel_${RPI_RELEASE_VER}.tar.gz \
+  --url https://github.com/raspberrypi/linux/archive \
+  --log $WORKSPACE/wget.raspberrypi-kernel-${RPI_RELEASE_VER}.log \
   --outdir $TARBALL_DIR</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -104,32 +85,37 @@ info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
 ### UNPACK KERNEL SOURCE &amp; SET UP
 
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-set_loop_aes_dir
-set_loop_aes_version
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-job_step_header &quot;UNPACK AND SET UP KERNEL SOURCE - ${LINUX_KERNEL_VERSION}&quot;
-info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
-info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
+
+RPI_KERNEL_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $1;}&apos;)
+RPI_RELEASE_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $2;}&apos;)
+
+job_step_header &quot;Unpack and set up kernel source - ${RPI_KERNEL_VER}&quot;
 
 # capture the output, count how many files were unpacked
-TAR_LINECOUNT=$(tar -Jxvf ${TARBALL_DIR}/linux-${LINUX_KERNEL_VERSION}.tar.xz \
-  | tee ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}.tar.xz.log \
+RPI_KERNEL_BASE=&quot;raspberrypi-kernel_${RPI_RELEASE_VER}&quot;
+RPI_KERNEL_TARBALL=&quot;${RPI_KERNEL_BASE}.tar.gz&quot;
+
+info &quot;Unpack log: ${RPI_KERNEL_TARBALL}.unpack.log&quot;
+
+TAR_LINECOUNT=$(tar -zxvf ${TARBALL_DIR}/${RPI_KERNEL_TARBALL} \
+  | tee ${WORKSPACE}/${RPI_KERNEL_TARBALL}.unpack.log \
   | wc -l)
 
-TAR_MSG=&quot;Linux kernel version ${LINUX_KERNEL_VERSION}&quot;
+TAR_MSG=&quot;Raspberry Pi Linux kernel version ${RPI_RELEASE_VER}&quot;
 TAR_MSG=&quot;${TAR_MSG} contained ${TAR_LINECOUNT} files&quot;
 echo $TAR_MSG
 
-cd ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}
+cd ${WORKSPACE}/linux-${RPI_KERNEL_BASE}
+
 make distclean
 
-LINUX_KERNEL_CONFIG=&quot;${HOME}/src/hostcfgs.git/combi/kernel_configs&quot;
-LINUX_KERNEL_CONFIG=&quot;${LINUX_KERNEL_CONFIG}/config-${LINUX_KERNEL_VERSION}-viac7&quot;
+LINUX_KERNEL_CONFIG=&quot;${HOME}/src/lack/projects.git/armlack/kernel_configs&quot;
+LINUX_KERNEL_CONFIG=&quot;${LINUX_KERNEL_CONFIG}/config-${RPI_KERNEL_VER}&quot;
 
 # check for the kernel config file
 if [ ! -f $LINUX_KERNEL_CONFIG ]; then
   job_step_header &quot;ERROR: MISSING KERNEL CONFIG FILE&quot;
-  job_step_header &quot;ERROR: ${LINUX_KERNEL_CONFIG}&quot;
+  info &quot;Missing: ${LINUX_KERNEL_CONFIG}&quot;
   exit 1
 fi
 
@@ -141,12 +127,12 @@ cp $LINUX_KERNEL_CONFIG .config
       <command>#!/bin/bash
 ### CREATE OUTPUT DIRECTORY
 
-. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;CREATING OUTPUT DIRECTORIES&quot;
+#. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+#job_step_header &quot;Creating output directories&quot;
 
-mkdir -p ${WORKSPACE}/output/boot
+#mkdir -p ${WORKSPACE}/output/boot
 
-echo &quot;Created directories in ${WORKSPACE}/output&quot;
+#echo &quot;Created directories in ${WORKSPACE}/output&quot;
 </command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
@@ -154,96 +140,57 @@ echo &quot;Created directories in ${WORKSPACE}/output&quot;
 ### BUILD LINUX KERNEL
 
 . $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-set_loop_aes_dir
-set_loop_aes_version
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
 
-job_step_header &quot;BUILDING LINUX KERNEL - ${LINUX_KERNEL_VERSION}&quot;
-info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
-info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
+RPI_KERNEL_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $1;}&apos;)
+RPI_RELEASE_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $2;}&apos;)
+RPI_KERNEL_BASE=&quot;raspberrypi-kernel_${RPI_RELEASE_VER}&quot;
 
-cd ${WORKSPACE}/linux-${LINUX_KERNEL_VERSION}
-time make -j4 CC=${BUILD_CC} \
-  INSTALL_PATH=${WORKSPACE}/output/boot \
-  INSTALL_MOD_PATH=${WORKSPACE}/output
-  
-time make -j4 CC=${BUILD_CC} \
-  INSTALL_PATH=${WORKSPACE}/output/boot \
-  INSTALL_MOD_PATH=${WORKSPACE}/output install
+# source crosstool-ng-env to pick up toolchain paths
+if [ -f ${HOME}/.bashrc.d/crosstool-ng-env ]; then
+  . ${HOME}/.bashrc.d/crosstool-ng-env
+else
+  echo &quot;ERROR: missing &apos;crosstool-ng&apos; environment script&quot;
+  echo &quot;Checked: ${HOME}/.bashrc.d/crosstool-ng-env&quot;
+  exit 1
+fi
 
-job_step_header &quot;RUNNING &apos;make modules&apos;&quot;
+job_step_header &quot;Building Linux kernel version ${RPI_KERNEL_VER}&quot;
+info &quot;Raspberry Pi kernel release: ${RPI_RELEASE_VER}&quot;
 
-time make -j4 CC=${BUILD_CC} \
-  INSTALL_PATH=${WORKSPACE}/output/boot \
-  INSTALL_MOD_PATH=${WORKSPACE}/output modules
-  
-time make -j4 CC=${BUILD_CC} \
-  INSTALL_PATH=${WORKSPACE}/output/boot \
-  INSTALL_MOD_PATH=${WORKSPACE}/output modules_install</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#!/bin/bash
-### BUILD LOOP-AES
-
-. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-set_loop_aes_dir
-set_loop_aes_version
-LINUX_KERNEL_VERSION=$(cat ${LOOP_AES_DIR}/linux-kernel.version)
-
-job_step_header &quot;BUILDING LOOP-AES KERNEL MODULE - ${LOOP_AES_VERSION}&quot;
-info &quot;loop-AES directory: ${LOOP_AES_DIR}&quot;
-info &quot;loop-AES version: ${LOOP_AES_VERSION}&quot;
-
-cd ${WORKSPACE}/${LOOP_AES_DIR}
-
-time make -j4 CC=${BUILD_CC} \
-  INSTALL_MOD_PATH=${WORKSPACE}/output \
-  LINUX_SOURCE=${WORKSPACE}/linux-${LINUX_KERNEL_VERSION} \
-  KEYSCRUB=y PADLOCK=y INTELAES=y EXTRA_CIPHERS=y</command>
-    </hudson.tasks.Shell>
-    <hudson.tasks.Shell>
-      <command>#!/bin/bash
-### ARCHIVE THE BUILD OUTPUT
-
-. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
-job_step_header &quot;CREATING BUILD ARTIFACT&quot;
-
-cd ${WORKSPACE}/output
-
-# capture the output, count how many files were archived
-TAR_LINECOUNT=$(tar -cJvf ${WORKSPACE}/linux_loop-aes_artifact.tar.xz . \
-  | tee ${WORKSPACE}/linux_loop-aes_artifact.tar.xz.log \
-  | wc -l)
-
-TAR_MSG=&quot;Artifact file &apos;linux_loop-aes_artifact.tar.xz&apos;&quot;
-TAR_MSG=&quot;${TAR_MSG} contains ${TAR_LINECOUNT} files&quot;
-echo $TAR_MSG</command>
+cd ${WORKSPACE}/linux-${RPI_KERNEL_BASE}
+time make ARCH=arm -j4 bindeb-pkg</command>
     </hudson.tasks.Shell>
   </builders>
   <publishers>
     <hudson.tasks.ArtifactArchiver>
-      <artifacts>linux_loop-aes_artifact.tar.xz</artifacts>
+      <artifacts>linux-firmware-image-*,linux-headers-*,linux-libc-dev_*,linux-image-*</artifacts>
       <allowEmptyArchive>false</allowEmptyArchive>
       <onlyIfSuccessful>false</onlyIfSuccessful>
       <fingerprint>false</fingerprint>
       <defaultExcludes>true</defaultExcludes>
       <caseSensitive>true</caseSensitive>
     </hudson.tasks.ArtifactArchiver>
+    <hudson.plugins.ws__cleanup.WsCleanup plugin="ws-cleanup@0.34">
+      <patterns class="empty-list"/>
+      <deleteDirs>false</deleteDirs>
+      <skipWhenFailed>false</skipWhenFailed>
+      <cleanWhenSuccess>true</cleanWhenSuccess>
+      <cleanWhenUnstable>true</cleanWhenUnstable>
+      <cleanWhenFailure>false</cleanWhenFailure>
+      <cleanWhenNotBuilt>false</cleanWhenNotBuilt>
+      <cleanWhenAborted>false</cleanWhenAborted>
+      <notFailBuild>true</notFailBuild>
+      <cleanupMatrixParent>false</cleanupMatrixParent>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.WsCleanup>
   </publishers>
   <buildWrappers>
-    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
-      <deleteDirs>false</deleteDirs>
-      <cleanupParameter></cleanupParameter>
-      <externalDelete></externalDelete>
-    </hudson.plugins.ws__cleanup.PreBuildCleanup>
     <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
       <colorMapName>xterm</colorMapName>
     </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
     <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
       <script># set up the path to downloaded files
 echo TARBALL_DIR=${HOME}/source
-# set up path to an installed copy of GCC on `lagrange`
-echo BUILD_CC=gcc-4.9
 # clear the &quot;quiet build&quot; flag
 echo QUIET=0</script>
       <scriptType>unixScript</scriptType>

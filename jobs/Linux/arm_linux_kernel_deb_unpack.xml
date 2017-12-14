@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Linux kernel package for Raspberry Pi ARM SBC&lt;br&gt;&#xd;
+&#xd;
+Linux kernel&lt;br&gt;&#xd;
+Homepage: &lt;a href=&quot;http://www.kernel.org/&quot;&gt;&#xd;
+http://www.kernel.org&lt;/a&gt;&lt;br&gt;&#xd;
+Downloads: &lt;a href=&quot;http://www.kernel.org&quot;&gt;&#xd;
+http://www.kernel.org&lt;/a&gt;&#xd;
+&lt;br&gt;&#xd;
+</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.googlecode.GoogleCodeProjectProperty plugin="googlecode@1.7"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>-1</daysToKeep>
+        <numToKeep>2</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>PKG_VERSION</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>4.9.59:1.20171029-1</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+
+if [ ! -d $HOME/src/jenkins/config.git ]; then
+  echo &quot;ERROR: missing &apos;jenkins/config.git&apos; repo&quot;
+  exit 1
+fi
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+job_step_header &quot;Updating &apos;config.git&apos; and &apos;lack/projects.git&apos; repos&quot;
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/jenkins/config.git
+  
+/bin/bash $HOME/src/jenkins/config.git/scripts/update_git.sh \
+  --path $HOME/src/lack/projects.git
+</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### DOWNLOAD RPI KERNEL SOURCE, IF NEEDED
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+
+RPI_KERNEL_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $1;}&apos;)
+RPI_RELEASE_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $2;}&apos;)
+
+
+job_step_header &quot;Downloading Raspberry Pi kernel source - ${RPI_KERNEL_VER}&quot;
+info &quot;Release version: ${RPI_RELEASE_VER}&quot;
+
+/bin/bash $HOME/src/jenkins/config.git/scripts/download_tarball.sh \
+  --file raspberrypi-kernel_${RPI_RELEASE_VER}.tar.gz \
+  --url https://github.com/raspberrypi/linux/archive \
+  --log $WORKSPACE/wget.raspberrypi-kernel-${RPI_RELEASE_VER}.log \
+  --outdir $TARBALL_DIR</command>
+    </hudson.tasks.Shell>
+    <hudson.tasks.Shell>
+      <command>#!/bin/bash
+### UNPACK KERNEL SOURCE &amp; SET UP
+
+. $HOME/src/jenkins/config.git/scripts/common_jenkins_functions.sh
+
+RPI_KERNEL_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $1;}&apos;)
+RPI_RELEASE_VER=$(echo $PKG_VERSION | awk -F&apos;:&apos; &apos;{print $2;}&apos;)
+
+job_step_header &quot;Unpack and set up kernel source - ${RPI_KERNEL_VER}&quot;
+
+# capture the output, count how many files were unpacked
+RPI_KERNEL_BASE=&quot;raspberrypi-kernel_${RPI_RELEASE_VER}&quot;
+RPI_KERNEL_TARBALL=&quot;${RPI_KERNEL_BASE}.tar.gz&quot;
+
+info &quot;Unpack log: ${RPI_KERNEL_TARBALL}.unpack.log&quot;
+
+TAR_LINECOUNT=$(tar -zxvf ${TARBALL_DIR}/${RPI_KERNEL_TARBALL} \
+  | tee ${WORKSPACE}/${RPI_KERNEL_TARBALL}.unpack.log \
+  | wc -l)
+
+TAR_MSG=&quot;Raspberry Pi Linux kernel version ${RPI_RELEASE_VER}&quot;
+TAR_MSG=&quot;${TAR_MSG} contained ${TAR_LINECOUNT} files&quot;
+echo $TAR_MSG
+
+cd ${WORKSPACE}/linux-${RPI_KERNEL_BASE}
+
+make distclean
+
+LINUX_KERNEL_CONFIG=&quot;${HOME}/src/lack/projects.git/armlack/kernel_configs&quot;
+LINUX_KERNEL_CONFIG=&quot;${LINUX_KERNEL_CONFIG}/config-${RPI_KERNEL_VER}&quot;
+
+# check for the kernel config file
+if [ ! -f $LINUX_KERNEL_CONFIG ]; then
+  job_step_header &quot;ERROR: MISSING KERNEL CONFIG FILE&quot;
+  info &quot;Missing: ${LINUX_KERNEL_CONFIG}&quot;
+  exit 1
+fi
+
+# file should be there, copy it into the source tree
+cp $LINUX_KERNEL_CONFIG .config
+</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers/>
+  <buildWrappers>
+    <hudson.plugins.ws__cleanup.PreBuildCleanup plugin="ws-cleanup@0.34">
+      <deleteDirs>false</deleteDirs>
+      <cleanupParameter></cleanupParameter>
+      <externalDelete></externalDelete>
+    </hudson.plugins.ws__cleanup.PreBuildCleanup>
+    <hudson.plugins.ansicolor.AnsiColorBuildWrapper plugin="ansicolor@0.5.2">
+      <colorMapName>xterm</colorMapName>
+    </hudson.plugins.ansicolor.AnsiColorBuildWrapper>
+    <com.lookout.jenkins.EnvironmentScript plugin="environment-script@1.2.5">
+      <script># set up the path to downloaded files
+echo TARBALL_DIR=${HOME}/source
+# clear the &quot;quiet build&quot; flag
+echo QUIET=0</script>
+      <scriptType>unixScript</scriptType>
+      <runOnlyOnParent>false</runOnlyOnParent>
+      <hideEnvironmentVariablesValues>false</hideEnvironmentVariablesValues>
+    </com.lookout.jenkins.EnvironmentScript>
+  </buildWrappers>
+</project>

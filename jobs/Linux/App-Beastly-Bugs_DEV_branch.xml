@@ -43,12 +43,16 @@
   <concurrentBuild>false</concurrentBuild>
   <builders>
     <hudson.tasks.Shell>
-      <command># preflight
+      <command>#!/bin/bash
+
+# preflight
 source ~/.bashrc.d/plenv
 perl script/beastly_bugs routes</command>
     </hudson.tasks.Shell>
     <hudson.tasks.Shell>
-      <command># run all of the tests in App-Beastly-Bugs.git
+      <command>#!/bin/bash
+
+# run all of the tests in App-Beastly-Bugs.git
 source ~/.bashrc.d/plenv
 prove -lr t</command>
     </hudson.tasks.Shell>
